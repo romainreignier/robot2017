@@ -1,0 +1,9 @@
+[submodule "firmware/common/ChibiOS"]
+	path = firmware/common/ChibiOS
+	url = https://github.com/ChibiOS/ChibiOS.git
+[submodule "firmware/common/ChibiOS-Contrib"]
+	path = firmware/common/ChibiOS-Contrib
+	url = https://github.com/ChibiOS/ChibiOS-Contrib.git
+[submodule "firmware/common/nanopb"]
+	path = firmware/common/nanopb
+	url = https://github.com/nanopb/nanopb.git
