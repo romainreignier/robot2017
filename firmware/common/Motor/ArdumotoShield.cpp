@@ -12,7 +12,7 @@
 
 ArdumotoShield::ArdumotoShield(PWMDriver* _driver, uint32_t _channel,
                                bool _isComplementaryChannel,
-                               stm32_gpio_t* _dirGpio, uint32_t _dirPin)
+                               stm32_gpio_t* _dirGpio, const uint32_t _dirPin)
     : Motor(_driver, _channel, _isComplementaryChannel), m_dirGpio(_dirGpio),
       m_dirPin(_dirPin)
 {
