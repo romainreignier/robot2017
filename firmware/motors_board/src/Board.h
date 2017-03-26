@@ -28,6 +28,7 @@ struct Board
   Communication comm;
   Input starter;
   Input colorSwitch;
+  Input eStop;
 };
 
 extern Board gBoard;

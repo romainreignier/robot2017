@@ -45,14 +45,20 @@ message Ir
     required bool right = 3;
 }
 
+enum eTeamColor
+{
+    BLUE = 0;
+    YELLOW = 1;
+}
+
 message Status
 {
-    required Pose     pose     = 1;
-    required Speed    speed    = 2;
-    required bool     starter  = 3;
-    required bool     estop    = 4;
-    required Ir       ir       = 5;
-    required Encoders encoders = 6;
+    required Speed      speed        = 2;
+    required bool       starter      = 3;
+    required bool       estop        = 4;
+    required eTeamColor colorSwitch  = 5;
+    required Ir         ir           = 6;
+    required Encoders   encoders     = 7;
 }
 
 message Log
