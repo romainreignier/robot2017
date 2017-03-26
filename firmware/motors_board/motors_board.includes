@@ -34,3 +34,4 @@
 ../common/Motor
 ../common/Qei
 ../common/SerialComm
+../common/Gpio

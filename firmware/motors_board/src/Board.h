@@ -4,6 +4,7 @@
 #include "MonsterShield.h"
 #include "Qei.h"
 #include "SerialComm.h"
+#include "Input.h"
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD3
@@ -25,6 +26,8 @@ struct Board
   Qei qei;
   SerialComm serial;
   Communication comm;
+  Input starter;
+  Input colorSwitch;
 };
 
 extern Board gBoard;

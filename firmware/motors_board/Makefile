@@ -107,6 +107,7 @@ include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/SerialComm/SerialComm.mk
 include $(COMMON)/vl53l0x/vl53l0x.mk
 include $(COMMON)/nanopb/extra/nanopb.mk
+include $(COMMON)/Gpio/Gpio.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32L476xG.ld
@@ -127,8 +128,9 @@ CSRC = $(STARTUPSRC) \
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
-         $(MOTORSRC) $(QEISRC) $(SERIALCOMMSRC) src/Board.cpp \
+         $(MOTORSRC) $(QEISRC) $(SERIALCOMMSRC) $(GPIOSRC) \
          src/Communication.cpp \
+         src/Board.cpp \
          src/main.cpp 
 
 # C sources to be compiled in ARM mode regardless of the global setting.
@@ -161,7 +163,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(NANOPB_DIR) $(MOTORINC) $(QEIINC) \
-         $(SERIALCOMMINC) \
+         $(SERIALCOMMINC) $(GPIOINC) \
          src
 
 #

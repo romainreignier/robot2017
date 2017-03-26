@@ -20,3 +20,5 @@ mcuconf_community.h
 ../common/Qei/Qei.cpp
 ../common/SerialComm/SerialComm.h
 ../common/SerialComm/SerialComm.cpp
+../common/Gpio/Input.h
+../common/Gpio/Input.cpp
