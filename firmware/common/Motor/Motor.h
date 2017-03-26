@@ -17,9 +17,9 @@ class Motor
     FORWARD,
     BACKWARD
   };
-  static constexpr uint16_t maxPwm = 10000;
+  static constexpr uint16_t maxPwm{10000};
   // TODO: change direction security, not too often
-  Motor(PWMDriver* _driver, uint32_t _channel, bool _isComplementaryChannel);
+  Motor(PWMDriver* _driver, const uint8_t _channel, bool _isComplementaryChannel = false);
   void begin();
   void stop();
   void pwm(int16_t _percentage);
@@ -28,6 +28,6 @@ class Motor
 
   protected:
   PWMDriver* m_driver;
-  uint32_t m_channel;
+  uint8_t m_channel;
   PWMConfig m_pwmCfg;
 };

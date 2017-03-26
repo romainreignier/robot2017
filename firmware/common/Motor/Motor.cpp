@@ -10,9 +10,9 @@
 
 #include "chprintf.h"
 
-Motor::Motor(PWMDriver* _driver, uint32_t _channel,
+Motor::Motor(PWMDriver* _driver, const uint8_t _channel,
              bool _isComplementaryChannel)
-    : m_driver(_driver), m_channel(_channel - 1),
+    : m_driver{_driver}, m_channel(_channel - 1),
       m_pwmCfg{1000000, // Timer at 1 MHz
                1000,    // Period at 1000 so 1 kHz PWM
                NULL,    // pwm callback

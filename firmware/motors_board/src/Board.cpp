@@ -4,9 +4,9 @@ BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 BaseSequentialStream* ser = (BaseSequentialStream*)&SERIAL_DRIVER;
 
 Board::Board()
-    : leftMotor(&PWMD3, 1, false, GPIOA, 8, GPIOA, 9),
-      rightMotor(&PWMD2, 3, false, GPIOB, 5, GPIOC, 7),
-      qei(&QEID1, false, &QEID8, true), serial(&SERIAL_DRIVER),
+    : leftMotor{&PWMD3, 1, false, GPIOA, 8, GPIOA, 9},
+      rightMotor{&PWMD2, 3, false, GPIOB, 5, GPIOC, 7},
+      qei{&QEID1, false, &QEID8, true}, serial{&SERIAL_DRIVER},
       starter{GPIOB, 12}, colorSwitch{GPIOA, 12}
 {
 }

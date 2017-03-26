@@ -13,7 +13,7 @@
 class ArdumotoShield : public Motor
 {
   public:
-  ArdumotoShield(PWMDriver* _driver, uint32_t _channel,
+  ArdumotoShield(PWMDriver* _driver, uint8_t _channel,
                  bool _isComplementaryChannel, stm32_gpio_t* _dirGpio,
                  const uint32_t _dirPin);
   virtual void changeDirection(eDirection _direction) override;

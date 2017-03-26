@@ -32,9 +32,9 @@ bool Communication::handleSerialRequest(const snd_msgs_SerialRequest& _req)
              _req.type.setMotorsSpeed.left,
              _req.type.setMotorsSpeed.right);
     const int16_t leftPercent = static_cast<int16_t>(
-      _req.type.setMotorsSpeed.left * 0.75 * gBoard.leftMotor.maxPwm / 1.47f);
+      _req.type.setMotorsSpeed.left * 0.75f * gBoard.leftMotor.maxPwm / 1.47f);
     const int16_t rightPercent = static_cast<int16_t>(
-      _req.type.setMotorsSpeed.right * 0.75 * gBoard.rightMotor.maxPwm / 1.47f);
+      _req.type.setMotorsSpeed.right * 0.75f * gBoard.rightMotor.maxPwm / 1.47f);
     gBoard.leftMotor.pwm(leftPercent);
     gBoard.rightMotor.pwm(rightPercent);
     break;
