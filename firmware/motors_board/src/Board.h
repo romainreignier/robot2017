@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ArdumotoShield.h"
+#include "MonsterShield.h"
 #include "Qei.h"
 #include "SerialComm.h"
 
@@ -19,8 +19,8 @@ struct Board
   Board();
   void begin();
 
-  ArdumotoShield leftMotor;
-  ArdumotoShield rightMotor;
+  MonsterShield leftMotor;
+  MonsterShield rightMotor;
   Qei qei;
   SerialComm serial;
 };

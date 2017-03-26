@@ -14,7 +14,6 @@
 #include "Board.h"
 
 // Green LED blinker thread
-/*
 static THD_WORKING_AREA(waThreadBlinker, 256);
 static THD_FUNCTION(ThreadBlinker, arg)
 {
@@ -32,7 +31,6 @@ static THD_FUNCTION(ThreadBlinker, arg)
     chThdSleepMilliseconds(1000);
   }
 }
-*/
 
 int main(void)
 {
@@ -44,11 +42,11 @@ int main(void)
   chprintf(dbg, "Supmeca Never Dies!!!!\n");
 
   // Creates the blinker thread.
-  // chThdCreateStatic(waThreadBlinker,
-  //                   sizeof(waThreadBlinker),
-  //                   NORMALPRIO,
-  //                   ThreadBlinker,
-  //                   NULL);
+  chThdCreateStatic(waThreadBlinker,
+                    sizeof(waThreadBlinker),
+                    NORMALPRIO,
+                    ThreadBlinker,
+                    NULL);
 
   while(true)
   {
