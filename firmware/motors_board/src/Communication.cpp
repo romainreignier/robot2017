@@ -11,8 +11,10 @@ bool Communication::handleSerialRequest(const snd_msgs_SerialRequest& _req)
   switch(_req.which_type)
   {
   case snd_msgs_SerialRequest_setMotorsSpeed_tag: setMotorsSpeed(_req); break;
-  case snd_msgs_SerialRequest_setPidSpeedLeft_tag: break;
-  case snd_msgs_SerialRequest_setPidSpeedRight_tag: break;
+  case snd_msgs_SerialRequest_setPidSpeedLeft_tag: setPidSpeedLeft(_req); break;
+  case snd_msgs_SerialRequest_setPidSpeedRight_tag:
+    setPidSpeedRight(_req);
+    break;
   case snd_msgs_SerialRequest_getStatus_tag: getStatus(_req); break;
   default: chprintf(dbg, "message type not handled\n"); return false;
   }
@@ -28,8 +30,9 @@ void Communication::getStatus(const snd_msgs_SerialRequest& _req)
   resp.type.status.speed.right = 16.32f;
   resp.type.status.starter = gBoard.starter.read();
   resp.type.status.estop = gBoard.starter.read();
-  resp.type.status.colorSwitch =
-    gBoard.colorSwitch.read() ? snd_msgs_eTeamColor_BLUE : snd_msgs_eTeamColor_YELLOW;
+  resp.type.status.colorSwitch = gBoard.colorSwitch.read()
+                                   ? snd_msgs_eTeamColor_BLUE
+                                   : snd_msgs_eTeamColor_YELLOW;
   resp.type.status.ir.left = false;
   resp.type.status.ir.center = true;
   resp.type.status.ir.right = true;

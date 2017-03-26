@@ -13,12 +13,14 @@
 using namespace std;
 
 SerialComm::SerialComm()
-    : m_nh("~"), m_motorWheelSeparation(0.188), m_motorWheelRadius(0.35),
-      m_encoderWheelSeparation(0.104), m_encoderWheelRadius(0.25),
-      m_updateRate(10)
+    : m_nh{"~"}, m_motorWheelSeparation{0.188}, m_motorWheelRadius{0.35},
+      m_encoderWheelSeparation{0.104}, m_encoderWheelRadius{0.25},
+      m_updateRate{10}
 {
+  // Check Protobuf version
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  // Handle the global parameters
   if(!ros::param::get("motor_wheel_separation", m_motorWheelSeparation))
   {
     ROS_WARN_STREAM("No 'motor_wheel_separation' param found. Default: "
@@ -39,12 +41,14 @@ SerialComm::SerialComm()
     ROS_WARN_STREAM("No 'encoder_wheel_radius' param found. Default: "
                     << m_encoderWheelRadius);
   }
+
+  // Handle the private parameters
   if(!m_nh.getParam("update_rate", m_updateRate))
   {
     ROS_WARN_STREAM("No 'update_rate' param found. Default: "
                     << m_updateRate << " Hz");
   }
-  string port("/dev/ttyUSB0");
+  string port("/dev/ttyACM0");
   if(!m_nh.getParam("port", port))
   {
     ROS_WARN_STREAM("No 'port' param found. Default: " << port);
@@ -67,10 +71,17 @@ SerialComm::SerialComm()
     ROS_FATAL_STREAM("Could not open serial port " << port);
     m_nh.shutdown();
   }
+
+  // Create the publishers
   m_encodersPub = m_nh.advertise<snd_serial::Encoders>("encoders", 1);
   m_starterPub = m_nh.advertise<std_msgs::Bool>("starter", 1);
 
+  // Create the subscribers
   m_cmdVelSub = m_nh.subscribe("/cmd_vel", 1, &SerialComm::cmdVelCb, this);
+
+  // Create the Dynamic Reconfigure server
+  m_dynParamServer.setCallback(
+    boost::bind(&SerialComm::dynParamCb, this, _1, _2));
 }
 
 SerialComm::~SerialComm()
@@ -263,3 +274,40 @@ void SerialComm::readStatus()
   sendMsg(req);
   readIncomingMsg();
 }
+
+void SerialComm::dynParamCb(snd_serial::pidConfig& _config, uint32_t _level)
+{
+  ROS_INFO_STREAM("Level: " << _level);
+  // Left PID values modified
+  if(_level & 0x1)
+  {
+    ROS_INFO_STREAM("Changing Left Speed Pid to P: " << _config.left_speed_p
+                                                     << " I: "
+                                                     << _config.left_speed_i
+                                                     << " D: "
+                                                     << _config.left_speed_d);
+    snd_msgs::SerialRequest req;
+    snd_msgs::PidTunings* pid = req.mutable_setpidspeedleft();
+    pid->set_p(_config.left_speed_p);
+    pid->set_i(_config.left_speed_i);
+    pid->set_d(_config.left_speed_d);
+    sendMsg(req);
+  }
+  // Right PID values modified
+  if(_level & 0x2)
+  {
+    ROS_INFO_STREAM("Changing Reft Speed Pid to P: " << _config.right_speed_p
+                                                     << " I: "
+                                                     << _config.right_speed_i
+                                                     << " D: "
+                                                     << _config.right_speed_d);
+    snd_msgs::SerialRequest req;
+    snd_msgs::PidTunings* pid = req.mutable_setpidspeedright();
+    pid->set_p(_config.right_speed_p);
+    pid->set_i(_config.right_speed_i);
+    pid->set_d(_config.right_speed_d);
+    sendMsg(req);
+  }
+}
+
+// vim: sw=2 ts=2 et
