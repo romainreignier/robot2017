@@ -101,6 +101,25 @@ inline bool Log_eLogLevel_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<Log_eLogLevel>(
     Log_eLogLevel_descriptor(), name, value);
 }
+enum eTeamColor {
+  BLUE = 0,
+  YELLOW = 1
+};
+bool eTeamColor_IsValid(int value);
+const eTeamColor eTeamColor_MIN = BLUE;
+const eTeamColor eTeamColor_MAX = YELLOW;
+const int eTeamColor_ARRAYSIZE = eTeamColor_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* eTeamColor_descriptor();
+inline const ::std::string& eTeamColor_Name(eTeamColor value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    eTeamColor_descriptor(), value);
+}
+inline bool eTeamColor_Parse(
+    const ::std::string& name, eTeamColor* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<eTeamColor>(
+    eTeamColor_descriptor(), name, value);
+}
 // ===================================================================
 
 class EmptyMsg : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:snd_msgs.EmptyMsg) */ {
@@ -941,15 +960,6 @@ class Status : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
 
   // accessors -------------------------------------------------------
 
-  // required .snd_msgs.Pose pose = 1;
-  bool has_pose() const;
-  void clear_pose();
-  static const int kPoseFieldNumber = 1;
-  const ::snd_msgs::Pose& pose() const;
-  ::snd_msgs::Pose* mutable_pose();
-  ::snd_msgs::Pose* release_pose();
-  void set_allocated_pose(::snd_msgs::Pose* pose);
-
   // required .snd_msgs.Speed speed = 2;
   bool has_speed() const;
   void clear_speed();
@@ -959,19 +969,19 @@ class Status : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::snd_msgs::Speed* release_speed();
   void set_allocated_speed(::snd_msgs::Speed* speed);
 
-  // required .snd_msgs.Ir ir = 5;
+  // required .snd_msgs.Ir ir = 6;
   bool has_ir() const;
   void clear_ir();
-  static const int kIrFieldNumber = 5;
+  static const int kIrFieldNumber = 6;
   const ::snd_msgs::Ir& ir() const;
   ::snd_msgs::Ir* mutable_ir();
   ::snd_msgs::Ir* release_ir();
   void set_allocated_ir(::snd_msgs::Ir* ir);
 
-  // required .snd_msgs.Encoders encoders = 6;
+  // required .snd_msgs.Encoders encoders = 7;
   bool has_encoders() const;
   void clear_encoders();
-  static const int kEncodersFieldNumber = 6;
+  static const int kEncodersFieldNumber = 7;
   const ::snd_msgs::Encoders& encoders() const;
   ::snd_msgs::Encoders* mutable_encoders();
   ::snd_msgs::Encoders* release_encoders();
@@ -991,16 +1001,23 @@ class Status : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   bool estop() const;
   void set_estop(bool value);
 
+  // required .snd_msgs.eTeamColor colorSwitch = 5;
+  bool has_colorswitch() const;
+  void clear_colorswitch();
+  static const int kColorSwitchFieldNumber = 5;
+  ::snd_msgs::eTeamColor colorswitch() const;
+  void set_colorswitch(::snd_msgs::eTeamColor value);
+
   // @@protoc_insertion_point(class_scope:snd_msgs.Status)
  private:
-  void set_has_pose();
-  void clear_has_pose();
   void set_has_speed();
   void clear_has_speed();
   void set_has_starter();
   void clear_has_starter();
   void set_has_estop();
   void clear_has_estop();
+  void set_has_colorswitch();
+  void clear_has_colorswitch();
   void set_has_ir();
   void clear_has_ir();
   void set_has_encoders();
@@ -1012,12 +1029,12 @@ class Status : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable int _cached_size_;
-  ::snd_msgs::Pose* pose_;
   ::snd_msgs::Speed* speed_;
   ::snd_msgs::Ir* ir_;
   ::snd_msgs::Encoders* encoders_;
   bool starter_;
   bool estop_;
+  int colorswitch_;
   friend struct  protobuf_CommMsgs_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -1998,60 +2015,15 @@ inline void Ir::set_right(bool value) {
 
 // Status
 
-// required .snd_msgs.Pose pose = 1;
-inline bool Status::has_pose() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void Status::set_has_pose() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void Status::clear_has_pose() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void Status::clear_pose() {
-  if (pose_ != NULL) pose_->::snd_msgs::Pose::Clear();
-  clear_has_pose();
-}
-inline const ::snd_msgs::Pose& Status::pose() const {
-  // @@protoc_insertion_point(field_get:snd_msgs.Status.pose)
-  return pose_ != NULL ? *pose_
-                         : *::snd_msgs::Pose::internal_default_instance();
-}
-inline ::snd_msgs::Pose* Status::mutable_pose() {
-  set_has_pose();
-  if (pose_ == NULL) {
-    pose_ = new ::snd_msgs::Pose;
-  }
-  // @@protoc_insertion_point(field_mutable:snd_msgs.Status.pose)
-  return pose_;
-}
-inline ::snd_msgs::Pose* Status::release_pose() {
-  // @@protoc_insertion_point(field_release:snd_msgs.Status.pose)
-  clear_has_pose();
-  ::snd_msgs::Pose* temp = pose_;
-  pose_ = NULL;
-  return temp;
-}
-inline void Status::set_allocated_pose(::snd_msgs::Pose* pose) {
-  delete pose_;
-  pose_ = pose;
-  if (pose) {
-    set_has_pose();
-  } else {
-    clear_has_pose();
-  }
-  // @@protoc_insertion_point(field_set_allocated:snd_msgs.Status.pose)
-}
-
 // required .snd_msgs.Speed speed = 2;
 inline bool Status::has_speed() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void Status::set_has_speed() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void Status::clear_has_speed() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void Status::clear_speed() {
   if (speed_ != NULL) speed_->::snd_msgs::Speed::Clear();
@@ -2090,13 +2062,13 @@ inline void Status::set_allocated_speed(::snd_msgs::Speed* speed) {
 
 // required bool starter = 3;
 inline bool Status::has_starter() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void Status::set_has_starter() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void Status::clear_has_starter() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void Status::clear_starter() {
   starter_ = false;
@@ -2114,13 +2086,13 @@ inline void Status::set_starter(bool value) {
 
 // required bool estop = 4;
 inline bool Status::has_estop() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void Status::set_has_estop() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void Status::clear_has_estop() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void Status::clear_estop() {
   estop_ = false;
@@ -2136,15 +2108,40 @@ inline void Status::set_estop(bool value) {
   // @@protoc_insertion_point(field_set:snd_msgs.Status.estop)
 }
 
-// required .snd_msgs.Ir ir = 5;
+// required .snd_msgs.eTeamColor colorSwitch = 5;
+inline bool Status::has_colorswitch() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void Status::set_has_colorswitch() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void Status::clear_has_colorswitch() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void Status::clear_colorswitch() {
+  colorswitch_ = 0;
+  clear_has_colorswitch();
+}
+inline ::snd_msgs::eTeamColor Status::colorswitch() const {
+  // @@protoc_insertion_point(field_get:snd_msgs.Status.colorSwitch)
+  return static_cast< ::snd_msgs::eTeamColor >(colorswitch_);
+}
+inline void Status::set_colorswitch(::snd_msgs::eTeamColor value) {
+  assert(::snd_msgs::eTeamColor_IsValid(value));
+  set_has_colorswitch();
+  colorswitch_ = value;
+  // @@protoc_insertion_point(field_set:snd_msgs.Status.colorSwitch)
+}
+
+// required .snd_msgs.Ir ir = 6;
 inline bool Status::has_ir() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void Status::set_has_ir() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void Status::clear_has_ir() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void Status::clear_ir() {
   if (ir_ != NULL) ir_->::snd_msgs::Ir::Clear();
@@ -2181,15 +2178,15 @@ inline void Status::set_allocated_ir(::snd_msgs::Ir* ir) {
   // @@protoc_insertion_point(field_set_allocated:snd_msgs.Status.ir)
 }
 
-// required .snd_msgs.Encoders encoders = 6;
+// required .snd_msgs.Encoders encoders = 7;
 inline bool Status::has_encoders() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void Status::set_has_encoders() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void Status::clear_has_encoders() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void Status::clear_encoders() {
   if (encoders_ != NULL) encoders_->::snd_msgs::Encoders::Clear();
@@ -3295,6 +3292,11 @@ template <> struct is_proto_enum< ::snd_msgs::Log_eLogLevel> : ::google::protobu
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::snd_msgs::Log_eLogLevel>() {
   return ::snd_msgs::Log_eLogLevel_descriptor();
+}
+template <> struct is_proto_enum< ::snd_msgs::eTeamColor> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::snd_msgs::eTeamColor>() {
+  return ::snd_msgs::eTeamColor_descriptor();
 }
 
 }  // namespace protobuf

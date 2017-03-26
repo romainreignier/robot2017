@@ -68,7 +68,7 @@ namespace protobuf_CommMsgs_2eproto {
 namespace {
 
 ::google::protobuf::Metadata file_level_metadata[11];
-const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[1];
+const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[2];
 
 }  // namespace
 
@@ -135,18 +135,18 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, pose_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, speed_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, starter_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, estop_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, colorswitch_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, ir_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Status, encoders_),
   0,
-  1,
+  3,
   4,
   5,
+  1,
   2,
-  3,
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Log, _has_bits_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Log, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -298,8 +298,6 @@ void TableStruct::InitDefaultsImpl() {
   _Log_default_instance_.DefaultConstruct();
   _SerialRequest_default_instance_.DefaultConstruct();
   _SerialResponse_default_instance_.DefaultConstruct();
-  _Status_default_instance_.get_mutable()->pose_ = const_cast< ::snd_msgs::Pose*>(
-      ::snd_msgs::Pose::internal_default_instance());
   _Status_default_instance_.get_mutable()->speed_ = const_cast< ::snd_msgs::Speed*>(
       ::snd_msgs::Speed::internal_default_instance());
   _Status_default_instance_.get_mutable()->ir_ = const_cast< ::snd_msgs::Ir*>(
@@ -359,39 +357,40 @@ void AddDescriptorsImpl() {
       "s\022\014\n\004left\030\001 \002(\005\022\r\n\005right\030\002 \002(\005\"-\n\nPidTun"
       "ings\022\t\n\001p\030\001 \002(\002\022\t\n\001i\030\002 \002(\002\022\t\n\001d\030\003 \002(\002\"1\n"
       "\002Ir\022\014\n\004left\030\001 \002(\010\022\016\n\006center\030\002 \002(\010\022\r\n\005rig"
-      "ht\030\003 \002(\010\"\246\001\n\006Status\022\034\n\004pose\030\001 \002(\0132\016.snd_"
-      "msgs.Pose\022\036\n\005speed\030\002 \002(\0132\017.snd_msgs.Spee"
-      "d\022\017\n\007starter\030\003 \002(\010\022\r\n\005estop\030\004 \002(\010\022\030\n\002ir\030"
-      "\005 \002(\0132\014.snd_msgs.Ir\022$\n\010encoders\030\006 \002(\0132\022."
-      "snd_msgs.Encoders\"\222\001\n\003Log\022\r\n\005stamp\030\001 \002(\r"
-      "\022,\n\005level\030\002 \002(\0162\027.snd_msgs.Log.eLogLevel"
-      ":\004INFO\022\014\n\004text\030\003 \002(\t\"@\n\teLogLevel\022\t\n\005DEB"
-      "UG\020\000\022\010\n\004INFO\020\001\022\010\n\004WARN\020\002\022\t\n\005ERROR\020\003\022\t\n\005F"
-      "ATAL\020\004\"\213\004\n\rSerialRequest\022\'\n\tgetStatus\030\001 "
-      "\001(\0132\022.snd_msgs.EmptyMsgH\000\022)\n\013getEncoders"
-      "\030\002 \001(\0132\022.snd_msgs.EmptyMsgH\000\022)\n\013getPosit"
-      "ion\030\003 \001(\0132\022.snd_msgs.EmptyMsgH\000\022,\n\016getMo"
-      "torsSpeed\030\004 \001(\0132\022.snd_msgs.EmptyMsgH\000\022-\n"
-      "\017getPidSpeedLeft\030\005 \001(\0132\022.snd_msgs.EmptyM"
-      "sgH\000\022.\n\020getPidSpeedRight\030\006 \001(\0132\022.snd_msg"
-      "s.EmptyMsgH\000\022-\n\017getStarterState\030\007 \001(\0132\022."
-      "snd_msgs.EmptyMsgH\000\022)\n\016setMotorsSpeed\030\n "
-      "\001(\0132\017.snd_msgs.SpeedH\000\022/\n\017setPidSpeedLef"
-      "t\030\013 \001(\0132\024.snd_msgs.PidTuningsH\000\0220\n\020setPi"
-      "dSpeedRight\030\014 \001(\0132\024.snd_msgs.PidTuningsH"
-      "\000\022)\n\013setEncoders\030\r \001(\0132\022.snd_msgs.Encode"
-      "rsH\000B\006\n\004type\"\271\002\n\016SerialResponse\022\034\n\003log\030\001"
-      " \001(\0132\r.snd_msgs.LogH\000\022&\n\010encoders\030\002 \001(\0132"
-      "\022.snd_msgs.EncodersH\000\022\036\n\004pose\030\003 \001(\0132\016.sn"
-      "d_msgs.PoseH\000\022 \n\005speed\030\004 \001(\0132\017.snd_msgs."
-      "SpeedH\000\022,\n\014pidSpeedLeft\030\005 \001(\0132\024.snd_msgs"
-      ".PidTuningsH\000\022-\n\rpidSpeedRight\030\006 \001(\0132\024.s"
-      "nd_msgs.PidTuningsH\000\022\026\n\014isStarterSet\030\007 \001"
-      "(\010H\000\022\"\n\006status\030\010 \001(\0132\020.snd_msgs.StatusH\000"
-      "B\006\n\004type"
+      "ht\030\003 \002(\010\"\263\001\n\006Status\022\036\n\005speed\030\002 \002(\0132\017.snd"
+      "_msgs.Speed\022\017\n\007starter\030\003 \002(\010\022\r\n\005estop\030\004 "
+      "\002(\010\022)\n\013colorSwitch\030\005 \002(\0162\024.snd_msgs.eTea"
+      "mColor\022\030\n\002ir\030\006 \002(\0132\014.snd_msgs.Ir\022$\n\010enco"
+      "ders\030\007 \002(\0132\022.snd_msgs.Encoders\"\222\001\n\003Log\022\r"
+      "\n\005stamp\030\001 \002(\r\022,\n\005level\030\002 \002(\0162\027.snd_msgs."
+      "Log.eLogLevel:\004INFO\022\014\n\004text\030\003 \002(\t\"@\n\teLo"
+      "gLevel\022\t\n\005DEBUG\020\000\022\010\n\004INFO\020\001\022\010\n\004WARN\020\002\022\t\n"
+      "\005ERROR\020\003\022\t\n\005FATAL\020\004\"\213\004\n\rSerialRequest\022\'\n"
+      "\tgetStatus\030\001 \001(\0132\022.snd_msgs.EmptyMsgH\000\022)"
+      "\n\013getEncoders\030\002 \001(\0132\022.snd_msgs.EmptyMsgH"
+      "\000\022)\n\013getPosition\030\003 \001(\0132\022.snd_msgs.EmptyM"
+      "sgH\000\022,\n\016getMotorsSpeed\030\004 \001(\0132\022.snd_msgs."
+      "EmptyMsgH\000\022-\n\017getPidSpeedLeft\030\005 \001(\0132\022.sn"
+      "d_msgs.EmptyMsgH\000\022.\n\020getPidSpeedRight\030\006 "
+      "\001(\0132\022.snd_msgs.EmptyMsgH\000\022-\n\017getStarterS"
+      "tate\030\007 \001(\0132\022.snd_msgs.EmptyMsgH\000\022)\n\016setM"
+      "otorsSpeed\030\n \001(\0132\017.snd_msgs.SpeedH\000\022/\n\017s"
+      "etPidSpeedLeft\030\013 \001(\0132\024.snd_msgs.PidTunin"
+      "gsH\000\0220\n\020setPidSpeedRight\030\014 \001(\0132\024.snd_msg"
+      "s.PidTuningsH\000\022)\n\013setEncoders\030\r \001(\0132\022.sn"
+      "d_msgs.EncodersH\000B\006\n\004type\"\271\002\n\016SerialResp"
+      "onse\022\034\n\003log\030\001 \001(\0132\r.snd_msgs.LogH\000\022&\n\010en"
+      "coders\030\002 \001(\0132\022.snd_msgs.EncodersH\000\022\036\n\004po"
+      "se\030\003 \001(\0132\016.snd_msgs.PoseH\000\022 \n\005speed\030\004 \001("
+      "\0132\017.snd_msgs.SpeedH\000\022,\n\014pidSpeedLeft\030\005 \001"
+      "(\0132\024.snd_msgs.PidTuningsH\000\022-\n\rpidSpeedRi"
+      "ght\030\006 \001(\0132\024.snd_msgs.PidTuningsH\000\022\026\n\014isS"
+      "tarterSet\030\007 \001(\010H\000\022\"\n\006status\030\010 \001(\0132\020.snd_"
+      "msgs.StatusH\000B\006\n\004type*\"\n\neTeamColor\022\010\n\004B"
+      "LUE\020\000\022\n\n\006YELLOW\020\001"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1448);
+      descriptor, 1497);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "CommMsgs.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -437,6 +436,20 @@ const Log_eLogLevel Log::eLogLevel_MIN;
 const Log_eLogLevel Log::eLogLevel_MAX;
 const int Log::eLogLevel_ARRAYSIZE;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+const ::google::protobuf::EnumDescriptor* eTeamColor_descriptor() {
+  protobuf_CommMsgs_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_CommMsgs_2eproto::file_level_enum_descriptors[1];
+}
+bool eTeamColor_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
 
 // ===================================================================
 
@@ -2820,10 +2833,10 @@ void Ir::set_right(bool value) {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Status::kPoseFieldNumber;
 const int Status::kSpeedFieldNumber;
 const int Status::kStarterFieldNumber;
 const int Status::kEstopFieldNumber;
+const int Status::kColorSwitchFieldNumber;
 const int Status::kIrFieldNumber;
 const int Status::kEncodersFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -2842,11 +2855,6 @@ Status::Status(const Status& from)
       _has_bits_(from._has_bits_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_pose()) {
-    pose_ = new ::snd_msgs::Pose(*from.pose_);
-  } else {
-    pose_ = NULL;
-  }
   if (from.has_speed()) {
     speed_ = new ::snd_msgs::Speed(*from.speed_);
   } else {
@@ -2863,15 +2871,15 @@ Status::Status(const Status& from)
     encoders_ = NULL;
   }
   ::memcpy(&starter_, &from.starter_,
-    reinterpret_cast<char*>(&estop_) -
-    reinterpret_cast<char*>(&starter_) + sizeof(estop_));
+    reinterpret_cast<char*>(&colorswitch_) -
+    reinterpret_cast<char*>(&starter_) + sizeof(colorswitch_));
   // @@protoc_insertion_point(copy_constructor:snd_msgs.Status)
 }
 
 void Status::SharedCtor() {
   _cached_size_ = 0;
-  ::memset(&pose_, 0, reinterpret_cast<char*>(&estop_) -
-    reinterpret_cast<char*>(&pose_) + sizeof(estop_));
+  ::memset(&speed_, 0, reinterpret_cast<char*>(&colorswitch_) -
+    reinterpret_cast<char*>(&speed_) + sizeof(colorswitch_));
 }
 
 Status::~Status() {
@@ -2880,9 +2888,6 @@ Status::~Status() {
 }
 
 void Status::SharedDtor() {
-  if (this != internal_default_instance()) {
-    delete pose_;
-  }
   if (this != internal_default_instance()) {
     delete speed_;
   }
@@ -2919,11 +2924,7 @@ Status* Status::New(::google::protobuf::Arena* arena) const {
 
 void Status::Clear() {
 // @@protoc_insertion_point(message_clear_start:snd_msgs.Status)
-  if (_has_bits_[0 / 32] & 15u) {
-    if (has_pose()) {
-      GOOGLE_DCHECK(pose_ != NULL);
-      pose_->::snd_msgs::Pose::Clear();
-    }
+  if (_has_bits_[0 / 32] & 7u) {
     if (has_speed()) {
       GOOGLE_DCHECK(speed_ != NULL);
       speed_->::snd_msgs::Speed::Clear();
@@ -2937,9 +2938,9 @@ void Status::Clear() {
       encoders_->::snd_msgs::Encoders::Clear();
     }
   }
-  if (_has_bits_[0 / 32] & 48u) {
-    ::memset(&starter_, 0, reinterpret_cast<char*>(&estop_) -
-      reinterpret_cast<char*>(&starter_) + sizeof(estop_));
+  if (_has_bits_[0 / 32] & 56u) {
+    ::memset(&starter_, 0, reinterpret_cast<char*>(&colorswitch_) -
+      reinterpret_cast<char*>(&starter_) + sizeof(colorswitch_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -2955,17 +2956,6 @@ bool Status::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .snd_msgs.Pose pose = 1;
-      case 1: {
-        if (tag == 10u) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_pose()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       // required .snd_msgs.Speed speed = 2;
       case 2: {
         if (tag == 18u) {
@@ -3003,9 +2993,27 @@ bool Status::MergePartialFromCodedStream(
         break;
       }
 
-      // required .snd_msgs.Ir ir = 5;
+      // required .snd_msgs.eTeamColor colorSwitch = 5;
       case 5: {
-        if (tag == 42u) {
+        if (tag == 40u) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::snd_msgs::eTeamColor_IsValid(value)) {
+            set_colorswitch(static_cast< ::snd_msgs::eTeamColor >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(5, value);
+          }
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // required .snd_msgs.Ir ir = 6;
+      case 6: {
+        if (tag == 50u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_ir()));
         } else {
@@ -3014,9 +3022,9 @@ bool Status::MergePartialFromCodedStream(
         break;
       }
 
-      // required .snd_msgs.Encoders encoders = 6;
-      case 6: {
-        if (tag == 50u) {
+      // required .snd_msgs.Encoders encoders = 7;
+      case 7: {
+        if (tag == 58u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_encoders()));
         } else {
@@ -3050,12 +3058,6 @@ failure:
 void Status::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:snd_msgs.Status)
-  // required .snd_msgs.Pose pose = 1;
-  if (has_pose()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, *this->pose_, output);
-  }
-
   // required .snd_msgs.Speed speed = 2;
   if (has_speed()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -3072,16 +3074,22 @@ void Status::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(4, this->estop(), output);
   }
 
-  // required .snd_msgs.Ir ir = 5;
-  if (has_ir()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *this->ir_, output);
+  // required .snd_msgs.eTeamColor colorSwitch = 5;
+  if (has_colorswitch()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      5, this->colorswitch(), output);
   }
 
-  // required .snd_msgs.Encoders encoders = 6;
+  // required .snd_msgs.Ir ir = 6;
+  if (has_ir()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, *this->ir_, output);
+  }
+
+  // required .snd_msgs.Encoders encoders = 7;
   if (has_encoders()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *this->encoders_, output);
+      7, *this->encoders_, output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -3095,13 +3103,6 @@ void Status::SerializeWithCachedSizes(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic;  // Unused
   // @@protoc_insertion_point(serialize_to_array_start:snd_msgs.Status)
-  // required .snd_msgs.Pose pose = 1;
-  if (has_pose()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      InternalWriteMessageNoVirtualToArray(
-        1, *this->pose_, false, target);
-  }
-
   // required .snd_msgs.Speed speed = 2;
   if (has_speed()) {
     target = ::google::protobuf::internal::WireFormatLite::
@@ -3119,18 +3120,24 @@ void Status::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(4, this->estop(), target);
   }
 
-  // required .snd_msgs.Ir ir = 5;
+  // required .snd_msgs.eTeamColor colorSwitch = 5;
+  if (has_colorswitch()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      5, this->colorswitch(), target);
+  }
+
+  // required .snd_msgs.Ir ir = 6;
   if (has_ir()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        5, *this->ir_, false, target);
+        6, *this->ir_, false, target);
   }
 
-  // required .snd_msgs.Encoders encoders = 6;
+  // required .snd_msgs.Encoders encoders = 7;
   if (has_encoders()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        6, *this->encoders_, false, target);
+        7, *this->encoders_, false, target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -3145,13 +3152,6 @@ size_t Status::RequiredFieldsByteSizeFallback() const {
 // @@protoc_insertion_point(required_fields_byte_size_fallback_start:snd_msgs.Status)
   size_t total_size = 0;
 
-  if (has_pose()) {
-    // required .snd_msgs.Pose pose = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        *this->pose_);
-  }
-
   if (has_speed()) {
     // required .snd_msgs.Speed speed = 2;
     total_size += 1 +
@@ -3160,14 +3160,14 @@ size_t Status::RequiredFieldsByteSizeFallback() const {
   }
 
   if (has_ir()) {
-    // required .snd_msgs.Ir ir = 5;
+    // required .snd_msgs.Ir ir = 6;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         *this->ir_);
   }
 
   if (has_encoders()) {
-    // required .snd_msgs.Encoders encoders = 6;
+    // required .snd_msgs.Encoders encoders = 7;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         *this->encoders_);
@@ -3183,6 +3183,12 @@ size_t Status::RequiredFieldsByteSizeFallback() const {
     total_size += 1 + 1;
   }
 
+  if (has_colorswitch()) {
+    // required .snd_msgs.eTeamColor colorSwitch = 5;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::EnumSize(this->colorswitch());
+  }
+
   return total_size;
 }
 size_t Status::ByteSizeLong() const {
@@ -3195,22 +3201,17 @@ size_t Status::ByteSizeLong() const {
         unknown_fields());
   }
   if (((_has_bits_[0] & 0x0000003f) ^ 0x0000003f) == 0) {  // All required fields are present.
-    // required .snd_msgs.Pose pose = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        *this->pose_);
-
     // required .snd_msgs.Speed speed = 2;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         *this->speed_);
 
-    // required .snd_msgs.Ir ir = 5;
+    // required .snd_msgs.Ir ir = 6;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         *this->ir_);
 
-    // required .snd_msgs.Encoders encoders = 6;
+    // required .snd_msgs.Encoders encoders = 7;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         *this->encoders_);
@@ -3220,6 +3221,10 @@ size_t Status::ByteSizeLong() const {
 
     // required bool estop = 4;
     total_size += 1 + 1;
+
+    // required .snd_msgs.eTeamColor colorSwitch = 5;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::EnumSize(this->colorswitch());
 
   } else {
     total_size += RequiredFieldsByteSizeFallback();
@@ -3251,9 +3256,6 @@ void Status::MergeFrom(const Status& from) {
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from._has_bits_[0 / 32] & 63u) {
-    if (from.has_pose()) {
-      mutable_pose()->::snd_msgs::Pose::MergeFrom(from.pose());
-    }
     if (from.has_speed()) {
       mutable_speed()->::snd_msgs::Speed::MergeFrom(from.speed());
     }
@@ -3268,6 +3270,9 @@ void Status::MergeFrom(const Status& from) {
     }
     if (from.has_estop()) {
       set_estop(from.estop());
+    }
+    if (from.has_colorswitch()) {
+      set_colorswitch(from.colorswitch());
     }
   }
 }
@@ -3288,9 +3293,6 @@ void Status::CopyFrom(const Status& from) {
 
 bool Status::IsInitialized() const {
   if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
-  if (has_pose()) {
-    if (!this->pose_->IsInitialized()) return false;
-  }
   if (has_speed()) {
     if (!this->speed_->IsInitialized()) return false;
   }
@@ -3308,12 +3310,12 @@ void Status::Swap(Status* other) {
   InternalSwap(other);
 }
 void Status::InternalSwap(Status* other) {
-  std::swap(pose_, other->pose_);
   std::swap(speed_, other->speed_);
   std::swap(ir_, other->ir_);
   std::swap(encoders_, other->encoders_);
   std::swap(starter_, other->starter_);
   std::swap(estop_, other->estop_);
+  std::swap(colorswitch_, other->colorswitch_);
   std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
@@ -3327,60 +3329,15 @@ void Status::InternalSwap(Status* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // Status
 
-// required .snd_msgs.Pose pose = 1;
-bool Status::has_pose() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-void Status::set_has_pose() {
-  _has_bits_[0] |= 0x00000001u;
-}
-void Status::clear_has_pose() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-void Status::clear_pose() {
-  if (pose_ != NULL) pose_->::snd_msgs::Pose::Clear();
-  clear_has_pose();
-}
-const ::snd_msgs::Pose& Status::pose() const {
-  // @@protoc_insertion_point(field_get:snd_msgs.Status.pose)
-  return pose_ != NULL ? *pose_
-                         : *::snd_msgs::Pose::internal_default_instance();
-}
-::snd_msgs::Pose* Status::mutable_pose() {
-  set_has_pose();
-  if (pose_ == NULL) {
-    pose_ = new ::snd_msgs::Pose;
-  }
-  // @@protoc_insertion_point(field_mutable:snd_msgs.Status.pose)
-  return pose_;
-}
-::snd_msgs::Pose* Status::release_pose() {
-  // @@protoc_insertion_point(field_release:snd_msgs.Status.pose)
-  clear_has_pose();
-  ::snd_msgs::Pose* temp = pose_;
-  pose_ = NULL;
-  return temp;
-}
-void Status::set_allocated_pose(::snd_msgs::Pose* pose) {
-  delete pose_;
-  pose_ = pose;
-  if (pose) {
-    set_has_pose();
-  } else {
-    clear_has_pose();
-  }
-  // @@protoc_insertion_point(field_set_allocated:snd_msgs.Status.pose)
-}
-
 // required .snd_msgs.Speed speed = 2;
 bool Status::has_speed() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 void Status::set_has_speed() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 void Status::clear_has_speed() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 void Status::clear_speed() {
   if (speed_ != NULL) speed_->::snd_msgs::Speed::Clear();
@@ -3419,13 +3376,13 @@ void Status::set_allocated_speed(::snd_msgs::Speed* speed) {
 
 // required bool starter = 3;
 bool Status::has_starter() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 void Status::set_has_starter() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 void Status::clear_has_starter() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 void Status::clear_starter() {
   starter_ = false;
@@ -3443,13 +3400,13 @@ void Status::set_starter(bool value) {
 
 // required bool estop = 4;
 bool Status::has_estop() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 void Status::set_has_estop() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 void Status::clear_has_estop() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 void Status::clear_estop() {
   estop_ = false;
@@ -3465,15 +3422,40 @@ void Status::set_estop(bool value) {
   // @@protoc_insertion_point(field_set:snd_msgs.Status.estop)
 }
 
-// required .snd_msgs.Ir ir = 5;
+// required .snd_msgs.eTeamColor colorSwitch = 5;
+bool Status::has_colorswitch() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+void Status::set_has_colorswitch() {
+  _has_bits_[0] |= 0x00000020u;
+}
+void Status::clear_has_colorswitch() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+void Status::clear_colorswitch() {
+  colorswitch_ = 0;
+  clear_has_colorswitch();
+}
+::snd_msgs::eTeamColor Status::colorswitch() const {
+  // @@protoc_insertion_point(field_get:snd_msgs.Status.colorSwitch)
+  return static_cast< ::snd_msgs::eTeamColor >(colorswitch_);
+}
+void Status::set_colorswitch(::snd_msgs::eTeamColor value) {
+  assert(::snd_msgs::eTeamColor_IsValid(value));
+  set_has_colorswitch();
+  colorswitch_ = value;
+  // @@protoc_insertion_point(field_set:snd_msgs.Status.colorSwitch)
+}
+
+// required .snd_msgs.Ir ir = 6;
 bool Status::has_ir() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 void Status::set_has_ir() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 void Status::clear_has_ir() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 void Status::clear_ir() {
   if (ir_ != NULL) ir_->::snd_msgs::Ir::Clear();
@@ -3510,15 +3492,15 @@ void Status::set_allocated_ir(::snd_msgs::Ir* ir) {
   // @@protoc_insertion_point(field_set_allocated:snd_msgs.Status.ir)
 }
 
-// required .snd_msgs.Encoders encoders = 6;
+// required .snd_msgs.Encoders encoders = 7;
 bool Status::has_encoders() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 void Status::set_has_encoders() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 void Status::clear_has_encoders() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 void Status::clear_encoders() {
   if (encoders_ != NULL) encoders_->::snd_msgs::Encoders::Clear();
