@@ -128,6 +128,7 @@ CSRC = $(STARTUPSRC) \
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(SERIALCOMMSRC) src/Board.cpp \
+         src/Communication.cpp \
          src/main.cpp 
 
 # C sources to be compiled in ARM mode regardless of the global setting.

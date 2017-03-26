@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Communication.h"
 #include "MonsterShield.h"
 #include "Qei.h"
 #include "SerialComm.h"
@@ -23,6 +24,7 @@ struct Board
   MonsterShield rightMotor;
   Qei qei;
   SerialComm serial;
+  Communication comm;
 };
 
 extern Board gBoard;
