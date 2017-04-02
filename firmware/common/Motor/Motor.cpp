@@ -12,37 +12,20 @@
 
 Motor::Motor(PWMDriver* _driver, const uint8_t _channel,
              bool _isComplementaryChannel)
-    : m_driver{_driver}, m_channel(_channel - 1),
-      m_pwmCfg{1000000, // Timer at 1 MHz
-               1000,    // Period at 1000 so 1 kHz PWM
-               NULL,    // pwm callback
-               {{(_channel == 1) ? (_isComplementaryChannel
-                                        ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
-                                        : PWM_OUTPUT_ACTIVE_HIGH)
-                                 : PWM_OUTPUT_DISABLED,
-                 NULL},
-                {(_channel == 2) ? (_isComplementaryChannel
-                                        ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
-                                        : PWM_OUTPUT_ACTIVE_HIGH)
-                                 : PWM_OUTPUT_DISABLED,
-                 NULL},
-                {(_channel == 3) ? (_isComplementaryChannel
-                                        ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
-                                        : PWM_OUTPUT_ACTIVE_HIGH)
-                                 : PWM_OUTPUT_DISABLED,
-                 NULL},
-                {(_channel == 4) ? (_isComplementaryChannel
-                                        ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
-                                        : PWM_OUTPUT_ACTIVE_HIGH)
-                                 : PWM_OUTPUT_DISABLED,
-                 NULL}},
-               0,
-               0}
+  : m_driver{_driver}, m_channel(_channel - 1),
+    m_isComplementaryChannel(_isComplementaryChannel)
 {
 }
 
 void Motor::begin()
 {
+  m_pwmCfg.frequency = kPwmFrequency;
+  m_pwmCfg.period = kPwmPeriod;
+  m_pwmCfg.callback = NULL; // no pwm callback
+  m_pwmCfg.channels[m_channel].mode =
+    (m_isComplementaryChannel ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
+                              : PWM_OUTPUT_ACTIVE_HIGH);
+
   setOutputPinsMode();
   pwmStart(m_driver, &m_pwmCfg);
   stop();
@@ -65,7 +48,7 @@ void Motor::pwm(int16_t _percentage)
     changeDirection(BACKWARD);
     _percentage *= -1;
   }
-  _percentage = (_percentage > maxPwm) ? maxPwm : _percentage;
+  _percentage = (_percentage > kPwmPeriod) ? kPwmPeriod : _percentage;
   pwmEnableChannel(
-      m_driver, m_channel, PWM_PERCENTAGE_TO_WIDTH(m_driver, _percentage));
+    m_driver, m_channel, PWM_PERCENTAGE_TO_WIDTH(m_driver, _percentage));
 }
