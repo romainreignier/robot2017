@@ -1,4 +1,13 @@
+# ROS ws
 build
 devel
 .catkin_workspace
+
+# ChibiOS
 .dep
+
+# vim tmp
+*.swp
+
+# QtCreator
+CMakeLists.txt.user
