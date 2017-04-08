@@ -21,8 +21,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(Protobuf REQUIRED)
-#include_directories(${PROTOBUF_INCLUDE_DIRS})
-#PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ../../../msg/CommMsgs.proto)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -109,8 +107,8 @@ generate_dynamic_reconfigure_options(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES snd_serial
+  INCLUDE_DIRS include
+  LIBRARIES SerialComm CommMsgs
   CATKIN_DEPENDS nav_msgs roscpp sensor_msgs serial snd_msgs std_msgs message_generation
 #  DEPENDS system_lib
 )
@@ -123,7 +121,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-#  include
+  include
   ${catkin_INCLUDE_DIRS}
   ${PROTOBUF_INCLUDE_DIRS}
 )
@@ -133,9 +131,21 @@ include_directories(
 #   src/${PROJECT_NAME}/snd_serial.cpp
 # )
 add_library(CommMsgs
-  src/CommMsgs.pb.cc
-  src/CommMsgs.pb.h
+  include/CommMsgs.pb.cc
+  include/CommMsgs.pb.h
 )
+target_link_libraries(CommMsgs
+  ${PROTOBUF_LIBRARIES}
+)
+
+add_library(SerialComm
+    include/${PROJECT_NAME}/SerialComm.h
+  src/SerialComm.cpp
+)
+target_link_libraries(SerialComm
+  ${catkin_LIBRARIES}
+  ${PROTOBUF_LIBRARIES}
+  CommMsgs
 )
 
 ## Add cmake target dependencies of the library
@@ -144,17 +154,18 @@ add_library(CommMsgs
 # add_dependencies(snd_serial ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(snd_serial_node src/snd_serial_node.cpp src/SerialComm.cpp ${PROTO_SRCS} ${PROTO_HDRS})
+add_executable(snd_serial_node src/snd_serial_node.cpp src/BoardComm.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(snd_serial_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(snd_serial_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(snd_serial_node
   ${catkin_LIBRARIES}
   ${PROTOBUF_LIBRARIES}
   CommMsgs
+  SerialComm
 )
 
 #############

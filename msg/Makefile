@@ -1,5 +1,5 @@
 #MCUDESTDIR=../firmware/common/SerialComm
-ROSDESTDIR=../ros_ws/src/snd_serial/src
+ROSDESTDIR=../ros_ws/src/snd_serial/include
 NANOPBDIR=../firmware/common/nanopb
 
 all:
