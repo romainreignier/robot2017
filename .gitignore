@@ -13,3 +13,10 @@ logs
 
 # QtCreator
 CMakeLists.txt.user
+
+# Protobuf generated
+CommMsgs.pb.h
+CommMsgs.pb.c
+CommMsgs.pb.cc
+
+
