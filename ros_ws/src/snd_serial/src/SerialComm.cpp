@@ -5,7 +5,7 @@
 #include <ros/console.h>
 #include <std_msgs/Bool.h>
 
-#include <snd_serial/Encoders.h>
+#include <snd_msgs/Encoders.h>
 #include <snd_serial/pidConfig.h>
 
 #include "SerialComm.h"
@@ -73,7 +73,7 @@ SerialComm::SerialComm()
   }
 
   // Create the publishers
-  m_encodersPub = m_nh.advertise<snd_serial::Encoders>("encoders", 1);
+  m_encodersPub = m_nh.advertise<snd_msgs::Encoders>("encoders", 1);
   m_starterPub = m_nh.advertise<std_msgs::Bool>("starter", 1);
 
   // Create the subscribers
@@ -130,7 +130,7 @@ void SerialComm::readIncomingMsg()
     }
     else
     {
-      snd_msgs::SerialResponse resp;
+      snd_proto::SerialResponse resp;
       if(!resp.ParseFromString(msg))
       {
         ROS_ERROR("Failed to parse the protobuf message.");
@@ -142,22 +142,22 @@ void SerialComm::readIncomingMsg()
       }
       switch(resp.type_case())
       {
-      case snd_msgs::SerialResponse::kLog:
+      case snd_proto::SerialResponse::kLog:
         switch(resp.log().level())
         {
-        case snd_msgs::Log::DEBUG: ROS_DEBUG_STREAM(resp.log().text()); break;
-        case snd_msgs::Log::INFO: ROS_INFO_STREAM(resp.log().text()); break;
-        case snd_msgs::Log::WARN: ROS_WARN_STREAM(resp.log().text()); break;
-        case snd_msgs::Log::ERROR: ROS_ERROR_STREAM(resp.log().text()); break;
-        case snd_msgs::Log::FATAL: ROS_FATAL_STREAM(resp.log().text()); break;
+        case snd_proto::Log::DEBUG: ROS_DEBUG_STREAM(resp.log().text()); break;
+        case snd_proto::Log::INFO: ROS_INFO_STREAM(resp.log().text()); break;
+        case snd_proto::Log::WARN: ROS_WARN_STREAM(resp.log().text()); break;
+        case snd_proto::Log::ERROR: ROS_ERROR_STREAM(resp.log().text()); break;
+        case snd_proto::Log::FATAL: ROS_FATAL_STREAM(resp.log().text()); break;
         }
         break;
-      case snd_msgs::SerialResponse::kEncoders:
+      case snd_proto::SerialResponse::kEncoders:
         ROS_INFO_STREAM("Encoders left: " << resp.encoders().left()
                                           << " right: "
                                           << resp.encoders().right());
         {
-          snd_serial::Encoders msg;
+          snd_msgs::Encoders msg;
           msg.header.stamp = ros::Time::now();
           msg.left = resp.encoders().left();
           msg.right = resp.encoders().right();
@@ -165,18 +165,18 @@ void SerialComm::readIncomingMsg()
         }
 
         break;
-      case snd_msgs::SerialResponse::kPose:
+      case snd_proto::SerialResponse::kPose:
         ROS_INFO_STREAM("Robot in position x:" << resp.pose().x() << " y: "
                                                << resp.pose().y()
                                                << " theta: "
                                                << resp.pose().th());
         break;
-      case snd_msgs::SerialResponse::kSpeed:
+      case snd_proto::SerialResponse::kSpeed:
         ROS_INFO_STREAM("Motors speed left:" << resp.speed().left()
                                              << " right: "
                                              << resp.speed().right());
         break;
-      case snd_msgs::SerialResponse::kIsStarterSet:
+      case snd_proto::SerialResponse::kIsStarterSet:
         if(resp.isstarterset())
         {
           ROS_INFO_STREAM("Starter set");
@@ -191,7 +191,7 @@ void SerialComm::readIncomingMsg()
           m_starterPub.publish(msg);
         }
         break;
-      case snd_msgs::SerialResponse::kStatus:
+      case snd_proto::SerialResponse::kStatus:
         // ROS_INFO_STREAM("Status message:");
         // ROS_INFO_STREAM("Pose: x: " << resp.status().pose().x() << " y: " <<
         // resp.status().pose().y() << " th: " << resp.status().pose().th());
@@ -211,7 +211,7 @@ void SerialComm::readIncomingMsg()
         // ROS_INFO_STREAM("Encoders: left: " << resp.status().encoders().left()
         // << " right: " << resp.status().encoders().right());
         {
-          snd_serial::Encoders msg;
+          snd_msgs::Encoders msg;
           msg.header.stamp = ros::Time::now();
           msg.left = resp.status().encoders().left();
           msg.right = resp.status().encoders().right();
@@ -227,7 +227,7 @@ void SerialComm::readIncomingMsg()
   }
 }
 
-int SerialComm::sendMsg(const snd_msgs::SerialRequest& _req)
+int SerialComm::sendMsg(const snd_proto::SerialRequest& _req)
 {
   // Serialize the protobuf
   string outString;
@@ -260,8 +260,8 @@ void SerialComm::cmdVelCb(const geometry_msgs::TwistConstPtr& _msg)
                   << " converted into left: " << velAngularLeft
                   << " right: " << velAngularRight);
 
-  snd_msgs::SerialRequest req;
-  snd_msgs::Speed* speed = req.mutable_setmotorsspeed();
+  snd_proto::SerialRequest req;
+  snd_proto::Speed* speed = req.mutable_setmotorsspeed();
   speed->set_left(static_cast<float>(velAngularLeft));
   speed->set_right(static_cast<float>(velAngularRight));
   sendMsg(req);
@@ -269,8 +269,8 @@ void SerialComm::cmdVelCb(const geometry_msgs::TwistConstPtr& _msg)
 
 void SerialComm::readStatus()
 {
-  snd_msgs::SerialRequest req;
-  snd_msgs::EmptyMsg* empty = req.mutable_getstatus();
+  snd_proto::SerialRequest req;
+  snd_proto::EmptyMsg* empty = req.mutable_getstatus();
   sendMsg(req);
   readIncomingMsg();
 }
@@ -286,8 +286,8 @@ void SerialComm::dynParamCb(snd_serial::pidConfig& _config, uint32_t _level)
                                                      << _config.left_speed_i
                                                      << " D: "
                                                      << _config.left_speed_d);
-    snd_msgs::SerialRequest req;
-    snd_msgs::PidTunings* pid = req.mutable_setpidspeedleft();
+    snd_proto::SerialRequest req;
+    snd_proto::PidTunings* pid = req.mutable_setpidspeedleft();
     pid->set_p(_config.left_speed_p);
     pid->set_i(_config.left_speed_i);
     pid->set_d(_config.left_speed_d);
@@ -301,8 +301,8 @@ void SerialComm::dynParamCb(snd_serial::pidConfig& _config, uint32_t _level)
                                                      << _config.right_speed_i
                                                      << " D: "
                                                      << _config.right_speed_d);
-    snd_msgs::SerialRequest req;
-    snd_msgs::PidTunings* pid = req.mutable_setpidspeedright();
+    snd_proto::SerialRequest req;
+    snd_proto::PidTunings* pid = req.mutable_setpidspeedright();
     pid->set_p(_config.right_speed_p);
     pid->set_i(_config.right_speed_i);
     pid->set_d(_config.right_speed_d);

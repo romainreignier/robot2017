@@ -22,8 +22,8 @@ public:
 
   unsigned int processSerial();
   int sendMsg(uint8_t* _msg, unsigned int _msgLength);
-  unsigned int encodeMsg(const snd_msgs_SerialResponse& _resp, uint8_t* _msg);
-  int encodeAndSendMsg(const snd_msgs_SerialResponse& _resp);
+  unsigned int encodeMsg(const snd_proto_SerialResponse& _resp, uint8_t* _msg);
+  int encodeAndSendMsg(const snd_proto_SerialResponse& _resp);
 
 private:
   SerialDriver* m_driver;

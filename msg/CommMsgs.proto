@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package snd_msgs;
+package snd_proto;
 
 message EmptyMsg
 {
@@ -19,12 +19,14 @@ message Pose
      required float th = 3;
 }
 
+// Ticks/s
 message Speed
 {
-    required float left  = 1;
-    required float right = 2;
+    required int32 left  = 1;
+    required int32 right = 2;
 }
 
+// Ticks
 message Encoders
 {
      required int32 left  = 1;

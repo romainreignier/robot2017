@@ -16,7 +16,7 @@ public:
     SerialComm();
     ~SerialComm();
     void run();
-    int sendMsg(const snd_msgs::SerialRequest& _req);
+    int sendMsg(const snd_proto::SerialRequest& _req);
     void readIncomingMsg();
     void readStatus();
 

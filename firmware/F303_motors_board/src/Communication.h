@@ -14,10 +14,10 @@
 class Communication
 {
 public:
-  bool handleSerialRequest(const snd_msgs_SerialRequest& _req);
+  bool handleSerialRequest(const snd_proto_SerialRequest& _req);
 protected:
-  void getStatus(const snd_msgs_SerialRequest& _req);
-  void setMotorsSpeed(const snd_msgs_SerialRequest& _req);
-  void setPidSpeedLeft(const snd_msgs_SerialRequest& _req);
-  void setPidSpeedRight(const snd_msgs_SerialRequest& _req);
+  void getStatus(const snd_proto_SerialRequest& _req);
+  void setMotorsSpeed(const snd_proto_SerialRequest& _req);
+  void setPidSpeedLeft(const snd_proto_SerialRequest& _req);
+  void setPidSpeedRight(const snd_proto_SerialRequest& _req);
 };

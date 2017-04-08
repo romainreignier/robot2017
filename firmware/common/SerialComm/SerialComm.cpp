@@ -108,12 +108,12 @@ void SerialComm::start()
 bool SerialComm::handleSerialRequest(const serialMsg* _msg)
 {
   // Initialize a msg struct
-  snd_msgs_SerialRequest req = snd_msgs_SerialRequest_init_default;
+  snd_proto_SerialRequest req = snd_proto_SerialRequest_init_default;
   // Initialize a stream
   pb_istream_t inStream = pb_istream_from_buffer(_msg->payload, _msg->length);
 
   // Decode the msg
-  if(!pb_decode(&inStream, snd_msgs_SerialRequest_fields, &req))
+  if(!pb_decode(&inStream, snd_proto_SerialRequest_fields, &req))
   {
     chprintf(dbg, "Decoding failed: %s\n", PB_GET_ERROR(&inStream));
     return false;
@@ -122,7 +122,7 @@ bool SerialComm::handleSerialRequest(const serialMsg* _msg)
   return gBoard.comm.handleSerialRequest(req);
 }
 
-int SerialComm::encodeAndSendMsg(const snd_msgs_SerialResponse& _resp)
+int SerialComm::encodeAndSendMsg(const snd_proto_SerialResponse& _resp)
 {
   uint8_t txBuf[256];
   // Create the stream to encode into ProtoBuf
@@ -130,7 +130,7 @@ int SerialComm::encodeAndSendMsg(const snd_msgs_SerialResponse& _resp)
       pb_ostream_from_buffer((pb_byte_t*)txBuf, sizeof(txBuf));
 
   // Now we are ready to encode the message!
-  if(!pb_encode(&outStream, snd_msgs_SerialResponse_fields, &_resp))
+  if(!pb_encode(&outStream, snd_proto_SerialResponse_fields, &_resp))
   {
     chprintf(dbg, "Failed to encode the response into a protobuf\n");
     return false;

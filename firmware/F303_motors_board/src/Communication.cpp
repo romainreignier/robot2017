@@ -4,35 +4,35 @@
 
 #include "chprintf.h"
 
-bool Communication::handleSerialRequest(const snd_msgs_SerialRequest& _req)
+bool Communication::handleSerialRequest(const snd_proto_SerialRequest& _req)
 {
   bool ret{true};
   // Process the action
   switch(_req.which_type)
   {
-  case snd_msgs_SerialRequest_setMotorsSpeed_tag: setMotorsSpeed(_req); break;
-  case snd_msgs_SerialRequest_setPidSpeedLeft_tag: setPidSpeedLeft(_req); break;
-  case snd_msgs_SerialRequest_setPidSpeedRight_tag:
+  case snd_proto_SerialRequest_setMotorsSpeed_tag: setMotorsSpeed(_req); break;
+  case snd_proto_SerialRequest_setPidSpeedLeft_tag: setPidSpeedLeft(_req); break;
+  case snd_proto_SerialRequest_setPidSpeedRight_tag:
     setPidSpeedRight(_req);
     break;
-  case snd_msgs_SerialRequest_getStatus_tag: getStatus(_req); break;
+  case snd_proto_SerialRequest_getStatus_tag: getStatus(_req); break;
   default: chprintf(dbg, "message type not handled\n"); return false;
   }
   return ret;
 }
 
-void Communication::getStatus(const snd_msgs_SerialRequest& _req)
+void Communication::getStatus(const snd_proto_SerialRequest& _req)
 {
   (void)_req;
-  snd_msgs_SerialResponse resp = snd_msgs_SerialResponse_init_zero;
-  resp.which_type = snd_msgs_SerialResponse_status_tag;
+  snd_proto_SerialResponse resp = snd_proto_SerialResponse_init_zero;
+  resp.which_type = snd_proto_SerialResponse_status_tag;
   resp.type.status.speed.left = 8.16f;
   resp.type.status.speed.right = 16.32f;
   resp.type.status.starter = gBoard.starter.read();
   resp.type.status.estop = gBoard.starter.read();
   resp.type.status.colorSwitch = gBoard.colorSwitch.read()
-                                   ? snd_msgs_eTeamColor_BLUE
-                                   : snd_msgs_eTeamColor_YELLOW;
+                                   ? snd_proto_eTeamColor_BLUE
+                                   : snd_proto_eTeamColor_YELLOW;
   resp.type.status.ir.left = false;
   resp.type.status.ir.center = true;
   resp.type.status.ir.right = true;
@@ -43,7 +43,7 @@ void Communication::getStatus(const snd_msgs_SerialRequest& _req)
   gBoard.serial.encodeAndSendMsg(resp);
 }
 
-void Communication::setMotorsSpeed(const snd_msgs_SerialRequest& _req)
+void Communication::setMotorsSpeed(const snd_proto_SerialRequest& _req)
 {
   chprintf(dbg, "SetMotorsSpeed request received ");
   chprintf(dbg,
@@ -57,7 +57,7 @@ void Communication::setMotorsSpeed(const snd_msgs_SerialRequest& _req)
   gBoard.motors.pwm(leftPercent, rightPercent);
 }
 
-void Communication::setPidSpeedLeft(const snd_msgs_SerialRequest& _req)
+void Communication::setPidSpeedLeft(const snd_proto_SerialRequest& _req)
 {
   chprintf(dbg,
            "SetPidSpeedLeft request received: P: %.4f I: %.4f  D: %.4f\n",
@@ -66,7 +66,7 @@ void Communication::setPidSpeedLeft(const snd_msgs_SerialRequest& _req)
            _req.type.setPidSpeedLeft.d);
 }
 
-void Communication::setPidSpeedRight(const snd_msgs_SerialRequest& _req)
+void Communication::setPidSpeedRight(const snd_proto_SerialRequest& _req)
 {
   chprintf(dbg,
            "SetPidSpeedRight request received: P: %.4f I: %.4f  D: %.4f\n",
