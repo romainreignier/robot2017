@@ -203,7 +203,7 @@ TOPT = -mthumb -DTHUMB
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 
 # Define C++ warning options here
-CPPWARN = -Wall -Wextra -Wundef
+CPPWARN = -std=c++11 -Wall -Wextra -Wundef
 
 #
 # Compiler settings
