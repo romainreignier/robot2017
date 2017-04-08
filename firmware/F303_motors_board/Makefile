@@ -123,7 +123,7 @@ CSRC = $(STARTUPSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(NANOPB_CORE) \
-       src/CommMsgs.pb.c
+       CommMsgs.pb.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -237,6 +237,9 @@ include $(RULESPATH)/rules.mk
 
 CommMsgs.pb.c: $(PROTOMSGDIR)/CommMsgs.proto
 	$(PROTOC) $(PROTOC_OPTS) -I$(PROTOMSGDIR) --nanopb_out=. $(PROTOMSGDIR)/CommMsgs.proto
+
+clean_proto:
+	rm -f CommMsgs.pb.h CommMsgs.pb.c
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
