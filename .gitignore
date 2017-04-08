@@ -1,7 +1,9 @@
 # ROS ws
 build
 devel
+logs
 .catkin_workspace
+.catkin_tools
 
 # ChibiOS
 .dep
