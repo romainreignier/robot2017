@@ -1,0 +1,59 @@
+snd_joint_publisher:
+      type: "joint_state_controller/JointStateController"
+      publish_rate: 20
+
+snd_hardware:
+    left_wheel_joint_name: "left_wheel_joint"
+    right_wheel_joint_name: "right_wheel_joint"
+    encoder_resolution: 2400
+    serial_port: "/dev/ttyACM0"
+    serial_baudrate: 115200
+    serial_timeout: 200 # ms
+
+snd_velocity_controller:
+  type: "diff_drive_encoders_controller/DiffDriveEncodersController"
+  left_wheel: ['left_wheel_joint']
+  right_wheel: ['right_wheel_joint']
+  publish_rate: 20
+  pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+  twist_covariance_diagonal: [0.001, 0.001, 0.001, 1000000.0, 1000000.0, 1000.0]
+
+  # Wheel separation and radius multipliers
+  wheel_separation_multiplier: 1.0 # default: 1.0
+  wheel_radius_multiplier    : 1.0 # default: 1.0
+
+  # Encoder wheels separation and radius [m]
+  encoder_wheel_separation: 0.0995
+  left_encoder_wheel_radius: 0.026
+  right_encoder_wheel_radius: 0.026
+
+  # Motor wheels separation and radius [m]
+  motor_wheel_separation: 0.186
+  left_motor_wheel_radius: 0.0355
+  right_motor_wheel_radius: 0.0355
+
+  # Velocity commands timeout [s], default 0.5
+  cmd_vel_timeout: 0.25
+
+  enable_odom_tf: true
+
+  # debug
+  publish_cmd: true
+
+  # Preserve turning radius when limiting speed/acceleration/jerk
+  preserve_turning_radius: true
+
+  # Velocity and acceleration limits
+  # Whenever a min_* is unspecified, default to -max_*
+  linear:
+    x:
+      has_velocity_limits    : true
+      max_velocity           : 0.2   # m/s
+      has_acceleration_limits: true
+      max_acceleration       : 1.0   # m/s²
+  angular:
+    z:
+      has_velocity_limits    : true
+      max_velocity           : !degrees 90.0 # degrees/s
+      has_acceleration_limits: true
+      max_acceleration       : !degrees 90.0 # degrees/s²
