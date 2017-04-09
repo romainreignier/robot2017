@@ -1,0 +1,29 @@
+<package format="2">
+  <name>diff_drive_encoders_controller</name>
+  <version>0.1.1</version>
+  <description>Controller for a differential drive mobile base with separate wheel encoders.</description>
+  <maintainer email="bence.magyar.robotics@gmail.com">Bence Magyar</maintainer>
+  <maintainer email="enrique.fernandez.perdomo@gmail.com">Enrique Fernandez</maintainer>
+  <maintainer email="rom.reignier@gmail.com">Romain Reignier</maintainer>
+
+  <license>BSD</license>
+
+  <author email="bence.magyar@pal-robotics.com">Bence Magyar</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>controller_interface</depend>
+  <depend>nav_msgs</depend>
+  <depend>realtime_tools</depend>
+  <depend>tf</depend>
+  <depend>urdf</depend>
+
+  <test_depend>rostest</test_depend>
+  <test_depend>std_srvs</test_depend>
+  <test_depend>controller_manager</test_depend>
+  <test_depend>xacro</test_depend>
+
+  <export>
+    <controller_interface plugin="${prefix}/diff_drive_encoders_controller_plugins.xml"/>
+  </export>
+</package>

@@ -1,0 +1,9 @@
+<library path="lib/libdiff_drive_encoders_controller">
+
+  <class name="diff_drive_encoders_controller/DiffDriveEncodersController" type="diff_drive_encoders_controller::DiffDriveEncodersController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The DiffDriveController tracks velocity commands. It expects 2 VelocityJointInterface type of hardware interfaces. And uses differents wheels (so radius and separation) for motors and encoders.
+    </description>
+  </class>
+
+</library>
