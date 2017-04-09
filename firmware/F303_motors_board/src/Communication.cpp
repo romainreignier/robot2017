@@ -47,14 +47,16 @@ void Communication::setMotorsSpeed(const snd_proto_SerialRequest& _req)
 {
   chprintf(dbg, "SetMotorsSpeed request received ");
   chprintf(dbg,
-           "left: %f right: %f\n",
+           "left: %d right: %d\n",
            _req.type.setMotorsSpeed.left,
            _req.type.setMotorsSpeed.right);
+  /*
   const int16_t leftPercent = static_cast<int16_t>(
     _req.type.setMotorsSpeed.left * 0.75f * gBoard.leftMotor.kPwmPeriod / 1.47f);
   const int16_t rightPercent = static_cast<int16_t>(
     _req.type.setMotorsSpeed.right * 0.75f * gBoard.rightMotor.kPwmPeriod / 1.47f);
   gBoard.motors.pwm(leftPercent, rightPercent);
+  */
 }
 
 void Communication::setPidSpeedLeft(const snd_proto_SerialRequest& _req)
