@@ -20,8 +20,8 @@ MonsterShield::MonsterShield(PWMDriver* _driver, uint8_t _channel,
                              bool _isComplementaryChannel,
                              stm32_gpio_t* _CWGpio, const uint32_t _CWPin,
                              stm32_gpio_t* _CCWGpio, const uint32_t _CCWPin)
-    : Motor{_driver, _channel, _isComplementaryChannel}, m_CWGpio{_CWGpio},
-      m_CWPin{_CWPin}, m_CCWGpio{_CCWGpio}, m_CCWPin{_CCWPin}
+  : Motor{_driver, _channel, _isComplementaryChannel}, m_CWGpio{_CWGpio},
+    m_CWPin{_CWPin}, m_CCWGpio{_CCWGpio}, m_CCWPin{_CCWPin}
 {
 }
 
@@ -48,6 +48,7 @@ void MonsterShield::setOutputPinsMode()
 void MonsterShield::brake()
 {
   stop();
-  palSetPad(m_CWGpio, m_CWPin);
-  palSetPad(m_CCWGpio, m_CCWPin);
+  // Put the H-Bridge in brake mode
+  palClearPad(m_CWGpio, m_CWPin);
+  palClearPad(m_CCWGpio, m_CCWPin);
 }

@@ -10,6 +10,7 @@ public:
   void begin();
   void pwm(int16_t _leftPwm, int16_t _rightPwm);
   void stop();
+  void brake();
 
 protected:
   Motor& m_leftMotor;

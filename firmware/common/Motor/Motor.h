@@ -28,6 +28,7 @@ public:
   void begin();
   void stop();
   void pwm(int16_t _percentage);
+  virtual void brake() = 0;
   virtual void changeDirection(eDirection _direction) = 0;
   virtual void setOutputPinsMode() = 0;
 

@@ -70,3 +70,9 @@ void Motors::stop()
   m_leftMotor.stop();
   m_rightMotor.stop();
 }
+
+void Motors::brake()
+{
+  m_leftMotor.brake();
+  m_rightMotor.brake();
+}
