@@ -47,13 +47,21 @@ int main(void)
   chThdCreateStatic(
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
+  systime_t timeLastStatus = chVTGetSystemTimeX();
+  const systime_t statusPeriod = MS2ST(100);
+  const systime_t feedbackPeriod = MS2ST(20);
   while(true)
   {
-    palSetPad(GPIOA, 11);
     systime_t time = chVTGetSystemTimeX();
-    time += MS2ST(40);
-    gBoard.publishAll();
+    palSetPad(GPIOA, 11);
+    if(time - timeLastStatus >= statusPeriod)
+    {
+      timeLastStatus = time;
+      gBoard.publishStatus();
+    }
+    gBoard.publishFeedback();
     gBoard.nh.spinOnce();
+    time += feedbackPeriod;
     palClearPad(GPIOA, 11);
     chThdSleepUntil(time);
   }

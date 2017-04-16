@@ -5,12 +5,10 @@
 #include "Motors.h"
 #include "Qei.h"
 #include <ros.h>
-#include <snd_msgs/Color.h>
-#include <snd_msgs/Encoders.h>
 #include <snd_msgs/Encoders.h>
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
-#include <std_msgs/Bool.h>
+#include <snd_msgs/Status.h>
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD1
@@ -26,7 +24,8 @@ struct Board
 {
   Board();
   void begin();
-  void publishAll();
+  void publishFeedback();
+  void publishStatus();
   void motorsSpeedCb(const snd_msgs::Motors& _msg);
   void leftMotorPidCb(const snd_msgs::Pid& _msg);
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
@@ -43,12 +42,8 @@ struct Board
   // ROS
   ros::NodeHandle nh;
   // Publishers and messages
-  std_msgs::Bool starterMsg;
-  ros::Publisher starterPub;
-  std_msgs::Bool eStopMsg;
-  ros::Publisher eStopPub;
-  snd_msgs::Color colorSwitchMsg;
-  ros::Publisher colorSwitchPub;
+  snd_msgs::Status statusMsg;
+  ros::Publisher statusPub;
   snd_msgs::Encoders encodersMsg;
   ros::Publisher encodersPub;
   // Subscribers

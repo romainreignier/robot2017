@@ -9,10 +9,7 @@ Board::Board()
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 7}, colorSwitch{GPIOA, 3}, eStop{GPIOA, 4},
-    starterPub{"starter", &starterMsg},
-    eStopPub{"eStop", &eStopMsg},
-    colorSwitchPub{"color_switch", &colorSwitchMsg},
-    encodersPub{"encoders", &encodersMsg},
+    statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
     motorsSpeedSub("motors_speed", &Board::motorsSpeedCb, this),
     leftMotorPidSub("left_motor_pid", &Board::leftMotorPidCb, this),
     rightMotorPidSub("right_motor_pid", &Board::rightMotorPidCb, this)
@@ -58,9 +55,7 @@ void Board::begin()
   // ROS
   nh.initNode();
   // Publishers
-  nh.advertise(starterPub);
-  nh.advertise(eStopPub);
-  nh.advertise(colorSwitchPub);
+  nh.advertise(statusPub);
   nh.advertise(encodersPub);
   // Subscribers
   nh.subscribe(motorsSpeedSub);
@@ -68,18 +63,22 @@ void Board::begin()
   nh.subscribe(rightMotorPidSub);
 }
 
-void Board::publishAll()
+void Board::publishFeedback()
 {
-  starterMsg.data = starter.read();
-  starterPub.publish(&starterMsg);
-  eStopMsg.data = eStop.read();
-  eStopPub.publish(&eStopMsg);
-  colorSwitchMsg.color = colorSwitch.read()
-                           ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
-                           : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
-  colorSwitchPub.publish(&colorSwitchMsg);
+  encodersMsg.header.stamp = nh.now();
   gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
+}
+
+void Board::publishStatus()
+{
+  statusMsg.header.stamp = nh.now();
+  statusMsg.starter = starter.read();
+  statusMsg.eStop = eStop.read();
+  statusMsg.color_switch.color =
+    colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
+                       : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
+  statusPub.publish(&statusMsg);
 }
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)

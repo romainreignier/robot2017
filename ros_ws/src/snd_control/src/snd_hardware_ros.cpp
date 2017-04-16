@@ -39,7 +39,6 @@ SndHardwareRos::SndHardwareRos() : m_name("snd_hardware")
   // Subscriber
   m_encodersSub =
     m_nh.subscribe("/encoders", 1, &SndHardwareRos::encodersCb, this);
-  m_eStopSub = m_nh.subscribe("/eStop", 1, &SndHardwareRos::eStopCb, this);
 
   // Compute the convertion factor only once
   m_ticksToRad = 2.0 * M_PI / encoderResolution;
@@ -80,11 +79,6 @@ void SndHardwareRos::encodersCb(const snd_msgs::EncodersConstPtr& _msg)
 {
   std::lock_guard<std::mutex> lock{m_encodersMsgMutex};
   m_encodersMsg = _msg;
-}
-
-void SndHardwareRos::eStopCb(const std_msgs::Bool& _msg)
-{
-  m_eStopTriggered.store(_msg.data);
 }
 
 void SndHardwareRos::dynParamCb(PidConfig& _config, uint32_t _level)

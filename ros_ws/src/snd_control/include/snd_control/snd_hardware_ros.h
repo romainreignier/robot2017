@@ -16,7 +16,6 @@
 #include <snd_msgs/Encoders.h>
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
-#include <std_msgs/Bool.h>
 
 namespace snd_control
 {
@@ -30,7 +29,6 @@ public:
 
 private:
   void encodersCb(const snd_msgs::EncodersConstPtr& _msg);
-  void eStopCb(const std_msgs::Bool& _msg);
   void dynParamCb(PidConfig& _config, uint32_t _level);
 
   std::string m_name;
@@ -38,7 +36,6 @@ private:
   dynamic_reconfigure::Server<PidConfig> m_dynParamServer;
 
   ros::Subscriber m_encodersSub;
-  ros::Subscriber m_eStopSub;
 
   realtime_tools::RealtimePublisher<snd_msgs::Motors> m_motorsPub;
   realtime_tools::RealtimePublisher<snd_msgs::Pid> m_leftMotorPidPub;
@@ -61,7 +58,6 @@ private:
   double m_ticksToRad;
   snd_msgs::EncodersConstPtr m_encodersMsg;
   std::mutex m_encodersMsgMutex;
-  std::atomic_bool m_eStopTriggered;
 };
 
 } // namespace snd_control
