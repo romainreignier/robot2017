@@ -158,13 +158,18 @@ add_executable(snd_control_node
   src/snd_hardware.cpp
   include/snd_control/snd_hardware.h
 )
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-add_dependencies(snd_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
+add_dependencies(snd_control_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(snd_control_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(snd_control_ros_node
+  src/snd_control_ros.cpp
+  src/snd_hardware_ros.cpp
+  include/snd_control/snd_hardware_ros.h
+)
+add_dependencies(snd_control_ros_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(snd_control_ros_node
   ${catkin_LIBRARIES}
 )
 
