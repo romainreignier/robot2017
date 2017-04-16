@@ -39,19 +39,22 @@ int main(void)
   chSysInit();
   gBoard.begin();
 
+  palSetPadMode(GPIOA, 11, PAL_MODE_OUTPUT_PUSHPULL);
+
   chprintf(dbg, "Supmeca Never Dies!!!!\n");
 
   // Creates the blinker thread.
-  chThdCreateStatic(waThreadBlinker,
-                    sizeof(waThreadBlinker),
-                    NORMALPRIO,
-                    ThreadBlinker,
-                    NULL);
+  chThdCreateStatic(
+    waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
   while(true)
   {
+    palSetPad(GPIOA, 11);
+    systime_t time = chVTGetSystemTimeX();
+    time += MS2ST(40);
     gBoard.publishAll();
     gBoard.nh.spinOnce();
-    chThdSleepMilliseconds(100);
+    palClearPad(GPIOA, 11);
+    chThdSleepUntil(time);
   }
 }

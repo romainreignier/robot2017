@@ -51,9 +51,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  Motors.msg
-  Encoders.msg
   Color.msg
+  Encoders.msg
+  Motors.msg
+  Pid.msg
 )
 
 ## Generate services in the 'srv' folder

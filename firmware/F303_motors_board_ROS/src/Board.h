@@ -1,12 +1,16 @@
 #pragma once
 
-#include <ros.h>
-#include <std_msgs/Bool.h>
-#include <snd_msgs/Color.h>
-#include "MonsterShield.h"
-#include "Qei.h"
 #include "Input.h"
+#include "MonsterShield.h"
 #include "Motors.h"
+#include "Qei.h"
+#include <ros.h>
+#include <snd_msgs/Color.h>
+#include <snd_msgs/Encoders.h>
+#include <snd_msgs/Encoders.h>
+#include <snd_msgs/Motors.h>
+#include <snd_msgs/Pid.h>
+#include <std_msgs/Bool.h>
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD1
@@ -23,6 +27,9 @@ struct Board
   Board();
   void begin();
   void publishAll();
+  void motorsSpeedCb(const snd_msgs::Motors& _msg);
+  void leftMotorPidCb(const snd_msgs::Pid& _msg);
+  void rightMotorPidCb(const snd_msgs::Pid& _msg);
 
   // Components
   MonsterShield leftMotor;
@@ -35,17 +42,19 @@ struct Board
 
   // ROS
   ros::NodeHandle nh;
+  // Publishers and messages
   std_msgs::Bool starterMsg;
   ros::Publisher starterPub;
   std_msgs::Bool eStopMsg;
   ros::Publisher eStopPub;
   snd_msgs::Color colorSwitchMsg;
   ros::Publisher colorSwitchPub;
-  /*
+  snd_msgs::Encoders encodersMsg;
   ros::Publisher encodersPub;
-  ros::Publisher motorsCurrentPub;
-  ros::Publisher motorsSpeedPub;
-  */
+  // Subscribers
+  ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
+  ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
+  ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
 };
 
 extern Board gBoard;
