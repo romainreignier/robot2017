@@ -35,3 +35,11 @@ Install a compiler suite `binutils-arm-none-eabi` `gcc-arm-none-eabi` `libnewlib
 Add user to `dialout` group (login or reboot needed)
 
     $ sudo adduser $USER dialout
+
+### Rosserial
+To generate the rosserial headers:
+
+    $ cd ros_ws
+    $ source devel/setup.bash
+    $ cd ../firmware/common
+    $ rosrun rosserial_client make_libraries .

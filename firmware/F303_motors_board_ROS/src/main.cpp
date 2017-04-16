@@ -1,6 +1,6 @@
 /**
  * Supmeca Never Dies 2017
- * \date 15/03/2017
+ * \date 16/04/2017
  * \author Romain Reignier
  */
 
@@ -50,6 +50,8 @@ int main(void)
 
   while(true)
   {
-    chThdSleepMilliseconds(500);
+    gBoard.publishAll();
+    gBoard.nh.spinOnce();
+    chThdSleepMilliseconds(100);
   }
 }
