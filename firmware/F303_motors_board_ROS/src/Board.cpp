@@ -8,8 +8,9 @@ Board::Board()
       rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5},
       motors(leftMotor, rightMotor),
       qei{&QEID3, false, &QEID2, false},
-      starter{GPIOA, 7}, colorSwitch{GPIOA, 3}, eStop{GPIOA, 4},
-      starterPub{"starter", &starterMsg}
+      starter{GPIOA, 7}, colorSwitch{GPIOA, 3}, eStop{GPIOA, 11},
+      starterPub{"starter", &starterMsg}, eStopPub{"eStop", &eStopMsg},
+      colorSwitchPub{"color_switch", &colorSwitchMsg}
 {
 }
 
@@ -23,6 +24,8 @@ void Board::begin()
   qei.begin();
   motors.begin();
   starter.begin();
+  eStop.begin();
+  colorSwitch.begin();
 
   // Pin muxing of every the components
   // see p.37, chap 4, table 15 of STM32F303x8 datasheet
@@ -50,12 +53,18 @@ void Board::begin()
   // ROS
   nh.initNode();
   nh.advertise(starterPub);
+  nh.advertise(eStopPub);
+  nh.advertise(colorSwitchPub);
 }
 
 void Board::publishAll()
 {
   starterMsg.data = starter.read();
   starterPub.publish(&starterMsg);
+  eStopMsg.data = eStop.read();
+  eStopPub.publish(&eStopMsg);
+  colorSwitchMsg.color = colorSwitch.read() ? snd_msgs::Color::BLUE : snd_msgs::Color::YELLOW;
+  colorSwitchPub.publish(&colorSwitchMsg);
 }
 
 Board gBoard;

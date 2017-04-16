@@ -53,6 +53,7 @@ add_message_files(
   FILES
   Motors.msg
   Encoders.msg
+  Color.msg
 )
 
 ## Generate services in the 'srv' folder

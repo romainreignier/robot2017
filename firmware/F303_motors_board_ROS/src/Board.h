@@ -2,6 +2,7 @@
 
 #include <ros.h>
 #include <std_msgs/Bool.h>
+#include <snd_msgs/Color.h>
 #include "MonsterShield.h"
 #include "Qei.h"
 #include "Input.h"
@@ -36,9 +37,11 @@ struct Board
   ros::NodeHandle nh;
   std_msgs::Bool starterMsg;
   ros::Publisher starterPub;
-  /*
+  std_msgs::Bool eStopMsg;
   ros::Publisher eStopPub;
+  snd_msgs::Color colorSwitchMsg;
   ros::Publisher colorSwitchPub;
+  /*
   ros::Publisher encodersPub;
   ros::Publisher motorsCurrentPub;
   ros::Publisher motorsSpeedPub;
