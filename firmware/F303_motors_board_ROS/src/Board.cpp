@@ -5,8 +5,8 @@
 BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 
 Board::Board()
-  : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10},
-    rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5},
+  : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
+    rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 7}, colorSwitch{GPIOA, 3}, eStop{GPIOA, 4},
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
@@ -29,7 +29,7 @@ void Board::begin()
   eStop.begin();
   colorSwitch.begin();
 
-  // Pin muxing of every the components
+  // Pin muxing of each peripheral
   // see p.37, chap 4, table 15 of STM32F303x8 datasheet
 
   // UART1: PB6 (TX), PB7 (RX)
