@@ -10,6 +10,7 @@
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
 #include <snd_msgs/Status.h>
+#include <std_srvs/Empty.h>
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD1
@@ -23,7 +24,7 @@ extern BaseSequentialStream* ser;
 // it needs dynamic memory allocation to be used.
 struct Board
 {
-  //Methods
+  // Methods
   Board();
   void begin();
   void publishFeedback();
@@ -31,6 +32,9 @@ struct Board
   void motorsSpeedCb(const snd_msgs::Motors& _msg);
   void leftMotorPidCb(const snd_msgs::Pid& _msg);
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
+  void resetStatusCb(const std_srvs::EmptyRequest& _req,
+                     std_srvs::EmptyResponse& _resp);
+  void checkMotorsCurrent();
 
   // Components
   MonsterShield leftMotor;
@@ -53,6 +57,16 @@ struct Board
   ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
   ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
   ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
+  // Service Server
+  ros::ServiceServer<std_srvs::EmptyRequest, std_srvs::EmptyResponse, Board>
+    resetStatusServiceServer;
+
+  uint8_t globalStatus;
+  systime_t timeStartOverCurrent;
+  static constexpr uint16_t kCurrentThreshold = 6000;
+  static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
+  // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
+  static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
 };
 
 extern Board gBoard;

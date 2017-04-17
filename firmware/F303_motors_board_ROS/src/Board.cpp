@@ -20,7 +20,9 @@ Board::Board()
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
     motorsSpeedSub("motors_speed", &Board::motorsSpeedCb, this),
     leftMotorPidSub("left_motor_pid", &Board::leftMotorPidCb, this),
-    rightMotorPidSub("right_motor_pid", &Board::rightMotorPidCb, this)
+    rightMotorPidSub("right_motor_pid", &Board::rightMotorPidCb, this),
+    resetStatusServiceServer{"reset_status", &Board::resetStatusCb, this},
+    timeStartOverCurrent{0}
 {
 }
 
@@ -81,6 +83,11 @@ void Board::begin()
   nh.subscribe(motorsSpeedSub);
   nh.subscribe(leftMotorPidSub);
   nh.subscribe(rightMotorPidSub);
+  // Service Server
+  nh.advertiseService<std_srvs::EmptyRequest, std_srvs::EmptyResponse>(
+    resetStatusServiceServer);
+
+  globalStatus = snd_msgs::Status::STATUS_OK;
 }
 
 void Board::publishFeedback()
@@ -98,16 +105,31 @@ void Board::publishStatus()
   statusMsg.color_switch.color =
     colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
                        : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
-  statusMsg.motor_current.left = motorsCurrentChecker.value1();
-  statusMsg.motor_current.right = motorsCurrentChecker.value2();
+  statusMsg.left_motor_current =
+    motorsCurrentChecker.value1() * kAdcToMilliAmps;
+  statusMsg.right_motor_current =
+    motorsCurrentChecker.value2() * kAdcToMilliAmps;
+  statusMsg.status = globalStatus;
   statusPub.publish(&statusMsg);
 }
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 {
-  chprintf(
-    dbg, "Motors Speed received, left: %d right: %d\n", _msg.left, _msg.right);
+  if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
+  {
+    chprintf(dbg,
+             "Motors Speed received, left: %d right: %d\n",
+             _msg.left,
+             _msg.right);
     motors.pwm(_msg.left, _msg.right);
+  }
+  else
+  {
+    chprintf(
+      dbg,
+      "Motors Speed received but motors stopped because of overcurrent.\n");
+    motors.stop();
+  }
 }
 
 void Board::leftMotorPidCb(const snd_msgs::Pid& _msg)
@@ -126,6 +148,47 @@ void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
            _msg.p,
            _msg.i,
            _msg.d);
+}
+
+void Board::resetStatusCb(const std_srvs::EmptyRequest& _req,
+                          std_srvs::EmptyResponse& _resp)
+{
+  (void)_req;
+  (void)_resp;
+  chprintf(dbg, "Received a service request to reset the status flag.\n");
+  globalStatus = snd_msgs::Status::STATUS_OK;
+  timeStartOverCurrent = 0;
+}
+
+void Board::checkMotorsCurrent()
+{
+  if(motorsCurrentChecker.value1() * kAdcToMilliAmps > kCurrentThreshold ||
+     motorsCurrentChecker.value2() * kAdcToMilliAmps > kCurrentThreshold)
+  {
+    chprintf(dbg, "Overcurrent detected.\n");
+    if(timeStartOverCurrent != 0)
+    {
+      chprintf(dbg, "It is not the first time.\n");
+      if(chVTGetSystemTimeX() - timeStartOverCurrent >= kMaxTimeOverCurrent)
+      {
+        chprintf(dbg, "Lasts more than 1 second, raise the flag!\n");
+        globalStatus = snd_msgs::Status::STATUS_MOTORS_OVERCURRENT;
+      }
+    }
+    else
+    {
+      chprintf(dbg, "It is the first time, take note of the time.\n");
+      timeStartOverCurrent = chVTGetSystemTimeX();
+    }
+  }
+  else
+  {
+    if(timeStartOverCurrent != 0)
+    {
+      chprintf(dbg, "The flag was previoulsy set, reset it.\n");
+      timeStartOverCurrent = 0;
+    }
+  }
 }
 
 Board gBoard;

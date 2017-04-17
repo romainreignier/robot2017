@@ -49,7 +49,7 @@ int main(void)
 
   systime_t timeLastStatus = chVTGetSystemTimeX();
   const systime_t statusPeriod = MS2ST(100);
-  const systime_t feedbackPeriod = MS2ST(20);
+  const systime_t feedbackPeriod = MS2ST(40);
   while(true)
   {
     systime_t time = chVTGetSystemTimeX();
@@ -57,6 +57,7 @@ int main(void)
     if(time - timeLastStatus >= statusPeriod)
     {
       timeLastStatus = time;
+      gBoard.checkMotorsCurrent();
       gBoard.publishStatus();
     }
     gBoard.publishFeedback();
