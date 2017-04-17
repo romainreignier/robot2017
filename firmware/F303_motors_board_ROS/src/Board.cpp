@@ -4,11 +4,19 @@
 
 BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 
+// Driver Callbacks
+static void adc1Callback(ADCDriver* _adcd, adcsample_t* _buffer, size_t _n)
+{
+  gBoard.motorsCurrentChecker.adcCb(_adcd, _buffer, _n);
+}
+
 Board::Board()
   : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 7}, colorSwitch{GPIOA, 3}, eStop{GPIOA, 4},
+    motorsCurrentChecker{
+      &ADCD1, &GPTD6, ADC_CHANNEL_IN11, ADC_CHANNEL_IN12, 80000, 1000},
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
     motorsSpeedSub("motors_speed", &Board::motorsSpeedCb, this),
     leftMotorPidSub("left_motor_pid", &Board::leftMotorPidCb, this),
@@ -22,12 +30,20 @@ void Board::begin()
   sdStart(&DEBUG_DRIVER, NULL);
   sdStart(&SERIAL_DRIVER, NULL);
 
+  // Fill the adc conversion group
+  auto& adcConversionGroup = motorsCurrentChecker.getAdcConversionGroup();
+  adcConversionGroup.end_cb = adc1Callback;
+  adcConversionGroup.smpr[0] = 0;
+  adcConversionGroup.smpr[1] = ADC_SMPR2_SMP_AN11(ADC_SMPR_SMP_181P5) |
+                               ADC_SMPR2_SMP_AN12(ADC_SMPR_SMP_181P5);
+
   // Start each component
   qei.begin();
   motors.begin();
   starter.begin();
   eStop.begin();
   colorSwitch.begin();
+  motorsCurrentChecker.begin();
 
   // Pin muxing of each peripheral
   // see p.37, chap 4, table 15 of STM32F303x8 datasheet
@@ -51,6 +67,10 @@ void Board::begin()
   // QEI Right: PA0, PA1 = TIM2
   palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
   palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
+  // ADC motor left: PB0 = ADC1_IN11
+  palSetPadMode(GPIOB, 0, PAL_MODE_INPUT_ANALOG);
+  // ADC motor left: PB1 = ADC1_IN12
+  palSetPadMode(GPIOB, 1, PAL_MODE_INPUT_ANALOG);
 
   // ROS
   nh.initNode();
@@ -78,6 +98,8 @@ void Board::publishStatus()
   statusMsg.color_switch.color =
     colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
                        : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
+  statusMsg.motor_current.left = motorsCurrentChecker.value1();
+  statusMsg.motor_current.right = motorsCurrentChecker.value2();
   statusPub.publish(&statusMsg);
 }
 

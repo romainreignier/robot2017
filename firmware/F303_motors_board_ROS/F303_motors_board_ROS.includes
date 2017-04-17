@@ -33,4 +33,5 @@
 ../common/Motor
 ../common/Qei
 ../common/Gpio
+../common/AdcTimer
 ../common/ros_lib

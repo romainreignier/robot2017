@@ -18,3 +18,5 @@ mcuconf_community.h
 ../common/Qei/Qei.cpp
 ../common/Gpio/Input.h
 ../common/Gpio/Input.cpp
+../common/AdcTimer/AdcTimer.h
+../common/AdcTimer/AdcTimer.cpp

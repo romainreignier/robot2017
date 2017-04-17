@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AdcTimer.h"
 #include "Input.h"
 #include "MonsterShield.h"
 #include "Motors.h"
@@ -22,6 +23,7 @@ extern BaseSequentialStream* ser;
 // it needs dynamic memory allocation to be used.
 struct Board
 {
+  //Methods
   Board();
   void begin();
   void publishFeedback();
@@ -38,6 +40,7 @@ struct Board
   Input starter;
   Input colorSwitch;
   Input eStop;
+  AdcTimer motorsCurrentChecker;
 
   // ROS
   ros::NodeHandle nh;

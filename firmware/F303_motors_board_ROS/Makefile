@@ -106,6 +106,7 @@ include $(COMMON)/Motor/Motor.mk
 include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/vl53l0x/vl53l0x.mk
 include $(COMMON)/Gpio/Gpio.mk
+include $(COMMON)/AdcTimer/AdcTimer.mk
 include $(COMMON)/ros_lib/ros.mk
 
 # Define linker script file here
@@ -127,7 +128,7 @@ CSRC = $(STARTUPSRC) \
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(SERIALCOMMSRC) $(GPIOSRC) \
-         $(ROSSRC) \
+         $(ADCTIMERSRC) $(ROSSRC) \
          src/Board.cpp \
          src/main.cpp 
 
@@ -160,7 +161,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
-         $(MOTORINC) $(QEIINC) $(GPIOINC) $(ROSINC) \
+         $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(ROSINC) \
          src
 
 #
