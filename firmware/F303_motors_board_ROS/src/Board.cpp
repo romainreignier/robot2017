@@ -107,6 +107,7 @@ void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 {
   chprintf(
     dbg, "Motors Speed received, left: %d right: %d\n", _msg.left, _msg.right);
+    motors.pwm(_msg.left, _msg.right);
 }
 
 void Board::leftMotorPidCb(const snd_msgs::Pid& _msg)

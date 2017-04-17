@@ -21,7 +21,7 @@ void Motor::begin()
 {
   m_pwmCfg.frequency = kPwmFrequency;
   m_pwmCfg.period = kPwmPeriod;
-  m_pwmCfg.callback = NULL; // no pwm callback
+  m_pwmCfg.callback = NULL;
   m_pwmCfg.channels[m_channel].mode =
     (m_isComplementaryChannel ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
                               : PWM_OUTPUT_ACTIVE_HIGH);
@@ -48,7 +48,7 @@ void Motor::pwm(int16_t _percentage)
     changeDirection(BACKWARD);
     _percentage *= -1;
   }
-  _percentage = (_percentage > kPwmPeriod) ? kPwmPeriod : _percentage;
+  _percentage = (_percentage > 10000) ? 10000 : _percentage;
   pwmEnableChannel(
-    m_driver, m_channel, PWM_PERCENTAGE_TO_WIDTH(m_driver, _percentage));
+    m_driver, m_channel, PWM_PERCENTAGE_TO_WIDTH(m_driver, static_cast<uint16_t>(_percentage)));
 }

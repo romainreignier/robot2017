@@ -46,6 +46,7 @@ void MonsterShield::setOutputPinsMode()
   palSetPadMode(m_CWGpio, m_CWPin, PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(m_CCWGpio, m_CCWPin, PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(m_ENGpio, m_ENPin, PAL_MODE_OUTPUT_OPENDRAIN);
+  palSetPad(m_ENGpio, m_ENPin);
 }
 
 void MonsterShield::brake()
