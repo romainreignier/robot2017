@@ -14,7 +14,8 @@ Board::Board()
   : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
-    starter{GPIOA, 7}, colorSwitch{GPIOA, 3}, eStop{GPIOA, 4},
+    starter{GPIOA, 7}, colorSwitch{GPIOA, 11},
+    eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
     motorsCurrentChecker{
       &ADCD1, &GPTD6, ADC_CHANNEL_IN11, ADC_CHANNEL_IN12, 80000, 1000},
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
@@ -63,16 +64,17 @@ void Board::begin()
   // PWM Motor right: PA8 = TIM1_CH1
   palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(6));
 
+  // ADC motor left: PB0 = ADC1_IN11
+  palSetPadMode(GPIOB, 0, PAL_MODE_INPUT_ANALOG);
+  // ADC motor left: PB1 = ADC1_IN12
+  palSetPadMode(GPIOB, 1, PAL_MODE_INPUT_ANALOG);
+
   // QEI Left: PB4, PB5 = TIM3
   palSetPadMode(GPIOB, 4, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT_PULLUP);
   palSetPadMode(GPIOB, 5, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT_PULLUP);
   // QEI Right: PA0, PA1 = TIM2
   palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
   palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
-  // ADC motor left: PB0 = ADC1_IN11
-  palSetPadMode(GPIOB, 0, PAL_MODE_INPUT_ANALOG);
-  // ADC motor left: PB1 = ADC1_IN12
-  palSetPadMode(GPIOB, 1, PAL_MODE_INPUT_ANALOG);
 
   // ROS
   nh.initNode();

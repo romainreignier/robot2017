@@ -22,12 +22,16 @@ static THD_FUNCTION(ThreadBlinker, arg)
   while(true)
   {
     palSetLine(LINE_LED_GREEN);
+    palSetPad(GPIOA, 4);
     chThdSleepMilliseconds(10);
     palClearLine(LINE_LED_GREEN);
+    palClearPad(GPIOA, 4);
     chThdSleepMilliseconds(300);
     palSetLine(LINE_LED_GREEN);
+    palSetPad(GPIOA, 4);
     chThdSleepMilliseconds(10);
     palClearLine(LINE_LED_GREEN);
+    palClearPad(GPIOA, 4);
     chThdSleepMilliseconds(1000);
   }
 }
@@ -39,7 +43,7 @@ int main(void)
   chSysInit();
   gBoard.begin();
 
-  palSetPadMode(GPIOA, 11, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOA, 4, PAL_MODE_OUTPUT_PUSHPULL);
 
   chprintf(dbg, "Supmeca Never Dies!!!!\n");
 
@@ -53,7 +57,6 @@ int main(void)
   while(true)
   {
     systime_t time = chVTGetSystemTimeX();
-    palSetPad(GPIOA, 11);
     if(time - timeLastStatus >= statusPeriod)
     {
       timeLastStatus = time;
@@ -63,7 +66,6 @@ int main(void)
     gBoard.publishFeedback();
     gBoard.nh.spinOnce();
     time += feedbackPeriod;
-    palClearPad(GPIOA, 11);
     chThdSleepUntil(time);
   }
 }
