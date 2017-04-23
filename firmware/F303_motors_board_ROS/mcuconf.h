@@ -124,14 +124,12 @@
 #define STM32_GPT_USE_TIM1                  FALSE
 #define STM32_GPT_USE_TIM2                  FALSE
 #define STM32_GPT_USE_TIM3                  FALSE
-#define STM32_GPT_USE_TIM4                  FALSE
 #define STM32_GPT_USE_TIM6                  TRUE
 #define STM32_GPT_USE_TIM7                  FALSE
 #define STM32_GPT_USE_TIM15                 FALSE
 #define STM32_GPT_TIM1_IRQ_PRIORITY         7
 #define STM32_GPT_TIM2_IRQ_PRIORITY         7
 #define STM32_GPT_TIM3_IRQ_PRIORITY         7
-#define STM32_GPT_TIM4_IRQ_PRIORITY         7
 #define STM32_GPT_TIM6_IRQ_PRIORITY         7
 #define STM32_GPT_TIM7_IRQ_PRIORITY         7
 #define STM32_GPT_TIM15_IRQ_PRIORITY        7
@@ -152,12 +150,10 @@
 #define STM32_ICU_USE_TIM1                  FALSE
 #define STM32_ICU_USE_TIM2                  FALSE
 #define STM32_ICU_USE_TIM3                  FALSE
-#define STM32_ICU_USE_TIM4                  FALSE
 #define STM32_ICU_USE_TIM15                 FALSE
 #define STM32_ICU_TIM1_IRQ_PRIORITY         7
 #define STM32_ICU_TIM2_IRQ_PRIORITY         7
 #define STM32_ICU_TIM3_IRQ_PRIORITY         7
-#define STM32_ICU_TIM4_IRQ_PRIORITY         7
 #define STM32_ICU_TIM15_IRQ_PRIORITY        7
 
 /*
@@ -167,12 +163,10 @@
 #define STM32_PWM_USE_TIM1                  TRUE
 #define STM32_PWM_USE_TIM2                  FALSE
 #define STM32_PWM_USE_TIM3                  FALSE
-#define STM32_PWM_USE_TIM4                  FALSE
 #define STM32_PWM_USE_TIM15                 FALSE
 #define STM32_PWM_TIM1_IRQ_PRIORITY         7
 #define STM32_PWM_TIM2_IRQ_PRIORITY         7
 #define STM32_PWM_TIM3_IRQ_PRIORITY         7
-#define STM32_PWM_TIM4_IRQ_PRIORITY         7
 #define STM32_PWM_TIM15_IRQ_PRIORITY        7
 
 /*
