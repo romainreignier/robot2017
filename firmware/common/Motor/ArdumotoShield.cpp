@@ -8,8 +8,6 @@
 #include "ArdumotoShield.h"
 #include "Board.h"
 
-#include "chprintf.h"
-
 ArdumotoShield::ArdumotoShield(PWMDriver* _driver, uint8_t _channel,
                                bool _isComplementaryChannel,
                                stm32_gpio_t* _dirGpio, const uint32_t _dirPin)
@@ -29,12 +27,10 @@ void ArdumotoShield::changeDirection(eDirection _direction)
   if(_direction == FORWARD)
   {
     palSetPad(m_dirGpio, m_dirPin);
-    chprintf(dbg, "set pin forward\n");
   }
   else
   {
     palClearPad(m_dirGpio, m_dirPin);
-    chprintf(dbg, "set pin backward\n");
   }
 }
 

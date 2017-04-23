@@ -21,13 +21,14 @@ public:
     BACKWARD
   };
   static constexpr uint32_t kPwmFrequency{1000000};
-  static constexpr uint16_t kPwmPeriod{1000};
+  static constexpr uint16_t kPwmPeriod{125};
   // TODO: change direction security, not too often
   Motor(PWMDriver* _driver, const uint8_t _channel,
         bool _isComplementaryChannel = false);
   void begin();
   void stop();
   void pwm(int16_t _percentage);
+  void pwmI(int16_t _percentage);
   virtual void brake() = 0;
   virtual void changeDirection(eDirection _direction) = 0;
   virtual void setOutputPinsMode() = 0;

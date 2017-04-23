@@ -8,8 +8,6 @@
 #include "Motor.h"
 #include "Board.h"
 
-#include "chprintf.h"
-
 Motor::Motor(PWMDriver* _driver, const uint8_t _channel,
              bool _isComplementaryChannel)
   : m_driver{_driver}, m_channel(_channel - 1),
@@ -38,7 +36,13 @@ void Motor::stop()
 
 void Motor::pwm(int16_t _percentage)
 {
-  chprintf(dbg, "set pwm %d\n", _percentage);
+  osalSysLock();
+  pwmI(_percentage);
+  osalSysUnlock();
+}
+
+void Motor::pwmI(int16_t _percentage)
+{
   if(_percentage >= 0)
   {
     changeDirection(FORWARD);
@@ -49,6 +53,6 @@ void Motor::pwm(int16_t _percentage)
     _percentage *= -1;
   }
   _percentage = (_percentage > 10000) ? 10000 : _percentage;
-  pwmEnableChannel(
+  pwmEnableChannelI(
     m_driver, m_channel, PWM_PERCENTAGE_TO_WIDTH(m_driver, static_cast<uint16_t>(_percentage)));
 }

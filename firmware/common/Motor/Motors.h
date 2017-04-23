@@ -9,6 +9,7 @@ public:
   Motors(Motor& _leftMotor, Motor& _rightMotor);
   void begin();
   void pwm(int16_t _leftPwm, int16_t _rightPwm);
+  void pwmI(int16_t _leftPwm, int16_t _rightPwm);
   void stop();
   void brake();
 

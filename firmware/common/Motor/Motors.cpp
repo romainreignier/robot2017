@@ -65,6 +65,12 @@ void Motors::pwm(int16_t _leftPwm, int16_t _rightPwm)
   m_rightMotor.pwm(_rightPwm);
 }
 
+void Motors::pwmI(int16_t _leftPwm, int16_t _rightPwm)
+{
+  m_leftMotor.pwmI(_leftPwm);
+  m_rightMotor.pwmI(_rightPwm);
+}
+
 void Motors::stop()
 {
   m_leftMotor.stop();
