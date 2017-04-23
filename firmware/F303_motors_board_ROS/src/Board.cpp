@@ -105,6 +105,7 @@ void Board::begin()
   palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
 
   // ROS
+  // nh.getHardware()->setDriver(&SD1);
   nh.initNode();
   // Publishers
   nh.advertise(statusPub);

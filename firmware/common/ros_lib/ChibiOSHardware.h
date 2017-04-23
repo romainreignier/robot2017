@@ -17,10 +17,15 @@ public:
 
   void init() {}
 
+  void setDriver(SerialDriver* driver)
+  {
+    iostream = (BaseChannel*)driver;
+  }
+
   int read()
   {
     return chnGetTimeout(iostream, TIME_IMMEDIATE);
-  };
+  }
 
   void write(uint8_t* data, int length)
   {

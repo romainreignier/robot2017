@@ -22,3 +22,5 @@ mcuconf_community.h
 ../common/AdcTimer/AdcTimer.cpp
 ../common/Pid/Pid.h
 ../common/Pid/Pid.cpp
+../common/ros_lib/ros.h
+../common/ros_lib/ChibiOSHardware.h
