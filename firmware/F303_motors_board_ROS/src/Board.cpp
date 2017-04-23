@@ -1,10 +1,12 @@
 #include "Board.h"
 
-#include "chprintf.h"
-
 BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 
-// Driver Callbacks
+#if defined(USE_ROS_LOG)
+char logBuffer[LOG_BUFFER_SIZE];
+#endif
+
+// Drivers Callbacks
 static void adc1Callback(ADCDriver* _adcd, adcsample_t* _buffer, size_t _n)
 {
   gBoard.motorsCurrentChecker.adcCb(_adcd, _buffer, _n);
@@ -124,6 +126,11 @@ void Board::publishFeedback()
   encodersMsg.header.stamp = nh.now();
   gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
+  DEBUG("pwm l %d r %d\nin l %d r %d",
+        static_cast<int16_t>(leftMotorPwm),
+        static_cast<int16_t>(rightMotorPwm),
+        static_cast<int16_t>(leftMotorSpeed),
+        static_cast<int16_t>(rightMotorSpeed));
 }
 
 void Board::publishStatus()
@@ -140,49 +147,50 @@ void Board::publishStatus()
     motorsCurrentChecker.value2() * kAdcToMilliAmps;
   statusMsg.status = globalStatus;
   statusPub.publish(&statusMsg);
+  // DEBUG("Current Motors pwm left: %d right: %d",
+  //       static_cast<int16_t>(leftMotorPwm),
+  //       static_cast<int16_t>(rightMotorPwm));
 }
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 {
   if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
   {
-    chprintf(dbg,
-             "Motors Speed received, left: %d right: %d\n",
-             _msg.left,
-             _msg.right);
-    motors.pwm(_msg.left, _msg.right);
+    // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
+    // _msg.right);
+    leftMotorCommand = _msg.left;
+    rightMotorCommand = _msg.right;
   }
   else
   {
-    chprintf(
-      dbg,
-      "Motors Speed received but motors stopped because of overcurrent.\n");
+    // DEBUG("Motors Speed received but motors stopped because of
+    // overcurrent.\n");
     motors.stop();
   }
 }
 
 void Board::leftMotorPidCb(const snd_msgs::Pid& _msg)
 {
-  chprintf(dbg,
-           "Left Motor Pid received: P: %.4f I: %.4f  D: %.4f\n",
-           _msg.p,
-           _msg.i,
-           _msg.d);
+  DEBUG("Left Motor Pid received: P: %.4f I: %.4f  D: %.4f",
+        _msg.p,
+        _msg.i,
+        _msg.d);
+  leftMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
 }
 
 void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
 {
-  chprintf(dbg,
-           "Right Motor Pid received: P: %.4f I: %.4f  D: %.4f\n",
-           _msg.p,
-           _msg.i,
-           _msg.d);
+  DEBUG("Right Motor Pid received: P: %.4f I: %.4f  D: %.4f",
+        _msg.p,
+        _msg.i,
+        _msg.d);
+  rightMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
 }
 
 void Board::resetStatusCb(const std_msgs::Empty& _msg)
 {
   (void)_msg;
-  chprintf(dbg, "Received a service request to reset the status flag.\n");
+  DEBUG("Received a service request to reset the status flag");
   globalStatus = snd_msgs::Status::STATUS_OK;
   timeStartOverCurrent = 0;
 }
@@ -192,19 +200,19 @@ void Board::checkMotorsCurrent()
   if(motorsCurrentChecker.value1() * kAdcToMilliAmps > kCurrentThreshold ||
      motorsCurrentChecker.value2() * kAdcToMilliAmps > kCurrentThreshold)
   {
-    chprintf(dbg, "Overcurrent detected.\n");
+    DEBUG("Overcurrent detected");
     if(timeStartOverCurrent != 0)
     {
-      chprintf(dbg, "It is not the first time.\n");
+      DEBUG("It is not the first time");
       if(chVTGetSystemTimeX() - timeStartOverCurrent >= kMaxTimeOverCurrent)
       {
-        chprintf(dbg, "Lasts more than 1 second, raise the flag!\n");
+        DEBUG("Lasts more than 1 second, raise the flag!");
         globalStatus = snd_msgs::Status::STATUS_MOTORS_OVERCURRENT;
       }
     }
     else
     {
-      chprintf(dbg, "It is the first time, take note of the time.\n");
+      DEBUG("It is the first time, take note of the time");
       timeStartOverCurrent = chVTGetSystemTimeX();
     }
   }
@@ -212,7 +220,7 @@ void Board::checkMotorsCurrent()
   {
     if(timeStartOverCurrent != 0)
     {
-      chprintf(dbg, "The flag was previoulsy set, reset it.\n");
+      DEBUG("The flag was previoulsy set, reset it");
       timeStartOverCurrent = 0;
     }
   }

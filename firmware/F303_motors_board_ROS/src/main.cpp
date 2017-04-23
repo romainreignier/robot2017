@@ -9,8 +9,6 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
-
 #include "Board.h"
 
 // Green LED blinker thread
@@ -45,15 +43,15 @@ int main(void)
 
   palSetPadMode(GPIOA, 4, PAL_MODE_OUTPUT_PUSHPULL);
 
-  chprintf(dbg, "Supmeca Never Dies!!!!\n");
-
   // Creates the blinker thread.
   chThdCreateStatic(
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
   systime_t timeLastStatus = chVTGetSystemTimeX();
-  const systime_t statusPeriod = MS2ST(200);
-  const systime_t feedbackPeriod = MS2ST(10);
+  const systime_t statusPeriod = MS2ST(500);
+  const systime_t feedbackPeriod = MS2ST(25);
+
+  DEBUG("Supmeca Never Dies!!!!");
   while(true)
   {
     systime_t time = chVTGetSystemTimeX();

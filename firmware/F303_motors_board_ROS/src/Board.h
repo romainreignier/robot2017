@@ -1,5 +1,9 @@
 #pragma once
 
+#include "hal.h"
+
+#include "chprintf.h"
+
 #include "AdcTimer.h"
 #include "Input.h"
 #include "MonsterShield.h"
@@ -18,7 +22,20 @@
 #define DEBUG_DRIVER SD1
 
 extern BaseSequentialStream* dbg;
-extern BaseSequentialStream* ser;
+
+// #define USE_SERIAL_LOG
+#define USE_ROS_LOG
+
+#if defined(USE_SERIAL_LOG)
+#define DEBUG(...) chprintf(dbg, __VA_ARGS__); streamPut(dbg, '\n')
+#elif defined(USE_ROS_LOG)
+#define LOG_BUFFER_SIZE 128
+extern char logBuffer[LOG_BUFFER_SIZE];
+#define DEBUG(...) chsnprintf(logBuffer, LOG_BUFFER_SIZE, __VA_ARGS__); \
+                   gBoard.nh.loginfo(logBuffer)
+#else
+#define DEBUG(...)
+#endif
 
 // Here we use a struct instead of a class to ease the use of the object
 // So no need to use getters
