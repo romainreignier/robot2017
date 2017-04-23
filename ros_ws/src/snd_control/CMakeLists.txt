@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   realtime_tools
   roscpp
+  rospy
   rosparam_shortcuts
   sensor_msgs
   snd_serial
@@ -121,6 +122,7 @@ catkin_package(
   hardware_interface
   realtime_tools
   roscpp
+  rospy
   rosparam_shortcuts
   sensor_msgs
   snd_serial
