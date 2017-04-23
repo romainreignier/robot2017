@@ -20,6 +20,9 @@ firmware/common/ros_lib
 *.user.*
 *.user
 
+# Idea
+.idea
+
 # Protobuf generated
 CommMsgs.pb.h
 CommMsgs.pb.c
