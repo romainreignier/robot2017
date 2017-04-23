@@ -17,7 +17,8 @@ firmware/common/ros_lib
 *.swp
 
 # QtCreator
-CMakeLists.txt.user
+*.user.*
+*.user
 
 # Protobuf generated
 CommMsgs.pb.h
