@@ -20,3 +20,5 @@ mcuconf_community.h
 ../common/Gpio/Input.cpp
 ../common/AdcTimer/AdcTimer.h
 ../common/AdcTimer/AdcTimer.cpp
+../common/Pid/Pid.h
+../common/Pid/Pid.cpp

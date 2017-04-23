@@ -10,6 +10,16 @@ static void adc1Callback(ADCDriver* _adcd, adcsample_t* _buffer, size_t _n)
   gBoard.motorsCurrentChecker.adcCb(_adcd, _buffer, _n);
 }
 
+static void gpt7cb(GPTDriver* _gptd)
+{
+  (void)_gptd;
+  // Compute PID for motors
+  gBoard.motorsControl();
+}
+
+// Drivers configs
+static const GPTConfig gpt7cfg = {1000, gpt7cb, 0, 0};
+
 Board::Board()
   : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
@@ -18,13 +28,26 @@ Board::Board()
     eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
     motorsCurrentChecker{
       &ADCD1, &GPTD6, ADC_CHANNEL_IN11, ADC_CHANNEL_IN12, 80000, 1000},
-    statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
+    pidTimerPeriodMs{25},
+    leftMotorPid{
+      &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
+    rightMotorPid{
+      &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 1, 0, 0, DIRECT},
+    lastLeftTicks{0}, lastRightTicks{0}, statusPub{"status", &statusMsg},
+    encodersPub{"encoders", &encodersMsg},
     motorsSpeedSub("motors_speed", &Board::motorsSpeedCb, this),
     leftMotorPidSub("left_motor_pid", &Board::leftMotorPidCb, this),
     rightMotorPidSub("right_motor_pid", &Board::rightMotorPidCb, this),
     resetStatusSub{"reset_status", &Board::resetStatusCb, this},
     timeStartOverCurrent{0}
 {
+  leftMotorPid.SetOutputLimits(-10000, 10000);
+  rightMotorPid.SetOutputLimits(-10000,
+                                10000);
+  leftMotorPid.SetSampleTime(pidTimerPeriodMs);
+  rightMotorPid.SetSampleTime(pidTimerPeriodMs);
+  leftMotorPid.SetMode(AUTOMATIC);
+  rightMotorPid.SetMode(AUTOMATIC);
 }
 
 void Board::begin()
@@ -39,6 +62,11 @@ void Board::begin()
   adcConversionGroup.smpr[0] = 0;
   adcConversionGroup.smpr[1] = ADC_SMPR2_SMP_AN11(ADC_SMPR_SMP_181P5) |
                                ADC_SMPR2_SMP_AN12(ADC_SMPR_SMP_181P5);
+
+  // Start Timer
+  gptStart(&GPTD7, &gpt7cfg);
+  // Timer at 1 kHz so the period == ms
+  gptStartContinuous(&GPTD7, pidTimerPeriodMs);
 
   // Start each component
   qei.begin();
@@ -186,6 +214,29 @@ void Board::checkMotorsCurrent()
       chprintf(dbg, "The flag was previoulsy set, reset it.\n");
       timeStartOverCurrent = 0;
     }
+  }
+}
+
+void Board::motorsControl()
+{
+  int32_t leftTicks;
+  int32_t rightTicks;
+  chSysLockFromISR();
+  gBoard.qei.getValuesI(&leftTicks, &rightTicks);
+  chSysUnlockFromISR();
+  // TODO see if it is better to get system time instead of fixed timer period
+  leftMotorSpeed =
+    (leftTicks - lastLeftTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
+  rightMotorSpeed =
+    (rightTicks - lastRightTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
+  lastLeftTicks = leftTicks;
+  lastRightTicks = rightTicks;
+  if(leftMotorPid.Compute() && rightMotorPid.Compute())
+  {
+    chSysLockFromISR();
+    motors.pwmI(static_cast<int16_t>(leftMotorPwm),
+                static_cast<int16_t>(rightMotorPwm));
+    chSysUnlockFromISR();
   }
 }
 

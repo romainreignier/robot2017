@@ -108,6 +108,7 @@ include $(COMMON)/vl53l0x/vl53l0x.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/AdcTimer/AdcTimer.mk
 include $(COMMON)/ros_lib/ros.mk
+include $(COMMON)/Pid/Pid.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F303x8.ld
@@ -128,7 +129,7 @@ CSRC = $(STARTUPSRC) \
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(SERIALCOMMSRC) $(GPIOSRC) \
-         $(ADCTIMERSRC) $(ROSSRC) \
+         $(ADCTIMERSRC) $(PIDSRC) $(ROSSRC) \
          src/Board.cpp \
          src/main.cpp 
 
@@ -161,7 +162,8 @@ INCDIR = $(CHIBIOS)/os/license \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
-         $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(ROSINC) \
+         $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(PIDINC) \
+         $(ROSINC) \
          src
 
 #

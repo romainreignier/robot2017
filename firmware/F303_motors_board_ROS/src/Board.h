@@ -4,7 +4,9 @@
 #include "Input.h"
 #include "MonsterShield.h"
 #include "Motors.h"
+#include "Pid.h"
 #include "Qei.h"
+
 #include <ros.h>
 #include <snd_msgs/Encoders.h>
 #include <snd_msgs/Motors.h>
@@ -34,6 +36,7 @@ struct Board
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
   void resetStatusCb(const std_msgs::Empty& _msg);
   void checkMotorsCurrent();
+  void motorsControl();
 
   // Components
   MonsterShield leftMotor;
@@ -44,6 +47,18 @@ struct Board
   Input colorSwitch;
   Input eStop;
   AdcTimer motorsCurrentChecker;
+
+  uint16_t pidTimerPeriodMs;
+  PID leftMotorPid;
+  PID rightMotorPid;
+  float leftMotorSpeed;
+  float leftMotorPwm;
+  float leftMotorCommand;
+  float rightMotorSpeed;
+  float rightMotorPwm;
+  float rightMotorCommand;
+  int32_t lastLeftTicks;
+  int32_t lastRightTicks;
 
   // ROS
   ros::NodeHandle nh;

@@ -1,3 +1,3 @@
 Header header
-int32 left
-int32 right
+float32 left
+float32 right
