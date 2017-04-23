@@ -10,7 +10,7 @@
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
 #include <snd_msgs/Status.h>
-#include <std_srvs/Empty.h>
+#include <std_msgs/Empty.h>
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD1
@@ -32,8 +32,7 @@ struct Board
   void motorsSpeedCb(const snd_msgs::Motors& _msg);
   void leftMotorPidCb(const snd_msgs::Pid& _msg);
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
-  void resetStatusCb(const std_srvs::EmptyRequest& _req,
-                     std_srvs::EmptyResponse& _resp);
+  void resetStatusCb(const std_msgs::Empty& _msg);
   void checkMotorsCurrent();
 
   // Components
@@ -57,9 +56,7 @@ struct Board
   ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
   ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
   ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
-  // Service Server
-  ros::ServiceServer<std_srvs::EmptyRequest, std_srvs::EmptyResponse, Board>
-    resetStatusServiceServer;
+  ros::Subscriber<std_msgs::Empty, Board> resetStatusSub;
 
   uint8_t globalStatus;
   systime_t timeStartOverCurrent;

@@ -21,7 +21,7 @@ Board::Board()
     motorsSpeedSub("motors_speed", &Board::motorsSpeedCb, this),
     leftMotorPidSub("left_motor_pid", &Board::leftMotorPidCb, this),
     rightMotorPidSub("right_motor_pid", &Board::rightMotorPidCb, this),
-    resetStatusServiceServer{"reset_status", &Board::resetStatusCb, this},
+    resetStatusSub{"reset_status", &Board::resetStatusCb, this},
     timeStartOverCurrent{0}
 {
 }
@@ -83,9 +83,7 @@ void Board::begin()
   nh.subscribe(motorsSpeedSub);
   nh.subscribe(leftMotorPidSub);
   nh.subscribe(rightMotorPidSub);
-  // Service Server
-  nh.advertiseService<std_srvs::EmptyRequest, std_srvs::EmptyResponse>(
-    resetStatusServiceServer);
+  nh.subscribe(resetStatusSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
 }
@@ -150,11 +148,9 @@ void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
            _msg.d);
 }
 
-void Board::resetStatusCb(const std_srvs::EmptyRequest& _req,
-                          std_srvs::EmptyResponse& _resp)
+void Board::resetStatusCb(const std_msgs::Empty& _msg)
 {
-  (void)_req;
-  (void)_resp;
+  (void)_msg;
   chprintf(dbg, "Received a service request to reset the status flag.\n");
   globalStatus = snd_msgs::Status::STATUS_OK;
   timeStartOverCurrent = 0;

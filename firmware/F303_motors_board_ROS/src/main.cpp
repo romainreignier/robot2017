@@ -48,8 +48,8 @@ int main(void)
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
   systime_t timeLastStatus = chVTGetSystemTimeX();
-  const systime_t statusPeriod = MS2ST(100);
-  const systime_t feedbackPeriod = MS2ST(40);
+  const systime_t statusPeriod = MS2ST(200);
+  const systime_t feedbackPeriod = MS2ST(10);
   while(true)
   {
     systime_t time = chVTGetSystemTimeX();
