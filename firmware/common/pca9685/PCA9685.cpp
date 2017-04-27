@@ -53,7 +53,9 @@ PCA9685::PCA9685(I2CDriver *driver, const I2CConfig *config, uint8_t address, ui
     this->pwm_frequency = freq;
     this->config = config;
     this->acquire = acquirebus; //Prevents from accessing the bus from more than one threads
+}
 
+void PCA9685::begin() {
     i2cStart(this->driver, this->config);
     this->reset();
     this->setFreq(this->pwm_frequency);
