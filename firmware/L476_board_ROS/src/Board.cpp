@@ -126,9 +126,9 @@ void Board::begin()
   adcConversionGroup.smpr[1] = 0;
 
   // Start Timer
-  gptStart(&GPTD7, &gpt7cfg);
-  // // Timer at 1 kHz so the period == ms
-  gptStartContinuous(&GPTD7, pidTimerPeriodMs);
+  // gptStart(&GPTD7, &gpt7cfg);
+  // Timer at 1 kHz so the period == ms
+  // gptStartContinuous(&GPTD7, pidTimerPeriodMs);
 
   // // Start each component
   qei.begin();
