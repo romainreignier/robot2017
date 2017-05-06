@@ -28,3 +28,8 @@ CommMsgs.pb.h
 CommMsgs.pb.c
 CommMsgs.pb.cc
 
+# Python
+*~
+*.pyc
+*_tmp.py
+
