@@ -251,14 +251,7 @@ void Board::launchServoCb(const std_msgs::UInt16& _msg)
 
 void Board::pumpCb(const std_msgs::Bool& _msg)
 {
-  if(_msg.data)
-  {
-    pump.set();
-  }
-  else
-  {
-    pump.clear();
-  }
+  _msg.data ? pump.set() : pump.clear();
 }
 
 void Board::checkMotorsCurrent()
