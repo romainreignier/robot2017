@@ -240,9 +240,6 @@ include $(RULESPATH)/rules.mk
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
-	/opt/gnuarmeclipse/openocd/0.10.0-201701241841/bin/openocd -f /usr/share/openocd/scripts/board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
-	#openocd -f /usr/share/openocd/scripts/board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
-
-
+	openocd -f board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
 
 # vim: ts=2 sw=2 et
