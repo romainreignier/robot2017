@@ -22,15 +22,21 @@ static void gpt7cb(GPTDriver* _gptd)
 // Drivers configs
 static const GPTConfig gpt7cfg = {1000, gpt7cb, 0, 0};
 
+static const I2CConfig i2c1cfg = {
+  //  0x00702991, // Computed with CubeMX, but also equals to:
+  STM32_TIMINGR_PRESC(0U) | STM32_TIMINGR_SCLDEL(7U) |
+    STM32_TIMINGR_SDADEL(0U) | STM32_TIMINGR_SCLH(41U) |
+    STM32_TIMINGR_SCLL(91U),
+  0,
+  0};
+
 static const I2CConfig i2c2cfg = {
   //  0x00702991, // Computed with CubeMX, but also equals to:
-  STM32_TIMINGR_PRESC(0U) |
-  STM32_TIMINGR_SCLDEL(7U) | STM32_TIMINGR_SDADEL(0U) |
-  STM32_TIMINGR_SCLH(41U)  | STM32_TIMINGR_SCLL(91U),
+  STM32_TIMINGR_PRESC(0U) | STM32_TIMINGR_SCLDEL(7U) |
+    STM32_TIMINGR_SDADEL(0U) | STM32_TIMINGR_SCLH(41U) |
+    STM32_TIMINGR_SCLL(91U),
   0,
-  0
-};
-
+  0};
 
 Board::Board()
   : // Components
@@ -39,8 +45,8 @@ Board::Board()
     motors(leftMotor, rightMotor), qei{&QEID1, false, &QEID2, false},
     starter{GPIOC, 13}, colorSwitch{GPIOC, 0},
     eStop{GPIOC, 1, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
-    servos{&I2CD2, &i2c2cfg},
-    
+    servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
+
     motorsCurrentChecker{
       &ADCD1, &GPTD6, ADC_CHANNEL_IN3, ADC_CHANNEL_IN4, 80000, 1000},
     timeStartOverCurrent{0},
@@ -125,6 +131,7 @@ void Board::begin()
   palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
   palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
 
+  // leftVlx.begin(&i2c1cfg);
   // ROS
   // nh.getHardware()->setDriver(&SD1);
   nh.initNode();

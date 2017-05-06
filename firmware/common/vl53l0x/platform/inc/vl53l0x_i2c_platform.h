@@ -40,7 +40,7 @@ extern "C" {
  *
  */
 
-int VL53L0X_i2c_init(I2CDriver* driver);
+int VL53L0X_i2c_init(const I2CDriver* driver, const I2CConfig* config);
 
 /**
  * @brief  Close platform comms.

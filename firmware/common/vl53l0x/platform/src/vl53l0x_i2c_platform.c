@@ -13,20 +13,15 @@
 #define STATUS_OK    0
 #define STATUS_ERROR 1
 
-static const I2CConfig i2cCfg = {
-	OPMODE_I2C,
-	400000,
-	FAST_DUTY_CYCLE_2,
-};
 
-static I2CDriver* i2cDriver;
+static const I2CDriver* i2cDriver;
 static i2cflags_t errors = 0;
 static const systime_t timeout = OSAL_MS2ST(400);
 
-int VL53L0X_i2c_init(I2CDriver* driver)
+int VL53L0X_i2c_init(const I2CDriver* driver, const I2CConfig* config)
 {
     i2cDriver = driver;
-    i2cStart(i2cDriver, &i2cCfg);
+    i2cStart(i2cDriver, config);
     return STATUS_OK;
 }
 

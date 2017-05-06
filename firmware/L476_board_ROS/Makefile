@@ -105,6 +105,7 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(COMMON)/Motor/Motor.mk
 include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/vl53l0x/vl53l0x.mk
+include $(COMMON)/vl53l0x_cpp/vl53l0x_cpp.mk
 include $(COMMON)/pca9685/pca9685.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/AdcTimer/AdcTimer.mk
@@ -124,13 +125,14 @@ CSRC = $(STARTUPSRC) \
        $(STREAMSSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
+       $(VL53L0XSRC) \
        $(CHIBIOS)/os/various/syscalls.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
-         $(ADCTIMERSRC) $(PIDSRC) $(ROSSRC) \
+         $(ADCTIMERSRC) $(PIDSRC) $(ROSSRC) $(VL53L0XCPPSRC) \
          src/Board.cpp \
          src/main.cpp 
 
@@ -164,7 +166,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(PIDINC) \
-         $(PCA9685INC) $(ROSINC) \
+         $(PCA9685INC) $(VL53L0XINC) $(VL53L0XCPPINC) $(ROSINC) \
          src
 
 #
@@ -201,7 +203,7 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
-CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
+CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -fdiagnostics-color=auto
 
 # Define C++ warning options here
 CPPWARN = -std=c++11 -Wall -Wextra -Wundef -fdiagnostics-color=auto
@@ -238,6 +240,9 @@ include $(RULESPATH)/rules.mk
 
 .PHONY: flash
 flash: build/$(PROJECT).elf
-	openocd -f /usr/share/openocd/scripts/board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
+	/opt/gnuarmeclipse/openocd/0.10.0-201701241841/bin/openocd -f /usr/share/openocd/scripts/board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
+	#openocd -f /usr/share/openocd/scripts/board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
+
+
 
 # vim: ts=2 sw=2 et

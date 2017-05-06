@@ -11,6 +11,7 @@
 #include "Motors.h"
 #include "Pid.h"
 #include "Qei.h"
+#include "VL53L0X.h"
 #include "PCA9685.hpp"
 
 #include <ros.h>
@@ -82,6 +83,7 @@ struct Board
   const uint8_t kGraspServoId = 1;
   static constexpr uint16_t kServoMin = 200; // this is the 'minimum' pulse length count
   static constexpr uint16_t kServoMax =  500; // this is the 'maximum' pulse length count
+  // VL53L0X leftVlx;
 
   AdcTimer motorsCurrentChecker;
   systime_t timeStartOverCurrent;

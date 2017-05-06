@@ -89,12 +89,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 VL53L0X_Error VL53L0X_LockSequenceAccess(VL53L0X_DEV Dev){
+    (void)Dev;
     VL53L0X_Error Status = VL53L0X_ERROR_NONE;
 
     return Status;
 }
 
 VL53L0X_Error VL53L0X_UnlockSequenceAccess(VL53L0X_DEV Dev){
+    (void)Dev;
     VL53L0X_Error Status = VL53L0X_ERROR_NONE;
 
     return Status;
@@ -259,11 +261,11 @@ VL53L0X_Error  VL53L0X_RdDWord(VL53L0X_DEV Dev, uint8_t index, uint32_t *data){
 
 #define VL53L0X_POLLINGDELAY_LOOPNB  250
 VL53L0X_Error VL53L0X_PollingDelay(VL53L0X_DEV Dev){
+    (void)Dev;
     VL53L0X_Error status = VL53L0X_ERROR_NONE;
     LOG_FUNCTION_START("");
 
     osalThreadSleepMilliseconds(5);
-    //chThdSleepMilliseconds(5);
 
     LOG_FUNCTION_END(status);
     return status;

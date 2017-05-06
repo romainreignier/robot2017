@@ -1,0 +1,3 @@
+VL53L0XCPPSRC := $(COMMON)/vl53l0x_cpp/VL53L0X.cpp
+
+VL53L0XCPPINC := $(COMMON)/vl53l0x_cpp/
