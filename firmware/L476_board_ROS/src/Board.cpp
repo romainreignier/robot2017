@@ -20,7 +20,7 @@ static void gpt7cb(GPTDriver* _gptd)
 }
 
 // Drivers configs
-static const GPTConfig gpt7cfg = {1000, gpt7cb, 0, 0};
+static const GPTConfig gpt7cfg = {10000, gpt7cb, 0, 0};
 
 static const I2CConfig i2c1cfg = {
   //  0x00702991, // Computed with CubeMX, but also equals to:
@@ -126,9 +126,9 @@ void Board::begin()
   adcConversionGroup.smpr[1] = 0;
 
   // Start Timer
-  // gptStart(&GPTD7, &gpt7cfg);
-  // Timer at 1 kHz so the period == ms
-  // gptStartContinuous(&GPTD7, pidTimerPeriodMs);
+  gptStart(&GPTD7, &gpt7cfg);
+  // Timer at 10 kHz so the period = ms * 10
+  gptStartContinuous(&GPTD7, pidTimerPeriodMs * 10);
 
   // // Start each component
   qei.begin();
