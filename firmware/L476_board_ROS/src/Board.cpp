@@ -49,8 +49,7 @@ Board::Board()
 
     motorsCurrentChecker{
       &ADCD1, &GPTD6, ADC_CHANNEL_IN3, ADC_CHANNEL_IN4, 80000, 1000},
-    timeStartOverCurrent{0},
-    pidTimerPeriodMs{25},
+    timeStartOverCurrent{0}, pidTimerPeriodMs{25},
     leftMotorPid{
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
@@ -64,11 +63,11 @@ Board::Board()
     resetStatusSub{"reset_status", &Board::resetStatusCb, this},
     armServoSub{"arm_servo", &Board::armServoCb, this},
     graspServoSub{"grasp_servo", &Board::graspServoCb, this},
-    pumpSub{"pump", &Board::pumpCb, this}
+    pumpSub{"pump", &Board::pumpCb, this},
+    launchServoSub{"launch_servo", &Board::launchServoCb, this}
 {
   leftMotorPid.SetOutputLimits(-10000, 10000);
-  rightMotorPid.SetOutputLimits(-10000,
-                                10000);
+  rightMotorPid.SetOutputLimits(-10000, 10000);
   leftMotorPid.SetSampleTime(pidTimerPeriodMs);
   rightMotorPid.SetSampleTime(pidTimerPeriodMs);
   leftMotorPid.SetMode(AUTOMATIC);
@@ -77,32 +76,6 @@ Board::Board()
 
 void Board::begin()
 {
-  // Activate Serial Driver for debug
-  sdStart(&DEBUG_DRIVER, NULL);
-  sdStart(&SERIAL_DRIVER, NULL);
-
-  // Fill the adc conversion group
-  auto& adcConversionGroup = motorsCurrentChecker.getAdcConversionGroup();
-  adcConversionGroup.end_cb = adc1Callback;
-  adcConversionGroup.smpr[0] = ADC_SMPR1_SMP_AN3(ADC_SMPR_SMP_247P5) |
-                               ADC_SMPR1_SMP_AN4(ADC_SMPR_SMP_247P5);
-  adcConversionGroup.smpr[1] = 0;
-
-  // Start Timer
-  gptStart(&GPTD7, &gpt7cfg);
-  // Timer at 1 kHz so the period == ms
-  gptStartContinuous(&GPTD7, pidTimerPeriodMs);
-
-  // Start each component
-  qei.begin();
-  motors.begin();
-  starter.begin();
-  eStop.begin();
-  colorSwitch.begin();
-  pump.begin();
-  servos.begin();
-  motorsCurrentChecker.begin();
-
   // Pin muxing of each peripheral
   // see p.73, chap 4, table 16 of STM32L476 datasheet
 
@@ -131,7 +104,43 @@ void Board::begin()
   palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
   palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
 
+  // I2C2: PB11 = SDA | PB10 = SCL
+  palSetPadMode(GPIOB,
+                10,
+                PAL_MODE_ALTERNATE(4) | PAL_STM32_OSPEED_HIGH |
+                  PAL_STM32_OTYPE_OPENDRAIN);
+  palSetPadMode(GPIOB,
+                11,
+                PAL_MODE_ALTERNATE(4) | PAL_STM32_OSPEED_HIGH |
+                  PAL_STM32_OTYPE_OPENDRAIN);
+
+  // Activate Serial Driver for debug
+  sdStart(&DEBUG_DRIVER, NULL);
+  sdStart(&SERIAL_DRIVER, NULL);
+
+  // Fill the adc conversion group
+  auto& adcConversionGroup = motorsCurrentChecker.getAdcConversionGroup();
+  adcConversionGroup.end_cb = adc1Callback;
+  adcConversionGroup.smpr[0] = ADC_SMPR1_SMP_AN3(ADC_SMPR_SMP_247P5) |
+                               ADC_SMPR1_SMP_AN4(ADC_SMPR_SMP_247P5);
+  adcConversionGroup.smpr[1] = 0;
+
+  // Start Timer
+  gptStart(&GPTD7, &gpt7cfg);
+  // // Timer at 1 kHz so the period == ms
+  gptStartContinuous(&GPTD7, pidTimerPeriodMs);
+
+  // // Start each component
+  qei.begin();
+  motors.begin();
+  starter.begin();
+  eStop.begin();
+  colorSwitch.begin();
+  pump.begin();
+  servos.begin();
+  motorsCurrentChecker.begin();
   // leftVlx.begin(&i2c1cfg);
+
   // ROS
   // nh.getHardware()->setDriver(&SD1);
   nh.initNode();
@@ -146,6 +155,7 @@ void Board::begin()
   nh.subscribe(armServoSub);
   nh.subscribe(graspServoSub);
   nh.subscribe(pumpSub);
+  nh.subscribe(launchServoSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
 }
@@ -155,11 +165,11 @@ void Board::publishFeedback()
   encodersMsg.header.stamp = nh.now();
   gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
-  DEBUG("pwm l %d r %d\nin l %d r %d",
-        static_cast<int16_t>(leftMotorPwm),
-        static_cast<int16_t>(rightMotorPwm),
-        static_cast<int16_t>(leftMotorSpeed),
-        static_cast<int16_t>(rightMotorSpeed));
+  // DEBUG("pwm l %d r %d\nin l %d r %d",
+  //       static_cast<int16_t>(leftMotorPwm),
+  //       static_cast<int16_t>(rightMotorPwm),
+  //       static_cast<int16_t>(leftMotorSpeed),
+  //       static_cast<int16_t>(rightMotorSpeed));
 }
 
 void Board::publishStatus()
@@ -234,16 +244,21 @@ void Board::graspServoCb(const std_msgs::UInt16& _msg)
   servos.setPWM(kGraspServoId, 0, bound(_msg.data, kServoMin, kServoMax));
 }
 
+void Board::launchServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kLaunchServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
 void Board::pumpCb(const std_msgs::Bool& _msg)
 {
-    if(_msg.data)
-    {
-        pump.set();
-    }
-    else
-    {
-        pump.clear();
-    }
+  if(_msg.data)
+  {
+    pump.set();
+  }
+  else
+  {
+    pump.clear();
+  }
 }
 
 void Board::checkMotorsCurrent()
