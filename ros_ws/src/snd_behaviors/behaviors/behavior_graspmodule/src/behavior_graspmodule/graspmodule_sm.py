@@ -45,8 +45,8 @@ class GraspModuleSM(Behavior):
 
 
   def create(self):
-    ARM_SERVO_LOW = 100
-    ARM_SERVO_HIGH = 600
+    ARM_SERVO_LOW = 495
+    ARM_SERVO_HIGH = 270
     GRASP_SERVO_CLOSE = 100
     GRASP_SERVO_OPEN = 600
     ARM_SERVO_TOPIC = '/arm_servo'
