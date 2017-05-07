@@ -88,9 +88,9 @@ struct Board
   const uint8_t kGraspServoId = 1;
   const uint8_t kLaunchServoId = 2;
   static constexpr uint16_t kServoMin =
-    200; // this is the 'minimum' pulse length count
+    100; // this is the 'minimum' pulse length count
   static constexpr uint16_t kServoMax =
-    500; // this is the 'maximum' pulse length count
+    700; // this is the 'maximum' pulse length count
   // VL53L0X leftVlx;
 
   AdcTimer motorsCurrentChecker;
@@ -138,4 +138,5 @@ template <typename T> T Board::bound(T _in, T _min, T _max)
   return _in;
 }
 
+// Global instance of the board struct
 extern Board gBoard;

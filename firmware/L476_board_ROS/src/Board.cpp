@@ -141,7 +141,7 @@ void Board::begin()
   // Timer at 10 kHz so the period = ms * 10
   gptStartContinuous(&GPTD7, pidTimerPeriodMs * 10);
 
-  // // Start each component
+  // Start each component
   qei.begin();
   motors.begin();
   starter.begin();
