@@ -8,6 +8,8 @@
 #include "Input.h"
 #include "MonsterShield.h"
 #include "Motors.h"
+#include "Output.h"
+#include "PCA9685.hpp"
 #include "Pid.h"
 #include "Qei.h"
 
@@ -16,7 +18,9 @@
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
 #include <snd_msgs/Status.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/Empty.h>
+#include <std_msgs/UInt16.h>
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD1
@@ -49,14 +53,24 @@ struct Board
   // Methods
   Board();
   void begin();
+  // ROS publish methods
   void publishFeedback();
   void publishStatus();
+  // ROS Callbacks
   void motorsSpeedCb(const snd_msgs::Motors& _msg);
   void leftMotorPidCb(const snd_msgs::Pid& _msg);
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
   void resetStatusCb(const std_msgs::Empty& _msg);
+  void armServoCb(const std_msgs::UInt16& _msg);
+  void graspServoCb(const std_msgs::UInt16& _msg);
+  void pumpCb(const std_msgs::Bool& _msg);
+  void launchServoCb(const std_msgs::UInt16& _msg);
+
   void checkMotorsCurrent();
   void motorsControl();
+
+  // helpers
+  template <typename T> T bound(T _in, T _min, T _max);
 
   // Components
   MonsterShield leftMotor;
@@ -66,7 +80,23 @@ struct Board
   Input starter;
   Input colorSwitch;
   Input eStop;
+  Output pump;
+  PCA9685 servos;
+  const uint8_t kArmServoId = 0;
+  const uint8_t kGraspServoId = 1;
+  const uint8_t kLaunchServoId = 2;
+  static constexpr uint16_t kServoMin =
+    100; // this is the 'minimum' pulse length count
+  static constexpr uint16_t kServoMax =
+    700; // this is the 'maximum' pulse length count
+
   AdcTimer motorsCurrentChecker;
+  systime_t timeStartOverCurrent;
+  uint8_t globalStatus;
+  static constexpr uint16_t kCurrentThreshold = 6000;
+  static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
+  // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
+  static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
 
   uint16_t pidTimerPeriodMs;
   PID leftMotorPid;
@@ -92,13 +122,18 @@ struct Board
   ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
   ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
   ros::Subscriber<std_msgs::Empty, Board> resetStatusSub;
-
-  uint8_t globalStatus;
-  systime_t timeStartOverCurrent;
-  static constexpr uint16_t kCurrentThreshold = 6000;
-  static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
-  // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
-  static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
+  ros::Subscriber<std_msgs::UInt16, Board> armServoSub;
+  ros::Subscriber<std_msgs::UInt16, Board> graspServoSub;
+  ros::Subscriber<std_msgs::Bool, Board> pumpSub;
+  ros::Subscriber<std_msgs::UInt16, Board> launchServoSub;
 };
 
+template <typename T> T Board::bound(T _in, T _min, T _max)
+{
+  if(_in > _max) return _max;
+  if(_in < _min) return _min;
+  return _in;
+}
+
+// Global instance of the board struct
 extern Board gBoard;

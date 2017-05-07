@@ -1,6 +1,6 @@
 #include "Board.h"
 
-BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
+// BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 
 #if defined(USE_ROS_LOG)
 char logBuffer[LOG_BUFFER_SIZE];
@@ -42,24 +42,34 @@ static const GPTConfig gpt6cfg = {80000, NULL, TIM_CR2_MMS_1, 0};
 // Timer to trigger PID computation
 static const GPTConfig gpt7cfg = {1000, gpt7cb, 0, 0};
 
+// Servos i2c
+static const I2CConfig i2c1cfg = {0x20303E5D, // Computed with CubeMX
+                                  0,
+                                  0};
+
 Board::Board()
   : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 7}, colorSwitch{GPIOA, 11},
-    eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
-    motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, pidTimerPeriodMs{25},
+    eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP}, pump{GPIOA, 4},
+    servos{&I2CD1, &i2c1cfg}, motorsCurrentChecker{&ADCD1, &GPTD6, 1000},
+    timeStartOverCurrent{0}, pidTimerPeriodMs{25},
     leftMotorPid{
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
       &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 1, 0, 0, DIRECT},
     lastLeftTicks{0}, lastRightTicks{0}, statusPub{"status", &statusMsg},
+    // ROS related
     encodersPub{"encoders", &encodersMsg},
-    motorsSpeedSub("motors_speed", &Board::motorsSpeedCb, this),
-    leftMotorPidSub("left_motor_pid", &Board::leftMotorPidCb, this),
-    rightMotorPidSub("right_motor_pid", &Board::rightMotorPidCb, this),
+    motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
+    leftMotorPidSub{"left_motor_pid", &Board::leftMotorPidCb, this},
+    rightMotorPidSub{"right_motor_pid", &Board::rightMotorPidCb, this},
     resetStatusSub{"reset_status", &Board::resetStatusCb, this},
-    timeStartOverCurrent{0}
+    armServoSub{"arm_servo", &Board::armServoCb, this},
+    graspServoSub{"grasp_servo", &Board::graspServoCb, this},
+    pumpSub{"pump", &Board::pumpCb, this},
+    launchServoSub{"launch_servo", &Board::launchServoCb, this}
 {
   leftMotorPid.SetOutputLimits(-10000, 10000);
   rightMotorPid.SetOutputLimits(-10000, 10000);
@@ -71,29 +81,12 @@ Board::Board()
 
 void Board::begin()
 {
-  // Activate Serial Driver for debug
-  sdStart(&DEBUG_DRIVER, NULL);
-  sdStart(&SERIAL_DRIVER, NULL);
-
-  // Start Timer
-  gptStart(&GPTD7, &gpt7cfg);
-  // Timer at 1 kHz so the period == ms
-  gptStartContinuous(&GPTD7, pidTimerPeriodMs);
-
-  // Start each component
-  qei.begin();
-  motors.begin();
-  starter.begin();
-  eStop.begin();
-  colorSwitch.begin();
-  motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
-
   // Pin muxing of each peripheral
   // see p.37, chap 4, table 15 of STM32F303x8 datasheet
 
-  // UART1: PB6 (TX), PB7 (RX)
-  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(7));
-  palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(7));
+  // I2C1: PB6 (SCL), PB7 (SDA)
+  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4));
+  palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4));
 
   // UART2: PA2 (TX), PA15 (RX)
   palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));
@@ -116,6 +109,25 @@ void Board::begin()
   palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
   palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(1) | PAL_MODE_INPUT_PULLUP);
 
+  // Activate Serial Driver for debug
+  // sdStart(&DEBUG_DRIVER, NULL);
+  sdStart(&SERIAL_DRIVER, NULL);
+
+  // Start Timer
+  gptStart(&GPTD7, &gpt7cfg);
+  // Timer at 1 kHz so the period == ms
+  gptStartContinuous(&GPTD7, pidTimerPeriodMs);
+
+  // Start each component
+  qei.begin();
+  motors.begin();
+  starter.begin();
+  eStop.begin();
+  colorSwitch.begin();
+  pump.begin();
+  servos.begin();
+  motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
+
   // ROS
   // nh.getHardware()->setDriver(&SD1);
   nh.initNode();
@@ -127,6 +139,10 @@ void Board::begin()
   nh.subscribe(leftMotorPidSub);
   nh.subscribe(rightMotorPidSub);
   nh.subscribe(resetStatusSub);
+  nh.subscribe(armServoSub);
+  nh.subscribe(graspServoSub);
+  nh.subscribe(pumpSub);
+  nh.subscribe(launchServoSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
 }
@@ -136,11 +152,11 @@ void Board::publishFeedback()
   encodersMsg.header.stamp = nh.now();
   gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
-  DEBUG("pwm l %d r %d\nin l %d r %d",
-        static_cast<int16_t>(leftMotorPwm),
-        static_cast<int16_t>(rightMotorPwm),
-        static_cast<int16_t>(leftMotorSpeed),
-        static_cast<int16_t>(rightMotorSpeed));
+  // DEBUG("pwm l %d r %d\nin l %d r %d",
+  //       static_cast<int16_t>(leftMotorPwm),
+  //       static_cast<int16_t>(rightMotorPwm),
+  //       static_cast<int16_t>(leftMotorSpeed),
+  //       static_cast<int16_t>(rightMotorSpeed));
 }
 
 void Board::publishStatus()
@@ -203,6 +219,26 @@ void Board::resetStatusCb(const std_msgs::Empty& _msg)
   DEBUG("Received a service request to reset the status flag");
   globalStatus = snd_msgs::Status::STATUS_OK;
   timeStartOverCurrent = 0;
+}
+
+void Board::armServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kArmServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::graspServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kGraspServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::launchServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kLaunchServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::pumpCb(const std_msgs::Bool& _msg)
+{
+  _msg.data ? pump.set() : pump.clear();
 }
 
 void Board::checkMotorsCurrent()

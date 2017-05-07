@@ -105,6 +105,7 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(COMMON)/Motor/Motor.mk
 include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/vl53l0x/vl53l0x.mk
+include $(COMMON)/pca9685/pca9685.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/AdcTimer/AdcTimer.mk
 include $(COMMON)/ros_lib/ros.mk
@@ -128,7 +129,7 @@ CSRC = $(STARTUPSRC) \
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
-         $(MOTORSRC) $(QEISRC) $(SERIALCOMMSRC) $(GPIOSRC) \
+         $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
          $(ADCTIMERSRC) $(PIDSRC) $(ROSSRC) \
          src/Board.cpp \
          src/main.cpp 
@@ -163,7 +164,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(PIDINC) \
-         $(ROSINC) \
+         $(PCA9685INC) $(ROSINC) \
          src
 
 #
@@ -200,7 +201,7 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
-CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
+CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -fdiagnostics-color=auto
 
 # Define C++ warning options here
 CPPWARN = -std=c++11 -Wall -Wextra -Wundef -fdiagnostics-color=auto
@@ -235,14 +236,8 @@ ULIBS =
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
-CommMsgs.pb.c: $(PROTOMSGDIR)/CommMsgs.proto
-	$(PROTOC) $(PROTOC_OPTS) -I$(PROTOMSGDIR) --nanopb_out=. $(PROTOMSGDIR)/CommMsgs.proto
-
-clean_proto:
-	rm -f CommMsgs.pb.h CommMsgs.pb.c
-
 .PHONY: flash
 flash: build/$(PROJECT).elf
-	openocd -f /usr/share/openocd/scripts/board/st_nucleo_f3.cfg -c "program build/$(PROJECT).elf verify reset exit"
+	openocd -f board/st_nucleo_f3.cfg -c "program build/$(PROJECT).elf verify reset exit"
 
 # vim: ts=2 sw=2 et

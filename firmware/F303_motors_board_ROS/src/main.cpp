@@ -20,16 +20,12 @@ static THD_FUNCTION(ThreadBlinker, arg)
   while(true)
   {
     palSetLine(LINE_LED_GREEN);
-    palSetPad(GPIOA, 4);
     chThdSleepMilliseconds(10);
     palClearLine(LINE_LED_GREEN);
-    palClearPad(GPIOA, 4);
     chThdSleepMilliseconds(300);
     palSetLine(LINE_LED_GREEN);
-    palSetPad(GPIOA, 4);
     chThdSleepMilliseconds(10);
     palClearLine(LINE_LED_GREEN);
-    palClearPad(GPIOA, 4);
     chThdSleepMilliseconds(1000);
   }
 }
@@ -40,8 +36,6 @@ int main(void)
   halInit();
   chSysInit();
   gBoard.begin();
-
-  palSetPadMode(GPIOA, 4, PAL_MODE_OUTPUT_PUSHPULL);
 
   // Creates the blinker thread.
   chThdCreateStatic(
