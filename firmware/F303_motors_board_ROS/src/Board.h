@@ -27,12 +27,15 @@ extern BaseSequentialStream* dbg;
 #define USE_ROS_LOG
 
 #if defined(USE_SERIAL_LOG)
-#define DEBUG(...) chprintf(dbg, __VA_ARGS__); streamPut(dbg, '\n')
+#define DEBUG(...)                                                             \
+  chprintf(dbg, __VA_ARGS__);                                                  \
+  streamPut(dbg, '\n')
 #elif defined(USE_ROS_LOG)
 #define LOG_BUFFER_SIZE 128
 extern char logBuffer[LOG_BUFFER_SIZE];
-#define DEBUG(...) chsnprintf(logBuffer, LOG_BUFFER_SIZE, __VA_ARGS__); \
-                   gBoard.nh.loginfo(logBuffer)
+#define DEBUG(...)                                                             \
+  chsnprintf(logBuffer, LOG_BUFFER_SIZE, __VA_ARGS__);                         \
+  gBoard.nh.loginfo(logBuffer)
 #else
 #define DEBUG(...)
 #endif

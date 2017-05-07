@@ -20,8 +20,26 @@ static void gpt7cb(GPTDriver* _gptd)
 }
 
 // Drivers configs
+// ADC for motors current checking
+static const ADCConversionGroup adcConversionGroup = {
+  TRUE,
+  ADC_CHANNELS,
+  adc1Callback,
+  NULL,
+  ADC_CFGR_EXTEN_RISING | ADC_CFGR_EXTSEL_SRC(13),
+  ADC_TR(0, 4095),
+  {ADC_SMPR1_SMP_AN3(ADC_SMPR_SMP_247P5) |
+     ADC_SMPR1_SMP_AN4(ADC_SMPR_SMP_247P5),
+   0},
+  {ADC_SQR1_SQ1_N(ADC_CHANNEL_IN3) | ADC_SQR1_SQ2_N(ADC_CHANNEL_IN4), 0, 0, 0}};
+
+// Timer to trigger ADC motors current checking
+static const GPTConfig gpt6cfg = {80000, NULL, TIM_CR2_MMS_1, 0};
+
+// Timer to trigger PID computation
 static const GPTConfig gpt7cfg = {10000, gpt7cb, 0, 0};
 
+// VL53L0X i2c bus
 static const I2CConfig i2c1cfg = {
   //  0x00702991, // Computed with CubeMX, but also equals to:
   STM32_TIMINGR_PRESC(0U) | STM32_TIMINGR_SCLDEL(7U) |
@@ -30,6 +48,7 @@ static const I2CConfig i2c1cfg = {
   0,
   0};
 
+// Servos i2c
 static const I2CConfig i2c2cfg = {
   //  0x00702991, // Computed with CubeMX, but also equals to:
   STM32_TIMINGR_PRESC(0U) | STM32_TIMINGR_SCLDEL(7U) |
@@ -47,9 +66,8 @@ Board::Board()
     eStop{GPIOC, 1, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
 
-    motorsCurrentChecker{
-      &ADCD1, &GPTD6, ADC_CHANNEL_IN3, ADC_CHANNEL_IN4, 80000, 1000},
-    timeStartOverCurrent{0}, pidTimerPeriodMs{25},
+    motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, timeStartOverCurrent{0},
+    pidTimerPeriodMs{25},
     leftMotorPid{
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
@@ -118,13 +136,6 @@ void Board::begin()
   sdStart(&DEBUG_DRIVER, NULL);
   sdStart(&SERIAL_DRIVER, NULL);
 
-  // Fill the adc conversion group
-  auto& adcConversionGroup = motorsCurrentChecker.getAdcConversionGroup();
-  adcConversionGroup.end_cb = adc1Callback;
-  adcConversionGroup.smpr[0] = ADC_SMPR1_SMP_AN3(ADC_SMPR_SMP_247P5) |
-                               ADC_SMPR1_SMP_AN4(ADC_SMPR_SMP_247P5);
-  adcConversionGroup.smpr[1] = 0;
-
   // Start Timer
   gptStart(&GPTD7, &gpt7cfg);
   // Timer at 10 kHz so the period = ms * 10
@@ -138,7 +149,7 @@ void Board::begin()
   colorSwitch.begin();
   pump.begin();
   servos.begin();
-  motorsCurrentChecker.begin();
+  motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
   // leftVlx.begin(&i2c1cfg);
 
   // ROS

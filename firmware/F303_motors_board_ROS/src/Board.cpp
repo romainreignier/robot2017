@@ -20,6 +20,26 @@ static void gpt7cb(GPTDriver* _gptd)
 }
 
 // Drivers configs
+// ADC for motors current checking
+static const ADCConversionGroup adcConversionGroup = {
+  TRUE,
+  ADC_CHANNELS,
+  adc1Callback,
+  NULL,
+  ADC_CFGR_EXTEN_RISING | ADC_CFGR_EXTSEL_SRC(13),
+  ADC_TR(0, 4095),
+  {0,
+   ADC_SMPR2_SMP_AN11(ADC_SMPR_SMP_181P5) |
+     ADC_SMPR2_SMP_AN12(ADC_SMPR_SMP_181P5)},
+  {ADC_SQR1_SQ1_N(ADC_CHANNEL_IN11) | ADC_SQR1_SQ2_N(ADC_CHANNEL_IN12),
+   0,
+   0,
+   0}};
+
+// Timer to trigger ADC motors current checking
+static const GPTConfig gpt6cfg = {80000, NULL, TIM_CR2_MMS_1, 0};
+
+// Timer to trigger PID computation
 static const GPTConfig gpt7cfg = {1000, gpt7cb, 0, 0};
 
 Board::Board()
@@ -28,9 +48,7 @@ Board::Board()
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 7}, colorSwitch{GPIOA, 11},
     eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
-    motorsCurrentChecker{
-      &ADCD1, &GPTD6, ADC_CHANNEL_IN11, ADC_CHANNEL_IN12, 80000, 1000},
-    pidTimerPeriodMs{25},
+    motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, pidTimerPeriodMs{25},
     leftMotorPid{
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
@@ -44,8 +62,7 @@ Board::Board()
     timeStartOverCurrent{0}
 {
   leftMotorPid.SetOutputLimits(-10000, 10000);
-  rightMotorPid.SetOutputLimits(-10000,
-                                10000);
+  rightMotorPid.SetOutputLimits(-10000, 10000);
   leftMotorPid.SetSampleTime(pidTimerPeriodMs);
   rightMotorPid.SetSampleTime(pidTimerPeriodMs);
   leftMotorPid.SetMode(AUTOMATIC);
@@ -58,13 +75,6 @@ void Board::begin()
   sdStart(&DEBUG_DRIVER, NULL);
   sdStart(&SERIAL_DRIVER, NULL);
 
-  // Fill the adc conversion group
-  auto& adcConversionGroup = motorsCurrentChecker.getAdcConversionGroup();
-  adcConversionGroup.end_cb = adc1Callback;
-  adcConversionGroup.smpr[0] = 0;
-  adcConversionGroup.smpr[1] = ADC_SMPR2_SMP_AN11(ADC_SMPR_SMP_181P5) |
-                               ADC_SMPR2_SMP_AN12(ADC_SMPR_SMP_181P5);
-
   // Start Timer
   gptStart(&GPTD7, &gpt7cfg);
   // Timer at 1 kHz so the period == ms
@@ -76,7 +86,7 @@ void Board::begin()
   starter.begin();
   eStop.begin();
   colorSwitch.begin();
-  motorsCurrentChecker.begin();
+  motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
 
   // Pin muxing of each peripheral
   // see p.37, chap 4, table 15 of STM32F303x8 datasheet

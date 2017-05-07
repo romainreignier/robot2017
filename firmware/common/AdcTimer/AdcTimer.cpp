@@ -1,47 +1,24 @@
 #include "AdcTimer.h"
 
 AdcTimer::AdcTimer(ADCDriver* _adcDriver, GPTDriver* _gptDriver,
-                   const uint32_t _channel1, const uint32_t _channel2,
-                   const uint32_t _timerFrequency, const uint32_t _timerPeriod)
+                   const uint32_t _timerPeriod)
   : m_adcDriver{_adcDriver}, m_gptDriver{_gptDriver},
-    m_adcConversionGroup{
-      TRUE,
-      ADC_CHANNELS,
-      NULL,
-      NULL,
-      ADC_CFGR_EXTEN_RISING | ADC_CFGR_EXTSEL_SRC(13),
-      ADC_TR(0, 4095),
-      {0, 0},
-      {ADC_SQR1_SQ1_N(_channel1) | ADC_SQR1_SQ2_N(_channel2), 0, 0, 0}},
-    m_timerPeriod{_timerPeriod}, m_gptConfig{.frequency = _timerFrequency,
-                                             .callback = NULL,
-                                             .cr2 = TIM_CR2_MMS_1,
-                                             .dier = 0U},
-    m_currentValue1{0}, m_currentValue2{0}
+    m_timerPeriod{_timerPeriod}, m_currentValue1{0}, m_currentValue2{0}
 {
 }
 
-ADCConversionGroup& AdcTimer::getAdcConversionGroup()
-{
-  return m_adcConversionGroup;
-}
-
-GPTConfig& AdcTimer::getGptConfig()
-{
-  return m_gptConfig;
-}
-
-void AdcTimer::begin()
+void AdcTimer::begin(const GPTConfig* _gptConfig,
+                     const ADCConversionGroup* _adcConversionGroup)
 {
   // Activate the GPT driver
-  gptStart(m_gptDriver, &m_gptConfig);
+  gptStart(m_gptDriver, _gptConfig);
 
   // Activates the ADC driver
   adcStart(m_adcDriver, NULL);
 
   // Starts ADC conversion triggered by the timer
   adcStartConversion(
-    m_adcDriver, &m_adcConversionGroup, m_samples.data(), ADC_BUFFER_DEPTH);
+    m_adcDriver, _adcConversionGroup, m_samples.data(), ADC_BUFFER_DEPTH);
   gptStartContinuous(m_gptDriver, m_timerPeriod);
 }
 
