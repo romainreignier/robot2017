@@ -18,7 +18,6 @@
 ../common/ChibiOS/os/hal/ports/STM32/LLD/DMAv1
 ../common/ChibiOS/os/hal/ports/STM32/LLD/EXTIv1
 ../common/ChibiOS/os/hal/ports/STM32/LLD/GPIOv3
-../common/ChibiOS/os/hal/ports/STM32/LLD/I2Cv1
 ../common/ChibiOS/os/hal/ports/STM32/LLD/I2Cv2
 ../common/ChibiOS/os/hal/ports/STM32/LLD/SPIv1
 ../common/ChibiOS/os/hal/ports/STM32/LLD/SPIv2
