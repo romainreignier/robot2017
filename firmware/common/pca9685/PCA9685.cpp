@@ -47,7 +47,7 @@ extern "C" {
  * @param uint8_t acquirebus - set I2C bus exclusive for thread
  *
  */
-PCA9685::PCA9685(I2CDriver *driver, const I2CConfig *config, uint8_t address, uint16_t freq, bool acquirebus) {
+PCA9685::PCA9685(I2CDriver *driver, const I2CConfig *config, uint8_t address, float freq, bool acquirebus) {
     this->i2caddres = address;
     this->driver = driver;
     this->pwm_frequency = freq;
@@ -113,11 +113,12 @@ void PCA9685::reset(void) {
  * @return uint16_t previous frequency value
  *
  */
-void PCA9685::setFreq(uint32_t freq) {
+void PCA9685::setFreq(float freq) {
 
     //According to NXP documentation (7.3.5 PWM frequency PRE_SCALE):
     // prescale = round((osc_clock / (4096 x rate)) - 1)
     // where osc_clock - default oscillator clock set to 25Mhz, requested rate is in Hz
+    freq *= 0.95;
     uint8_t prescale = (uint8_t) floor((PCA9685_CLOCK / (4096 * freq)) - 1);
     if (prescale < 3) //Shouldn't be less than 3
         prescale = 3;
@@ -127,12 +128,12 @@ void PCA9685::setFreq(uint32_t freq) {
     this->writereg(PCA9685_MODE1, newmode); // go to sleep, shutting the oscillator off
     this->writereg(PCA9685_PRESCALE, prescale); // set the prescaler
     this->writereg(PCA9685_MODE1, oldmode);
-    chThdSleepMicroseconds(500);//Wait 0.5ms for oscillator stabilisation
+    osalThreadSleepMicroseconds(500); // Wait 0.5ms for oscillator stabilisation
     this->writereg(PCA9685_MODE1, oldmode | PCA9685_MODE1_ALLCALL | PCA9685_MODE1_AI | PCA9685_MODE1_RESTART);
     this->pwm_frequency = freq;
 }
 
-uint32_t PCA9685::getFreq(void) {
+float PCA9685::getFreq(void) {
     return this->pwm_frequency;
 }
 

@@ -39,37 +39,7 @@
 /*
  * Default PWM frequency.
  */
-#define PCA9685_FREQ 60
-
-/*
- * Using I2CD2
- * I2C2_SDA PB10
- * I2C2_SCL PB11
- *
- */
-/*
- * I2Cv1 driver config
- */
-/*
-static const I2CConfig PCA9685_I2C_CONFIG = {
-    OPMODE_I2C,
-    400000,
-    FAST_DUTY_CYCLE_2,
-};
-*/
-/*
- * I2Cv2 Driver config
- */
-/*
-static const I2CConfig PCA9685_I2C_CONFIG = {
-//    STM32_TIMINGR_PRESC(15U) |
-//    STM32_TIMINGR_SCLDEL(4U) | STM32_TIMINGR_SDADEL(2U) |
-//    STM32_TIMINGR_SCLH(15U) | STM32_TIMINGR_SCLL(21U),
-    0x00702991,
-    0,
-    0,
-};
-*/
+#define PCA9685_FREQ 50
 
 /* See 7.3 Register definitions */
 #define PCA9685_MODE1 0x00
@@ -114,7 +84,7 @@ typedef struct SPWMSet {
 
 class PCA9685 : public PWM {
     public:
-        PCA9685(I2CDriver *driver, const I2CConfig *config, uint8_t address = PCA9685_ADDRESS, uint16_t freq = PCA9685_FREQ, bool acquirebus = true);
+        PCA9685(I2CDriver *driver, const I2CConfig *config, uint8_t address = PCA9685_ADDRESS, float freq = PCA9685_FREQ, bool acquirebus = true);
         void begin();
         //PCA9685();
         //~PCA9685();
@@ -122,8 +92,8 @@ class PCA9685 : public PWM {
         //void operator delete(void *mem);
 
         /* Base class interface */
-        void setFreq(uint32_t freq);
-        uint32_t getFreq(void);
+        void setFreq(float freq);
+        float getFreq(void);
         void setChannel(uint16_t channel);
         void setPWM(float duty);
         uint8_t getPWM(void);
