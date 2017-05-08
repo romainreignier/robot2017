@@ -238,6 +238,9 @@ include $(RULESPATH)/rules.mk
 CommMsgs.pb.c: $(PROTOMSGDIR)/CommMsgs.proto
 	$(PROTOC) $(PROTOC_OPTS) -I$(PROTOMSGDIR) --nanopb_out=. $(PROTOMSGDIR)/CommMsgs.proto
 
+clean_proto:
+	rm -f CommMsgs.pb.h CommMsgs.pb.c
+
 .PHONY: flash
 flash: build/$(PROJECT).elf
 	openocd -f /usr/share/openocd/scripts/board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
