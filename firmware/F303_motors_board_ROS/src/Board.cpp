@@ -51,8 +51,8 @@ Board::Board()
   : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
-    starter{GPIOA, 7}, colorSwitch{GPIOA, 11},
-    eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP}, pump{GPIOA, 4},
+    starter{GPIOA, 4}, colorSwitch{GPIOA, 11},
+    eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP}, pump{GPIOA, 7},
     servos{&I2CD1, &i2c1cfg}, motorsCurrentChecker{&ADCD1, &GPTD6, 1000},
     timeStartOverCurrent{0}, pidTimerPeriodMs{25},
     leftMotorPid{
@@ -69,7 +69,9 @@ Board::Board()
     armServoSub{"arm_servo", &Board::armServoCb, this},
     graspServoSub{"grasp_servo", &Board::graspServoCb, this},
     pumpSub{"pump", &Board::pumpCb, this},
-    launchServoSub{"launch_servo", &Board::launchServoCb, this}
+    launchServoSub{"launch_servo", &Board::launchServoCb, this},
+    ramp1ServoSub{"ramp1_servo", &Board::ramp1ServoCb, this},
+    ramp2ServoSub{"ramp2_servo", &Board::ramp2ServoCb, this}
 {
   leftMotorPid.SetOutputLimits(-10000, 10000);
   rightMotorPid.SetOutputLimits(-10000, 10000);
@@ -143,6 +145,8 @@ void Board::begin()
   nh.subscribe(graspServoSub);
   nh.subscribe(pumpSub);
   nh.subscribe(launchServoSub);
+  nh.subscribe(ramp1ServoSub);
+  nh.subscribe(ramp2ServoSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
 }
@@ -234,6 +238,16 @@ void Board::graspServoCb(const std_msgs::UInt16& _msg)
 void Board::launchServoCb(const std_msgs::UInt16& _msg)
 {
   servos.setPWM(kLaunchServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::ramp1ServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kRamp1ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::ramp2ServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kRamp2ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::pumpCb(const std_msgs::Bool& _msg)

@@ -82,7 +82,9 @@ Board::Board()
     armServoSub{"arm_servo", &Board::armServoCb, this},
     graspServoSub{"grasp_servo", &Board::graspServoCb, this},
     pumpSub{"pump", &Board::pumpCb, this},
-    launchServoSub{"launch_servo", &Board::launchServoCb, this}
+    launchServoSub{"launch_servo", &Board::launchServoCb, this},
+    ramp1ServoSub{"ramp1_servo", &Board::ramp1ServoCb, this},
+    ramp2ServoSub{"ramp2_servo", &Board::ramp2ServoCb, this}
 {
   leftMotorPid.SetOutputLimits(-10000, 10000);
   rightMotorPid.SetOutputLimits(-10000, 10000);
@@ -167,6 +169,8 @@ void Board::begin()
   nh.subscribe(graspServoSub);
   nh.subscribe(pumpSub);
   nh.subscribe(launchServoSub);
+  nh.subscribe(ramp1ServoSub);
+  nh.subscribe(ramp2ServoSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
 }
@@ -258,6 +262,16 @@ void Board::graspServoCb(const std_msgs::UInt16& _msg)
 void Board::launchServoCb(const std_msgs::UInt16& _msg)
 {
   servos.setPWM(kLaunchServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::ramp1ServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kRamp1ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::ramp2ServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kRamp2ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::pumpCb(const std_msgs::Bool& _msg)

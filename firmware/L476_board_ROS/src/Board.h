@@ -67,6 +67,8 @@ struct Board
   void graspServoCb(const std_msgs::UInt16& _msg);
   void pumpCb(const std_msgs::Bool& _msg);
   void launchServoCb(const std_msgs::UInt16& _msg);
+  void ramp1ServoCb(const std_msgs::UInt16& _msg);
+  void ramp2ServoCb(const std_msgs::UInt16& _msg);
 
   void checkMotorsCurrent();
   void motorsControl();
@@ -87,6 +89,8 @@ struct Board
   const uint8_t kArmServoId = 0;
   const uint8_t kGraspServoId = 1;
   const uint8_t kLaunchServoId = 2;
+  const uint8_t kRamp1ServoId = 3;
+  const uint8_t kRamp2ServoId = 4;
   static constexpr uint16_t kServoMin =
     100; // this is the 'minimum' pulse length count
   static constexpr uint16_t kServoMax =
@@ -129,6 +133,8 @@ struct Board
   ros::Subscriber<std_msgs::UInt16, Board> graspServoSub;
   ros::Subscriber<std_msgs::Bool, Board> pumpSub;
   ros::Subscriber<std_msgs::UInt16, Board> launchServoSub;
+  ros::Subscriber<std_msgs::UInt16, Board> ramp1ServoSub;
+  ros::Subscriber<std_msgs::UInt16, Board> ramp2ServoSub;
 };
 
 template <typename T> T Board::bound(T _in, T _min, T _max)
