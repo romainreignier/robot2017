@@ -4,7 +4,7 @@
     <env name="ROSCONSOLE_FORMAT" value="[${time}] [${node}-${severity}] : ${message}" />
 
     <arg name="port" default="/dev/ttyACM0"/>
-    <arg name="baud" default="115200"/>
+    <arg name="baud" default="460800"/>
 
     <node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen">
         <param name="port" value="$(arg port)"/>
