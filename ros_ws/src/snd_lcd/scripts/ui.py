@@ -8,6 +8,7 @@ from pygame.locals import *
 
 # ROS imports
 import rospy
+import rospkg
 from snd_msgs.msg import Status
 
 # Define some common colors
@@ -38,7 +39,9 @@ class Ui:
         pygame.display.update()
 
         # Load the background image
-        self.bg = pygame.image.load('snd_logo.png').convert()
+        rospack = rospkg.RosPack()
+        pkg_path = rospack.get_path('snd_lcd')
+        self.bg = pygame.image.load(pkg_path + '/scripts/snd_logo.png').convert()
         self.screen.blit(self.bg, (0,0))
 
         # Get system font
