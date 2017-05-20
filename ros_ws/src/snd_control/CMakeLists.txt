@@ -18,7 +18,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   rosparam_shortcuts
   sensor_msgs
-  snd_serial
   snd_msgs
   std_msgs
   tf
@@ -125,7 +124,6 @@ catkin_package(
   rospy
   rosparam_shortcuts
   sensor_msgs
-  snd_serial
   snd_msgs
   std_msgs
   tf
@@ -155,16 +153,6 @@ include_directories(
 # add_dependencies(snd_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(snd_control_node
-  src/snd_control.cpp
-  src/snd_hardware.cpp
-  include/snd_control/snd_hardware.h
-)
-add_dependencies(snd_control_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(snd_control_node
-  ${catkin_LIBRARIES}
-)
-
 add_executable(snd_control_ros_node
   src/snd_control_ros.cpp
   src/snd_hardware_ros.cpp

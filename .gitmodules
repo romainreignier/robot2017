@@ -4,9 +4,6 @@
 [submodule "firmware/common/ChibiOS-Contrib"]
 	path = firmware/common/ChibiOS-Contrib
 	url = https://github.com/ChibiOS/ChibiOS-Contrib.git
-[submodule "firmware/common/nanopb"]
-	path = firmware/common/nanopb
-	url = https://github.com/nanopb/nanopb.git
 [submodule "ros_ws/src/flexbe_behavior_engine"]
 	path = ros_ws/src/flexbe_behavior_engine
 	url = https://github.com/team-vigir/flexbe_behavior_engine.git

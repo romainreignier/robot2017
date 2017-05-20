@@ -2,8 +2,12 @@
 
 Software for the robot 2017.
 
-- `firmware`: firmware of the NucleoL476 board, based on ChibiOS.
-- `ros_ws`: workspace ROS to be run in the embedded computer.
+- `firmware`: firmware of the NucleoL476 board, based on ChibiOS RTOS.
+- `ros_ws`: workspace ROS to be run on the embedded computer.
+
+## System dependencies
+
+Ubuntu 16.04 with `ros-kinetic-dektop-full` is needed.
 
 ## Build
 
@@ -14,23 +18,21 @@ Make sure you initialize and update the submodules in order to build.
     $ git submodule init
     $ git submodule update
 
-### Protobuf msgs
-
-To generate protobuf files, make sure you installed the following packages: `protobuf-compiler` `python-protobuf`.
-
-Then go to the `msg` directory to generate the messages for the ROS nodes:
-
-    $ cd msg
-    $ make
-
-Go to `firmware/common/nanopb/generator/proto` and run `make`.
-
-    $ cd firmware/common/nanopb/generator/proto
-    $ make
-
 ## Firmware
 
-Install a compiler suite `binutils-arm-none-eabi` `gcc-arm-none-eabi` `libnewlib-arm-none-eabi` `libstdc++-arm-none-eabi-newlib`  and `openocd`.
+Install a compiler suite:
+
+    $ sudo apt install binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+For Openocd, build from sources to get the support for the NucleoL476:
+
+    $ sudo apt install git autoconf libtool make pkg-config libusb-1.0-0 libusb-1.0-0-dev
+    $ git clone git://git.code.sf.net/p/openocd/code openocd-code --depth=1
+    $ cd openocd-code/
+    $ ./bootstrap 
+    $ ./configure 
+    $ make
+    $ sudo make install
 
 Add user to `dialout` group (login or reboot needed)
 
@@ -42,4 +44,5 @@ To generate the rosserial headers:
     $ cd ros_ws
     $ source devel/setup.bash
     $ cd ../firmware/common
+    $ rm -r ros_lib
     $ rosrun rosserial_client make_libraries .
