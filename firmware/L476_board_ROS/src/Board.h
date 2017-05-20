@@ -87,11 +87,11 @@ struct Board
   Input eStop;
   Output pump;
   PCA9685 servos;
-  const uint8_t kArmServoId = 0;
-  const uint8_t kGraspServoId = 1;
-  const uint8_t kLaunchServoId = 2;
-  const uint8_t kRamp1ServoId = 3;
-  const uint8_t kRamp2ServoId = 4;
+  const uint8_t kArmServoId = 14;
+  const uint8_t kGraspServoId = 7;
+  const uint8_t kLaunchServoId = 0;
+  const uint8_t kRamp1ServoId = 8;
+  const uint8_t kRamp2ServoId = 9;
   // this is the 'minimum' pulse length count
   static constexpr uint16_t kServoMin = 100;
   // this is the 'maximum' pulse length count

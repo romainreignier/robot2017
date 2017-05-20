@@ -61,9 +61,9 @@ Board::Board()
   : // Components
     leftMotor{&PWMD3, 3, false, GPIOB, 4, GPIOB, 5, NULL, 0},
     rightMotor{&PWMD3, 4, false, GPIOD, 2, GPIOC, 12, NULL, 0},
-    motors(leftMotor, rightMotor), qei{&QEID1, false, &QEID2, false},
-    starter{GPIOC, 13}, colorSwitch{GPIOC, 0},
-    eStop{GPIOC, 1, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
+    motors(leftMotor, rightMotor), qei{&QEID1, true, &QEID2, false},
+    starter{GPIOC, 13}, colorSwitch{GPIOC, 1},
+    eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
 
     motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, timeStartOverCurrent{0},
@@ -207,7 +207,7 @@ void Board::publishStatus()
 {
   statusMsg.header.stamp = nh.now();
   statusMsg.starter = starter.read();
-  statusMsg.eStop = eStop.read();
+  statusMsg.eStop = !eStop.read();
   statusMsg.color_switch.color =
     colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
                        : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
