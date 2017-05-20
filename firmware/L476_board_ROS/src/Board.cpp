@@ -173,6 +173,22 @@ void Board::begin()
   nh.subscribe(ramp2ServoSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
+  timeLastStatus = chVTGetSystemTimeX();
+}
+
+void Board::main()
+{
+  systime_t time = chVTGetSystemTimeX();
+  if(time - timeLastStatus >= kStatusPeriod)
+  {
+    timeLastStatus = time;
+    gBoard.checkMotorsCurrent();
+    gBoard.publishStatus();
+  }
+  gBoard.publishFeedback();
+  gBoard.nh.spinOnce();
+  time += kFeedbackPeriod;
+  chThdSleepUntil(time);
 }
 
 void Board::publishFeedback()

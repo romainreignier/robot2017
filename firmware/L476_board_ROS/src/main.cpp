@@ -41,23 +41,9 @@ int main(void)
   chThdCreateStatic(
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
-  systime_t timeLastStatus = chVTGetSystemTimeX();
-  const systime_t statusPeriod = MS2ST(500);
-  const systime_t feedbackPeriod = MS2ST(25);
-
   DEBUG("Supmeca Never Dies!!!!");
   while(true)
   {
-    systime_t time = chVTGetSystemTimeX();
-    if(time - timeLastStatus >= statusPeriod)
-    {
-      timeLastStatus = time;
-      gBoard.checkMotorsCurrent();
-      gBoard.publishStatus();
-    }
-    gBoard.publishFeedback();
-    gBoard.nh.spinOnce();
-    time += feedbackPeriod;
-    chThdSleepUntil(time);
+    gBoard.main();
   }
 }

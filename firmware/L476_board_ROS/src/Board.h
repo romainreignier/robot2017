@@ -55,6 +55,10 @@ struct Board
   // Methods
   Board();
   void begin();
+  void main();
+  void checkMotorsCurrent();
+  void motorsControl();
+
   // ROS publish methods
   void publishFeedback();
   void publishStatus();
@@ -69,9 +73,6 @@ struct Board
   void launchServoCb(const std_msgs::UInt16& _msg);
   void ramp1ServoCb(const std_msgs::UInt16& _msg);
   void ramp2ServoCb(const std_msgs::UInt16& _msg);
-
-  void checkMotorsCurrent();
-  void motorsControl();
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
@@ -91,19 +92,22 @@ struct Board
   const uint8_t kLaunchServoId = 2;
   const uint8_t kRamp1ServoId = 3;
   const uint8_t kRamp2ServoId = 4;
-  static constexpr uint16_t kServoMin =
-    100; // this is the 'minimum' pulse length count
-  static constexpr uint16_t kServoMax =
-    700; // this is the 'maximum' pulse length count
+  // this is the 'minimum' pulse length count
+  static constexpr uint16_t kServoMin = 100;
+  // this is the 'maximum' pulse length count
+  static constexpr uint16_t kServoMax = 700;
   // VL53L0X leftVlx;
 
   AdcTimer motorsCurrentChecker;
   systime_t timeStartOverCurrent;
+  systime_t timeLastStatus = chVTGetSystemTimeX();
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
   static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
   // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
   static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
+  static constexpr systime_t kStatusPeriod = MS2ST(500);
+  static constexpr systime_t kFeedbackPeriod = MS2ST(25);
 
   uint16_t pidTimerPeriodMs;
   PID leftMotorPid;
