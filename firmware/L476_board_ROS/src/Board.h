@@ -63,6 +63,8 @@ struct Board
   void main();
   void checkMotorsCurrent();
   void motorsControl();
+  void startPIDTimer();
+  void stopPIDTimer();
 
   // ROS publish methods
   void publishFeedback();
