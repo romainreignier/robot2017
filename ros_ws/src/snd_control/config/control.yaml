@@ -5,12 +5,13 @@ snd_control:
         low_angle: 0.0
         high_angle: -1.57079
     grasp1_servo:
-        close_value: 335
+        close_value: 332
         open_value: 380
         close_angle: 0.2
         open_angle: -0.1
     grasp2_servo:
-        close_value: 550
+        storage_value: 550
+        close_value: 195
         open_value: 150
         close_angle: 0.0
         open_angle: -1.57
