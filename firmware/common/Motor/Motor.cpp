@@ -43,11 +43,11 @@ void Motor::pwm(int16_t _percentage)
 
 void Motor::pwmI(int16_t _percentage)
 {
-  if(_percentage >= 0)
+  if(_percentage > 0)
   {
     changeDirection(FORWARD);
   }
-  else
+  else if(_percentage < 0)
   {
     changeDirection(BACKWARD);
     _percentage *= -1;
