@@ -30,6 +30,7 @@
 ../common/Gpio
 ../common/AdcTimer
 ../common/pca9685
+../common/tcs34725_adafruit
 ../common/vl53l0x/core/inc
 ../common/vl53l0x/platform/inc
 ../common/vl53l0x_cpp

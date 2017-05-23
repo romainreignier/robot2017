@@ -107,6 +107,7 @@ include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/vl53l0x/vl53l0x.mk
 include $(COMMON)/vl53l0x_cpp/vl53l0x_cpp.mk
 include $(COMMON)/pca9685/pca9685.mk
+include $(COMMON)/tcs34725_adafruit/tcs34725_adafruit.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/AdcTimer/AdcTimer.mk
 include $(COMMON)/ros_lib/ros.mk
@@ -133,8 +134,8 @@ CSRC = $(STARTUPSRC) \
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
          $(ADCTIMERSRC) $(PIDSRC) $(ROSSRC) $(VL53L0XCPPSRC) \
-         src/Board.cpp \
-         src/main.cpp 
+         $(TCS34725SRC) \
+         src/Board.cpp src/main.cpp
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
@@ -167,6 +168,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(PIDINC) \
          $(PCA9685INC) $(VL53L0XINC) $(VL53L0XCPPINC) $(ROSINC) \
+         $(TCS34725INC) \
          src
 
 #

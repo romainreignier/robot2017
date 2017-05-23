@@ -65,6 +65,7 @@ Board::Board()
     starter{GPIOC, 13}, colorSwitch{GPIOC, 1},
     eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
+    tcs{&I2CD2, &i2c2cfg, TCS34725_INTEGRATIONTIME_50MS}, tcsLed{GPIOA, 15},
 
     motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, timeStartOverCurrent{0},
     pidTimerPeriodMs{25},
@@ -75,6 +76,7 @@ Board::Board()
     lastLeftTicks{0}, lastRightTicks{0}, statusPub{"status", &statusMsg},
     // ROS related
     encodersPub{"encoders", &encodersMsg},
+    colorSensorPub{"color_sensor", &colorSensorMsg},
     motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
     leftMotorPidSub{"left_motor_pid", &Board::leftMotorPidCb, this},
     rightMotorPidSub{"right_motor_pid", &Board::rightMotorPidCb, this},
@@ -153,6 +155,9 @@ void Board::begin()
   servos.begin();
   motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
   // leftVlx.begin(&i2c1cfg);
+  tcs.begin();
+  tcsLed.begin();
+  tcsLed.clear();
 
   // ROS
   // nh.getHardware()->setDriver(&SD1);
@@ -160,6 +165,7 @@ void Board::begin()
   // Publishers
   nh.advertise(statusPub);
   nh.advertise(encodersPub);
+  nh.advertise(colorSensorPub);
   // Subscribers
   nh.subscribe(motorsSpeedSub);
   nh.subscribe(leftMotorPidSub);

@@ -12,15 +12,16 @@
 #include "PCA9685.hpp"
 #include "Pid.h"
 #include "Qei.h"
+#include "Adafruit_TCS34725.h"
 #include "VL53L0X.h"
 
 #include <ros.h>
-#include <sensor_msgs/Range.h>
 #include <snd_msgs/Encoders.h>
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
 #include <snd_msgs/Status.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/ColorRGBA.h>
 #include <std_msgs/Empty.h>
 #include <std_msgs/UInt16.h>
 
@@ -97,6 +98,8 @@ struct Board
   // this is the 'maximum' pulse length count
   static constexpr uint16_t kServoMax = 700;
   // VL53L0X leftVlx;
+  Adafruit_TCS34725 tcs;
+  Output tcsLed;
 
   AdcTimer motorsCurrentChecker;
   systime_t timeStartOverCurrent;
@@ -128,6 +131,8 @@ struct Board
   ros::Publisher statusPub;
   snd_msgs::Encoders encodersMsg;
   ros::Publisher encodersPub;
+  std_msgs::ColorRGBA colorSensorMsg;
+  ros::Publisher colorSensorPub;
   // Subscribers
   ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
   ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
