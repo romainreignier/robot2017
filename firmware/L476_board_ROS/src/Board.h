@@ -95,7 +95,7 @@ struct Board
   Input eStop;
   Output pump;
   PCA9685 servos;
-  const uint8_t kArmServoId = 14;
+  const uint8_t kArmServoId = 15;
   const uint8_t kGraspServoId = 7;
   const uint8_t kLaunchServoId = 0;
   const uint8_t kRamp1ServoId = 8;

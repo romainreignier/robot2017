@@ -240,8 +240,8 @@ void Board::publishStatus()
   statusMsg.starter = starter.read();
   statusMsg.eStop = !eStop.read();
   statusMsg.color_switch.color =
-    colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
-                       : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
+    colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::YELLOW)
+                       : static_cast<uint8_t>(snd_msgs::Color::BLUE);
   statusMsg.left_motor_current =
     motorsCurrentChecker.value1() * kAdcToMilliAmps;
   statusMsg.right_motor_current =
