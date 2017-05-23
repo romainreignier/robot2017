@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="snd_lcd"   type="ui.py"    name="ui" launch-prefix="sudo"/>
+</launch>
