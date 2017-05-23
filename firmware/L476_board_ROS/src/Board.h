@@ -17,6 +17,7 @@
 
 #include <ros.h>
 #include <snd_msgs/Encoders.h>
+#include <snd_msgs/MotorControlMode.h>
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
 #include <snd_msgs/Status.h>
@@ -66,6 +67,9 @@ struct Board
   void publishStatus();
   // ROS Callbacks
   void motorsSpeedCb(const snd_msgs::Motors& _msg);
+  void motorsModeCb(const snd_msgs::MotorControlMode& _msg);
+  void leftMotorPwmCb(const std_msgs::Int16& _msg);
+  void rightMotorPwmCb(const std_msgs::Int16& _msg);
   void leftMotorPidCb(const snd_msgs::Pid& _msg);
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
   void resetStatusCb(const std_msgs::Empty& _msg);
@@ -124,6 +128,7 @@ struct Board
   float rightMotorCommand;
   int32_t lastLeftTicks;
   int32_t lastRightTicks;
+  snd_msgs::MotorControlMode motorsMode;
 
   // ROS
   ros::NodeHandle nh;
@@ -138,6 +143,9 @@ struct Board
   ros::Publisher colorSensorPub;
   // Subscribers
   ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
+  ros::Subscriber<snd_msgs::MotorControlMode, Board> motorsModeSub;
+  ros::Subscriber<std_msgs::Int16, Board> leftMotorPwmSub;
+  ros::Subscriber<std_msgs::Int16, Board> rightMotorPwmSub;
   ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
   ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
   ros::Subscriber<std_msgs::Empty, Board> resetStatusSub;

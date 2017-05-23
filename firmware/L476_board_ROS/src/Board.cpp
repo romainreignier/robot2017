@@ -79,6 +79,9 @@ Board::Board()
     commandsPub{"commands", &commandsMsg},
     colorSensorPub{"color_sensor", &colorSensorMsg},
     motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
+    motorsModeSub{"motors_mode", &Board::motorsModeCb, this},
+    leftMotorPwmSub{"left_motor_pwm", &Board::leftMotorPwmCb, this},
+    rightMotorPwmSub{"right_motor_pwm", &Board::rightMotorPwmCb, this},
     leftMotorPidSub{"left_motor_pid", &Board::leftMotorPidCb, this},
     rightMotorPidSub{"right_motor_pid", &Board::rightMotorPidCb, this},
     resetStatusSub{"reset_status", &Board::resetStatusCb, this},
@@ -89,6 +92,8 @@ Board::Board()
     ramp1ServoSub{"ramp1_servo", &Board::ramp1ServoCb, this},
     ramp2ServoSub{"ramp2_servo", &Board::ramp2ServoCb, this}
 {
+  motorsMode.mode = snd_msgs::MotorControlMode::PID;
+
   leftMotorPid.SetOutputLimits(-10000, 10000);
   rightMotorPid.SetOutputLimits(-10000, 10000);
   leftMotorPid.SetSampleTime(pidTimerPeriodMs);
@@ -170,6 +175,9 @@ void Board::begin()
   nh.advertise(colorSensorPub);
   // Subscribers
   nh.subscribe(motorsSpeedSub);
+  nh.subscribe(motorsModeSub);
+  nh.subscribe(leftMotorPwmSub);
+  nh.subscribe(rightMotorPwmSub);
   nh.subscribe(leftMotorPidSub);
   nh.subscribe(rightMotorPidSub);
   nh.subscribe(resetStatusSub);
@@ -240,6 +248,7 @@ void Board::publishStatus()
   statusMsg.right_motor_current =
     motorsCurrentChecker.value2() * kAdcToMilliAmps;
   statusMsg.status = globalStatus;
+  statusMsg.motors_mode = motorsMode;
   statusPub.publish(&statusMsg);
   // DEBUG("Current Motors pwm left: %d right: %d",
   //       static_cast<int16_t>(leftMotorPwm),
@@ -248,18 +257,56 @@ void Board::publishStatus()
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 {
-  if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
+  switch(motorsMode.mode)
   {
+  case snd_msgs::MotorControlMode::PID:
+    // Update PIDs setpoints
+    if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
+    {
+      leftMotorCommand = _msg.left;
+      rightMotorCommand = _msg.right;
+    }
+    else
+    {
+      // DEBUG("Motors Speed received but motors stopped because of
+      // overcurrent.\n");
+      leftMotorCommand = 0;
+      rightMotorCommand = 0;
+      motors.stop();
+    }
+    break;
+  case snd_msgs::MotorControlMode::PWM:
+    // Set direct PWM to motors
     // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
     // _msg.right);
-    leftMotorCommand = _msg.left;
-    rightMotorCommand = _msg.right;
-  }
-  else
-  {
-    // DEBUG("Motors Speed received but motors stopped because of
-    // overcurrent.\n");
+    motors.pwm(static_cast<int16_t>(_msg.left),
+               static_cast<int16_t>(_msg.right));
+    break;
+  case snd_msgs::MotorControlMode::DISABLED:
+  default:
+    // Do nothing
     motors.stop();
+  }
+}
+
+void Board::motorsModeCb(const snd_msgs::MotorControlMode& _msg)
+{
+  motorsMode = _msg;
+}
+
+void Board::leftMotorPwmCb(const std_msgs::Int16& _msg)
+{
+  if(motorsMode.mode == snd_msgs::MotorControlMode::PWM)
+  {
+    leftMotor.pwm(_msg.data);
+  }
+}
+
+void Board::rightMotorPwmCb(const std_msgs::Int16& _msg)
+{
+  if(motorsMode.mode == snd_msgs::MotorControlMode::PWM)
+  {
+    rightMotor.pwm(_msg.data);
   }
 }
 
@@ -352,24 +399,27 @@ void Board::checkMotorsCurrent()
 
 void Board::motorsControl()
 {
-  int32_t leftTicks;
-  int32_t rightTicks;
-  chSysLockFromISR();
-  gBoard.qei.getValuesI(&leftTicks, &rightTicks);
-  chSysUnlockFromISR();
-  // TODO see if it is better to get system time instead of fixed timer period
-  leftMotorSpeed =
-    (leftTicks - lastLeftTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
-  rightMotorSpeed =
-    (rightTicks - lastRightTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
-  lastLeftTicks = leftTicks;
-  lastRightTicks = rightTicks;
-  if(leftMotorPid.Compute() && rightMotorPid.Compute())
+  if(motorsMode.mode == snd_msgs::MotorControlMode::PID)
   {
+    int32_t leftTicks;
+    int32_t rightTicks;
     chSysLockFromISR();
-    motors.pwmI(static_cast<int16_t>(leftMotorPwm),
-                static_cast<int16_t>(rightMotorPwm));
+    gBoard.qei.getValuesI(&leftTicks, &rightTicks);
     chSysUnlockFromISR();
+    // TODO see if it is better to get system time instead of fixed timer period
+    leftMotorSpeed =
+      (leftTicks - lastLeftTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
+    rightMotorSpeed =
+      (rightTicks - lastRightTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
+    lastLeftTicks = leftTicks;
+    lastRightTicks = rightTicks;
+    if(leftMotorPid.Compute() && rightMotorPid.Compute())
+    {
+      chSysLockFromISR();
+      motors.pwmI(static_cast<int16_t>(leftMotorPwm),
+                  static_cast<int16_t>(rightMotorPwm));
+      chSysUnlockFromISR();
+    }
   }
 }
 
