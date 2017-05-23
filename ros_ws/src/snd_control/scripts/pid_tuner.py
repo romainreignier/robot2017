@@ -18,14 +18,13 @@ class PidTuner:
         self.left_motor_pid_pub = rospy.Publisher('/left_motor_pid', Pid, queue_size=1)
         self.right_motor_pid_pub = rospy.Publisher('/right_motor_pid', Pid, queue_size=1)
         self.encoders_speed_pub = rospy.Publisher('/encoders_speed', Motors, queue_size=1)
+        # Dynamic Reconfigure
+        self.srv = Server(PidConfig, self.pid_cb)
         # Subscribers
         self.joy_sub = rospy.Subscriber('/joy', Joy, self.joy_cb)
         self.encoders_sub = rospy.Subscriber('/encoders', Encoders, self.encoders_cb)
-        # Dynamic Reconfigure
-        self.srv = Server(PidConfig, self.pid_cb)
-        # Timer to publish the command regularly
-        self.timer = rospy.Timer(rospy.Duration(0.1), self.timer_cb)
         # Variables
+        self.command_max = 5000
         self.left_command = 0
         self.right_command = 0
         self.left_speed = 0
@@ -35,14 +34,31 @@ class PidTuner:
         self.previous_time = rospy.get_rostime()
         self.previous_left_ticks = 0
         self.previous_right_ticks = 0
+        # Timer to publish the command regularly
+        # self.timer = rospy.Timer(rospy.Duration(0.1), self.timer_cb)
 
     def joy_cb(self, msg):
         # left motor
-        self.left_command = float(msg.axes[3] * JOY_RATIO)
+        # self.left_command = float(msg.axes[1] * JOY_RATIO)
         # right motor
-        self.right_command = float(msg.axes[4] * JOY_RATIO)
-        rospy.loginfo(
-            'Sending motor command left: {} right: {}'.format(self.left_command, self.right_command))
+        # self.right_command = float(msg.axes[3] * JOY_RATIO)
+        # rospy.loginfo(
+        #    'Sending motor command left: {} right: {}'.format(self.left_command, self.right_command))
+
+        if msg.buttons[10]:
+            self.command_max -= 50
+            rospy.loginfo('Max {}'.format(self.command_max))
+        if msg.buttons[11]:
+            self.command_max += 50
+            rospy.loginfo('Max {}'.format(self.command_max))
+        self.left_command = self.command_max * msg.axes[1]
+        self.right_command = self.command_max * msg.axes[3]
+
+        motors_command = Motors()
+        motors_command.header.stamp = rospy.get_rostime()
+        motors_command.left = self.left_command
+        motors_command.right = self.right_command
+        self.motors_pub.publish(motors_command)
 
     def timer_cb(self, event):
         motors_command = Motors()
