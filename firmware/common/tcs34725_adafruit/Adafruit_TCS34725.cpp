@@ -15,8 +15,8 @@
     v1.0 - First release
 */
 /**************************************************************************/
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "Adafruit_TCS34725.h"
 
@@ -39,13 +39,14 @@ float powf(const float x, const float y)
     @brief  Writes a register and an 8 bit value over I2C
 */
 /**************************************************************************/
-void Adafruit_TCS34725::write8 (uint8_t reg, uint32_t value)
+void Adafruit_TCS34725::write8(uint8_t reg, uint32_t value)
 {
   uint8_t txBuf[2];
   txBuf[0] = TCS34725_COMMAND_BIT | reg;
   txBuf[1] = value & 0xFF;
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, TCS34725_ADDRESS, txBuf, 2, NULL, 0, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(
+    _driver, TCS34725_ADDRESS, txBuf, 2, NULL, 0, OSAL_MS2ST(4));
   i2cReleaseBus(_driver);
 }
 
@@ -60,7 +61,8 @@ uint8_t Adafruit_TCS34725::read8(uint8_t reg)
   uint8_t rxBuf[1];
   txBuf[0] = TCS34725_COMMAND_BIT | reg;
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 1, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(
+    _driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 1, OSAL_MS2ST(4));
   i2cReleaseBus(_driver);
   return rxBuf[0];
 }
@@ -76,7 +78,8 @@ uint16_t Adafruit_TCS34725::read16(uint8_t reg)
   uint8_t rxBuf[2];
   txBuf[0] = TCS34725_COMMAND_BIT | reg;
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 2, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(
+    _driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 2, OSAL_MS2ST(4));
   i2cReleaseBus(_driver);
   return (uint16_t)(((uint16_t)(rxBuf[1]) << 8) + rxBuf[0]);
 }
@@ -90,7 +93,7 @@ void Adafruit_TCS34725::enable(void)
 {
   write8(TCS34725_ENABLE, TCS34725_ENABLE_PON);
   osalThreadSleepMilliseconds(3);
-  write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);  
+  write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);
 }
 
 /**************************************************************************/
@@ -115,7 +118,9 @@ void Adafruit_TCS34725::disable(void)
     Constructor
 */
 /**************************************************************************/
-Adafruit_TCS34725::Adafruit_TCS34725(I2CDriver* driver, const I2CConfig* config, tcs34725IntegrationTime_t it, tcs34725Gain_t gain) 
+Adafruit_TCS34725::Adafruit_TCS34725(I2CDriver* driver, const I2CConfig* config,
+                                     tcs34725IntegrationTime_t it,
+                                     tcs34725Gain_t gain)
 {
   _driver = driver;
   _i2cCfg = config;
@@ -134,13 +139,13 @@ Adafruit_TCS34725::Adafruit_TCS34725(I2CDriver* driver, const I2CConfig* config,
     doing anything else)
 */
 /**************************************************************************/
-bool Adafruit_TCS34725::begin(void) 
+bool Adafruit_TCS34725::begin(void)
 {
   i2cStart(_driver, _i2cCfg);  
   
   /* Make sure we're actually connected */
   uint8_t x = read8(TCS34725_ID);
-  if (x != 0x44)
+  if(x != 0x44)
   {
     return false;
   }
@@ -153,9 +158,11 @@ bool Adafruit_TCS34725::begin(void)
   /* Note: by default, the device is in power down mode on bootup */
   enable();
 
+  _timeLastRead = osalOsGetSystemTimeX();
+
   return true;
 }
-  
+
 /**************************************************************************/
 /*!
     Sets the integration time for the TC34725
@@ -163,7 +170,7 @@ bool Adafruit_TCS34725::begin(void)
 /**************************************************************************/
 void Adafruit_TCS34725::setIntegrationTime(tcs34725IntegrationTime_t it)
 {
-  if (!_tcs34725Initialised) begin();
+  if(!_tcs34725Initialised) begin();
 
   /* Update the timing register */
   write8(TCS34725_ATIME, it);
@@ -179,7 +186,7 @@ void Adafruit_TCS34725::setIntegrationTime(tcs34725IntegrationTime_t it)
 /**************************************************************************/
 void Adafruit_TCS34725::setGain(tcs34725Gain_t gain)
 {
-  if (!_tcs34725Initialised) begin();
+  if(!_tcs34725Initialised) begin();
 
   /* Update the timing register */
   write8(TCS34725_CONTROL, gain);
@@ -193,37 +200,44 @@ void Adafruit_TCS34725::setGain(tcs34725Gain_t gain)
     @brief  Reads the raw red, green, blue and clear channel values
 */
 /**************************************************************************/
-void Adafruit_TCS34725::getRawData (uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c)
+void Adafruit_TCS34725::getRawData(uint16_t* r, uint16_t* g, uint16_t* b,
+                                   uint16_t* c)
 {
-  if (!_tcs34725Initialised) begin();
+  if(!_tcs34725Initialised) begin();
+
+  waitIntegrationTime();
 
   *c = read16(TCS34725_CDATAL);
   *r = read16(TCS34725_RDATAL);
   *g = read16(TCS34725_GDATAL);
   *b = read16(TCS34725_BDATAL);
-  
-  /* Set a delay for the integration time */
-  switch (_tcs34725IntegrationTime)
+  _timeLastRead = osalOsGetSystemTimeX();
+}
+
+void Adafruit_TCS34725::waitIntegrationTime(void)
+{
+  const systime_t now = osalOsGetSystemTimeX();
+  const systime_t it = MS2ST(getIntegrationTimeMs());
+  if((now - _timeLastRead) < it)
   {
-    case TCS34725_INTEGRATIONTIME_2_4MS:
-      osalThreadSleepMilliseconds(3);
-      break;
-    case TCS34725_INTEGRATIONTIME_24MS:
-      osalThreadSleepMilliseconds(24);
-      break;
-    case TCS34725_INTEGRATIONTIME_50MS:
-      osalThreadSleepMilliseconds(50);
-      break;
-    case TCS34725_INTEGRATIONTIME_101MS:
-      osalThreadSleepMilliseconds(101);
-      break;
-    case TCS34725_INTEGRATIONTIME_154MS:
-      osalThreadSleepMilliseconds(154);
-      break;
-    case TCS34725_INTEGRATIONTIME_700MS:
-      osalThreadSleepMilliseconds(700);
-      break;
+    /* Set a delay for the integration time */
+    osalThreadSleep(it - (now - _timeLastRead));
   }
+}
+
+int Adafruit_TCS34725::getIntegrationTimeMs(void)
+{
+  int time = 0;
+  switch(_tcs34725IntegrationTime)
+  {
+  case TCS34725_INTEGRATIONTIME_2_4MS: time = 3; break;
+  case TCS34725_INTEGRATIONTIME_24MS: time = 24; break;
+  case TCS34725_INTEGRATIONTIME_50MS: time = 50; break;
+  case TCS34725_INTEGRATIONTIME_101MS: time = 101; break;
+  case TCS34725_INTEGRATIONTIME_154MS: time = 154; break;
+  case TCS34725_INTEGRATIONTIME_700MS: time = 700; break;
+  }
+  return time;
 }
 
 /**************************************************************************/
@@ -232,11 +246,12 @@ void Adafruit_TCS34725::getRawData (uint16_t *r, uint16_t *g, uint16_t *b, uint1
             Kelvin
 */
 /**************************************************************************/
-uint16_t Adafruit_TCS34725::calculateColorTemperature(uint16_t r, uint16_t g, uint16_t b)
+uint16_t Adafruit_TCS34725::calculateColorTemperature(uint16_t r, uint16_t g,
+                                                      uint16_t b)
 {
-  float X, Y, Z;      /* RGB to XYZ correlation      */
-  float xc, yc;       /* Chromaticity co-ordinates   */
-  float n;            /* McCamy's formula            */
+  float X, Y, Z; /* RGB to XYZ correlation      */
+  float xc, yc;  /* Chromaticity co-ordinates   */
+  float n;       /* McCamy's formula            */
   float cct;
 
   /* 1. Map RGB values to their XYZ counterparts.    */
@@ -245,7 +260,7 @@ uint16_t Adafruit_TCS34725::calculateColorTemperature(uint16_t r, uint16_t g, ui
   /* Note: Y = Illuminance or lux                    */
   X = (-0.14282F * r) + (1.54924F * g) + (-0.95641F * b);
   Y = (-0.32466F * r) + (1.57837F * g) + (-0.73191F * b);
-  Z = (-0.68202F * r) + (0.77073F * g) + ( 0.56332F * b);
+  Z = (-0.68202F * r) + (0.77073F * g) + (0.56332F * b);
 
   /* 2. Calculate the chromaticity co-ordinates      */
   xc = (X) / (X + Y + Z);
@@ -255,7 +270,8 @@ uint16_t Adafruit_TCS34725::calculateColorTemperature(uint16_t r, uint16_t g, ui
   n = (xc - 0.3320F) / (0.1858F - yc);
 
   /* Calculate the final CCT */
-  cct = (449.0F * powf(n, 3)) + (3525.0F * powf(n, 2)) + (6823.3F * n) + 5520.33F;
+  cct =
+    (449.0F * powf(n, 3)) + (3525.0F * powf(n, 2)) + (6823.3F * n) + 5520.33F;
 
   /* Return the results in degrees Kelvin */
   return (uint16_t)cct;
@@ -278,29 +294,34 @@ uint16_t Adafruit_TCS34725::calculateLux(uint16_t r, uint16_t g, uint16_t b)
   return (uint16_t)illuminance;
 }
 
-
-void Adafruit_TCS34725::setInterrupt(bool i) {
+void Adafruit_TCS34725::setInterrupt(bool i)
+{
   uint8_t r = read8(TCS34725_ENABLE);
-  if (i) {
+  if(i)
+  {
     r |= TCS34725_ENABLE_AIEN;
-  } else {
+  }
+  else
+  {
     r &= ~TCS34725_ENABLE_AIEN;
   }
   write8(TCS34725_ENABLE, r);
 }
 
-void Adafruit_TCS34725::clearInterrupt(void) {
+void Adafruit_TCS34725::clearInterrupt(void)
+{
   uint8_t txBuf[1];
   txBuf[0] = 0x66;
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, TCS34725_ADDRESS, txBuf, 1, NULL, 0, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(
+    _driver, TCS34725_ADDRESS, txBuf, 1, NULL, 0, OSAL_MS2ST(4));
   i2cReleaseBus(_driver);
 }
 
-
-void Adafruit_TCS34725::setIntLimits(uint16_t low, uint16_t high) {
-   write8(0x04, low & 0xFF);
-   write8(0x05, low >> 8);
-   write8(0x06, high & 0xFF);
-   write8(0x07, high >> 8);
+void Adafruit_TCS34725::setIntLimits(uint16_t low, uint16_t high)
+{
+  write8(0x04, low & 0xFF);
+  write8(0x05, low >> 8);
+  write8(0x06, high & 0xFF);
+  write8(0x07, high >> 8);
 }
