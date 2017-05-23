@@ -1,6 +1,6 @@
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 
-#include "snd_control/snd_hardware_ros.h"
+#include "snd_control/snd_hardware.h"
 
 namespace snd_control
 {

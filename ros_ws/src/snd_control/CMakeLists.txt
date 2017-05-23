@@ -153,13 +153,16 @@ include_directories(
 # add_dependencies(snd_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(snd_control_ros_node
-  src/snd_control_ros.cpp
-  src/snd_hardware_ros.cpp
-  include/snd_control/snd_hardware_ros.h
+add_executable(snd_control_node
+  src/snd_control.cpp
+  src/snd_hardware.cpp
+  include/snd_control/snd_hardware.h
 )
-add_dependencies(snd_control_ros_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(snd_control_ros_node
+add_dependencies(snd_control_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(snd_control_node
+  ${catkin_LIBRARIES}
+)
+
   ${catkin_LIBRARIES}
 )
 
