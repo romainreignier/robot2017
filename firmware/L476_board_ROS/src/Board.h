@@ -20,6 +20,7 @@
 #include <snd_msgs/MotorControlMode.h>
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/Pid.h>
+#include <snd_msgs/ProximitySensors.h>
 #include <snd_msgs/Status.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/ColorRGBA.h>
@@ -69,6 +70,7 @@ struct Board
   // ROS publish methods
   void publishFeedback();
   void publishStatus();
+  void publishSensors();
   // ROS Callbacks
   void motorsSpeedCb(const snd_msgs::Motors& _msg);
   void motorsModeCb(const snd_msgs::MotorControlMode& _msg);
@@ -96,6 +98,9 @@ struct Board
   Input starter;
   Input colorSwitch;
   Input eStop;
+  Input frontProximitySensor;
+  Input rearLeftProximitySensor;
+  Input rearRightProximitySensor;
   Output pump;
   PCA9685 servos;
   const uint8_t kArmServoId = 15;
@@ -115,12 +120,14 @@ struct Board
   AdcTimer motorsCurrentChecker;
   systime_t timeStartOverCurrent;
   systime_t timeLastStatus;
+  systime_t timeLastSensors;
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
   static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
   // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
   static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
   static constexpr systime_t kStatusPeriod = MS2ST(500);
+  static constexpr systime_t kSensorsPeriod = MS2ST(50);
   static constexpr systime_t kFeedbackPeriod = MS2ST(25);
 
   uint16_t pidTimerPeriodMs = 10;
@@ -147,6 +154,8 @@ struct Board
   ros::Publisher commandsPub;
   std_msgs::ColorRGBA colorSensorMsg;
   ros::Publisher colorSensorPub;
+  snd_msgs::ProximitySensors proximitySensorsMsg;
+  ros::Publisher proximitySensorsPub;
   // Subscribers
   ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
   ros::Subscriber<snd_msgs::MotorControlMode, Board> motorsModeSub;

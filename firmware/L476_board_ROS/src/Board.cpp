@@ -63,7 +63,10 @@ Board::Board()
     rightMotor{&PWMD3, 4, false, GPIOD, 2, GPIOC, 12, NULL, 0},
     motors(leftMotor, rightMotor), qei{&QEID1, true, &QEID2, false},
     starter{GPIOC, 13}, colorSwitch{GPIOC, 1},
-    eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
+    eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP},
+    frontProximitySensor{GPIOB, 1, PAL_MODE_INPUT_PULLUP},
+    rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
+    rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
     tcs{&I2CD2, &i2c2cfg, TCS34725_INTEGRATIONTIME_50MS}, tcsLed{GPIOA, 15},
 
@@ -77,6 +80,7 @@ Board::Board()
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
     commandsPub{"commands", &commandsMsg},
     colorSensorPub{"color_sensor", &colorSensorMsg},
+    proximitySensorsPub{"proximity_sensors", &proximitySensorsMsg},
     motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
     motorsModeSub{"motors_mode", &Board::motorsModeCb, this},
     leftMotorPwmSub{"left_motor_pwm", &Board::leftMotorPwmCb, this},
@@ -155,6 +159,9 @@ void Board::begin()
   starter.begin();
   eStop.begin();
   colorSwitch.begin();
+  frontProximitySensor.begin();
+  rearLeftProximitySensor.begin();
+  rearRightProximitySensor.begin();
   pump.begin();
   servos.begin();
   motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
@@ -171,6 +178,7 @@ void Board::begin()
   nh.advertise(encodersPub);
   nh.advertise(commandsPub);
   nh.advertise(colorSensorPub);
+  nh.advertise(proximitySensorsPub);
   // Subscribers
   nh.subscribe(motorsSpeedSub);
   nh.subscribe(motorsModeSub);
@@ -189,16 +197,23 @@ void Board::begin()
 
   globalStatus = snd_msgs::Status::STATUS_OK;
   timeLastStatus = chVTGetSystemTimeX();
+  timeLastSensors = chVTGetSystemTimeX();
 }
 
 void Board::main()
 {
+  // TODO: Maybe use Virtual Timers to be more flexible
   systime_t time = chVTGetSystemTimeX();
   if(time - timeLastStatus >= kStatusPeriod)
   {
     timeLastStatus = time;
     gBoard.checkMotorsCurrent();
     gBoard.publishStatus();
+  }
+  if(time - timeLastSensors >= kSensorsPeriod)
+  {
+    timeLastSensors = time;
+    gBoard.publishSensors();
   }
   gBoard.publishFeedback();
   gBoard.nh.spinOnce();
@@ -252,6 +267,15 @@ void Board::publishStatus()
   // DEBUG("Current Motors pwm left: %d right: %d",
   //       static_cast<int16_t>(leftMotorPwm),
   //       static_cast<int16_t>(rightMotorPwm));
+}
+
+void Board::publishSensors()
+{
+  proximitySensorsMsg.header.stamp = nh.now();
+  proximitySensorsMsg.front = !frontProximitySensor.read();
+  proximitySensorsMsg.rear_left = !rearLeftProximitySensor.read();
+  proximitySensorsMsg.rear_right = !rearRightProximitySensor.read();
+  proximitySensorsPub.publish(&proximitySensorsMsg);
 }
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
