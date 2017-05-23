@@ -56,7 +56,10 @@ PCA9685::PCA9685(I2CDriver *driver, const I2CConfig *config, uint8_t address, fl
 }
 
 void PCA9685::begin() {
-    i2cStart(this->driver, this->config);
+    if(this->driver->state != I2C_READY)
+    {
+      i2cStart(this->driver, this->config);
+    }
     this->reset();
     this->setFreq(this->pwm_frequency);
 }

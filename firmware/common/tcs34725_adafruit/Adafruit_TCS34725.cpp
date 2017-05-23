@@ -141,8 +141,11 @@ Adafruit_TCS34725::Adafruit_TCS34725(I2CDriver* driver, const I2CConfig* config,
 /**************************************************************************/
 bool Adafruit_TCS34725::begin(void)
 {
-  i2cStart(_driver, _i2cCfg);  
-  
+  if(_driver->state != I2C_READY)
+  {
+    i2cStart(_driver, _i2cCfg);
+  }
+
   /* Make sure we're actually connected */
   uint8_t x = read8(TCS34725_ID);
   if(x != 0x44)
