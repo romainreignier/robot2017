@@ -85,7 +85,8 @@ Board::Board()
     rightMotorPidSub{"right_motor_pid", &Board::rightMotorPidCb, this},
     resetStatusSub{"reset_status", &Board::resetStatusCb, this},
     armServoSub{"arm_servo", &Board::armServoCb, this},
-    graspServoSub{"grasp_servo", &Board::graspServoCb, this},
+    grasp1ServoSub{"grasp1_servo", &Board::grasp1ServoCb, this},
+    grasp2ServoSub{"grasp2_servo", &Board::grasp2ServoCb, this},
     pumpSub{"pump", &Board::pumpCb, this},
     launchServoSub{"launch_servo", &Board::launchServoCb, this},
     ramp1ServoSub{"ramp1_servo", &Board::ramp1ServoCb, this},
@@ -179,7 +180,8 @@ void Board::begin()
   nh.subscribe(rightMotorPidSub);
   nh.subscribe(resetStatusSub);
   nh.subscribe(armServoSub);
-  nh.subscribe(graspServoSub);
+  nh.subscribe(grasp1ServoSub);
+  nh.subscribe(grasp2ServoSub);
   nh.subscribe(pumpSub);
   nh.subscribe(launchServoSub);
   nh.subscribe(ramp1ServoSub);
@@ -346,9 +348,14 @@ void Board::armServoCb(const std_msgs::UInt16& _msg)
   servos.setPWM(kArmServoId, 0, bound(_msg.data, kServoMin, kServoMax));
 }
 
-void Board::graspServoCb(const std_msgs::UInt16& _msg)
+void Board::grasp1ServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kGraspServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kGrasp1ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+}
+
+void Board::grasp2ServoCb(const std_msgs::UInt16& _msg)
+{
+  servos.setPWM(kGrasp2ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::launchServoCb(const std_msgs::UInt16& _msg)

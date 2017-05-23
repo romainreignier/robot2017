@@ -78,7 +78,8 @@ struct Board
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
   void resetStatusCb(const std_msgs::Empty& _msg);
   void armServoCb(const std_msgs::UInt16& _msg);
-  void graspServoCb(const std_msgs::UInt16& _msg);
+  void grasp1ServoCb(const std_msgs::UInt16& _msg);
+  void grasp2ServoCb(const std_msgs::UInt16& _msg);
   void pumpCb(const std_msgs::Bool& _msg);
   void launchServoCb(const std_msgs::UInt16& _msg);
   void ramp1ServoCb(const std_msgs::UInt16& _msg);
@@ -98,7 +99,8 @@ struct Board
   Output pump;
   PCA9685 servos;
   const uint8_t kArmServoId = 15;
-  const uint8_t kGraspServoId = 7;
+  const uint8_t kGrasp1ServoId = 7;
+  const uint8_t kGrasp2ServoId = 6;
   const uint8_t kLaunchServoId = 0;
   const uint8_t kRamp1ServoId = 8;
   const uint8_t kRamp2ServoId = 9;
@@ -154,7 +156,8 @@ struct Board
   ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
   ros::Subscriber<std_msgs::Empty, Board> resetStatusSub;
   ros::Subscriber<std_msgs::UInt16, Board> armServoSub;
-  ros::Subscriber<std_msgs::UInt16, Board> graspServoSub;
+  ros::Subscriber<std_msgs::UInt16, Board> grasp1ServoSub;
+  ros::Subscriber<std_msgs::UInt16, Board> grasp2ServoSub;
   ros::Subscriber<std_msgs::Bool, Board> pumpSub;
   ros::Subscriber<std_msgs::UInt16, Board> launchServoSub;
   ros::Subscriber<std_msgs::UInt16, Board> ramp1ServoSub;
