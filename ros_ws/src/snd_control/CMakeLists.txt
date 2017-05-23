@@ -171,8 +171,6 @@ add_dependencies(encoders_speed_computer ${PROJECT_NAME}_gencfg ${${PROJECT_NAME
 target_link_libraries(encoders_speed_computer
   ${catkin_LIBRARIES}
 )
-  ${catkin_LIBRARIES}
-)
 
 #############
 ## Install ##
