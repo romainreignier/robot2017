@@ -165,6 +165,14 @@ target_link_libraries(test_joy_node
   ${catkin_LIBRARIES}
 )
 
+add_executable(homologation_node
+  src/homologation.cpp
+  src/homologation.h
+)
+add_dependencies(homologation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(homologation_node
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
