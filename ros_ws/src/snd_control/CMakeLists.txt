@@ -163,6 +163,14 @@ target_link_libraries(snd_control_node
   ${catkin_LIBRARIES}
 )
 
+
+add_executable(encoders_speed_computer
+  src/encoders_speed_computer.cpp
+)
+add_dependencies(encoders_speed_computer ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(encoders_speed_computer
+  ${catkin_LIBRARIES}
+)
   ${catkin_LIBRARIES}
 )
 
