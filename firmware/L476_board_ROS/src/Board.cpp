@@ -68,7 +68,6 @@ Board::Board()
     tcs{&I2CD2, &i2c2cfg, TCS34725_INTEGRATIONTIME_50MS}, tcsLed{GPIOA, 15},
 
     motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, timeStartOverCurrent{0},
-    pidTimerPeriodMs{25},
     leftMotorPid{
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
@@ -147,9 +146,9 @@ void Board::begin()
   sdStart(&SERIAL_DRIVER, NULL);
 
   // Start Timer
-  gptStart(&GPTD7, &gpt7cfg);
+  gptStart(&PID_TIMER, &gpt7cfg);
   // Timer at 10 kHz so the period = ms * 10
-  gptStartContinuous(&GPTD7, pidTimerPeriodMs * 10);
+  gptStartContinuous(&PID_TIMER, pidTimerPeriodMs * 10);
 
   // Start each component
   qei.begin();

@@ -30,6 +30,8 @@
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD1
 
+#define PID_TIMER GPTD7
+
 extern BaseSequentialStream* dbg;
 
 // #define USE_SERIAL_LOG
@@ -108,7 +110,7 @@ struct Board
 
   AdcTimer motorsCurrentChecker;
   systime_t timeStartOverCurrent;
-  systime_t timeLastStatus = chVTGetSystemTimeX();
+  systime_t timeLastStatus;
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
   static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
@@ -117,7 +119,7 @@ struct Board
   static constexpr systime_t kStatusPeriod = MS2ST(500);
   static constexpr systime_t kFeedbackPeriod = MS2ST(25);
 
-  uint16_t pidTimerPeriodMs;
+  uint16_t pidTimerPeriodMs = 10;
   PID leftMotorPid;
   PID rightMotorPid;
   float leftMotorSpeed;
