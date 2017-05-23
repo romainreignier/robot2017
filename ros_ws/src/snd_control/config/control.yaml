@@ -1,6 +1,33 @@
+snd_control:
+    arm_servo:
+        low_value: 385
+        high_value: 208
+        low_angle: 0.0
+        high_angle: -1.57079
+    grasp_servo:
+        close_value: 335
+        open_value: 380
+        close_angle: 0.2
+        open_angle: -0.1
+    ramp1_servo:
+        close_value: 480
+        open_value: 280
+        close_angle: 0.0
+        open_angle: 0.78539
+    ramp2_servo:
+        close_value: 110
+        open_value: 290
+        close_angle: -0.7853
+        open_angle: 0.0
+    launch_servo:
+        armed_value: 270
+        launch_value: 110
+        armed_angle: 0.0
+        launch_angle: 1.0
+
 snd_joint_publisher:
-      type: "joint_state_controller/JointStateController"
-      publish_rate: 20
+    type: "joint_state_controller/JointStateController"
+    publish_rate: 20
 
 snd_hardware:
     left_wheel_joint_name: "left_wheel_joint"
@@ -11,49 +38,59 @@ snd_hardware:
     serial_timeout: 200 # ms
 
 snd_velocity_controller:
-  type: "diff_drive_encoders_controller/DiffDriveEncodersController"
-  left_wheel: ['left_wheel_joint']
-  right_wheel: ['right_wheel_joint']
-  publish_rate: 20
-  pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-  twist_covariance_diagonal: [0.001, 0.001, 0.001, 1000000.0, 1000000.0, 1000.0]
+    type: "diff_drive_encoders_controller/DiffDriveEncodersController"
+    left_wheel: ['left_wheel_joint']
+    right_wheel: ['right_wheel_joint']
+    publish_rate: 20
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 1000000.0, 1000000.0, 1000.0]
 
-  # Wheel separation and radius multipliers
-  wheel_separation_multiplier: 1.0 # default: 1.0
-  wheel_radius_multiplier    : 1.0 # default: 1.0
+    # Wheel separation and radius multipliers
+    wheel_separation_multiplier: 1.0 # default: 1.0
+    wheel_radius_multiplier    : 1.0 # default: 1.0
 
-  # Encoder wheels separation and radius [m]
-  encoder_wheel_separation: 0.0995
-  left_encoder_wheel_radius: 0.026
-  right_encoder_wheel_radius: 0.026
+    # Encoder wheels separation and radius [m]
+    encoder_wheel_separation: 0.1035
+    left_encoder_wheel_radius: 0.0261
+    right_encoder_wheel_radius: 0.0261
 
-  # Motor wheels separation and radius [m]
-  motor_wheel_separation: 0.186
-  left_motor_wheel_radius: 0.0355
-  right_motor_wheel_radius: 0.0355
+    # Motor wheels separation and radius [m]
+    motor_wheel_separation: 0.187
+    left_motor_wheel_radius: 0.0355
+    right_motor_wheel_radius: 0.0355
 
-  # Velocity commands timeout [s], default 0.5
-  cmd_vel_timeout: 0.5
+    # Velocity commands timeout [s], default 0.5
+    cmd_vel_timeout: 0.5
 
-  enable_odom_tf: true
+    enable_odom_tf: true
 
-  # debug
-  publish_cmd: true
+    # debug
+    publish_cmd: true
 
-  # Preserve turning radius when limiting speed/acceleration/jerk
-  preserve_turning_radius: true
+    # Preserve turning radius when limiting speed/acceleration/jerk
+    preserve_turning_radius: true
 
-  # Velocity and acceleration limits
-  # Whenever a min_* is unspecified, default to -max_*
-  linear:
-    x:
-      has_velocity_limits    : true
-      max_velocity           : 1.0   # m/s
-      has_acceleration_limits: true
-      max_acceleration       : 1.0   # m/s²
-  angular:
-    z:
-      has_velocity_limits    : true
-      max_velocity           : !degrees 90.0 # degrees/s
-      has_acceleration_limits: true
-      max_acceleration       : !degrees 90.0 # degrees/s²
+    # Velocity and acceleration limits
+    # Whenever a min_* is unspecified, default to -max_*
+    linear:
+        x:
+            has_velocity_limits    : true
+            max_velocity           : 1.0   # m/s
+            has_acceleration_limits: true
+            max_acceleration       : 0.5   # m/s²
+    angular:
+        z:
+            has_velocity_limits    : true
+            max_velocity           : !degrees 180.0 # degrees/s
+            has_acceleration_limits: true
+            max_acceleration       : !degrees 360.0 # degrees/s²
+
+snd_robot:
+    joint_state_publisher:
+        type: "joint_state_controller/JointStateController"
+        publish_rate: 20
+
+    arm_servo_joint_position_controller:
+        type: effort_controllers/JointPositionController
+        joint: arm_servo_joint
+        pid: {p: 1, i: 0, d: 0}
