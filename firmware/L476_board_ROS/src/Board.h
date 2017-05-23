@@ -23,6 +23,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/ColorRGBA.h>
 #include <std_msgs/Empty.h>
+#include <std_msgs/Int16.h>
 #include <std_msgs/UInt16.h>
 
 #define SERIAL_DRIVER SD2
@@ -131,6 +132,8 @@ struct Board
   ros::Publisher statusPub;
   snd_msgs::Encoders encodersMsg;
   ros::Publisher encodersPub;
+  snd_msgs::Encoders commandsMsg;
+  ros::Publisher commandsPub;
   std_msgs::ColorRGBA colorSensorMsg;
   ros::Publisher colorSensorPub;
   // Subscribers

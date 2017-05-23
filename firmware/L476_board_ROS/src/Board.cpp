@@ -73,9 +73,10 @@ Board::Board()
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
       &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 1, 0, 0, DIRECT},
-    lastLeftTicks{0}, lastRightTicks{0}, statusPub{"status", &statusMsg},
+    lastLeftTicks{0}, lastRightTicks{0},
     // ROS related
-    encodersPub{"encoders", &encodersMsg},
+    statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
+    commandsPub{"commands", &commandsMsg},
     colorSensorPub{"color_sensor", &colorSensorMsg},
     motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
     leftMotorPidSub{"left_motor_pid", &Board::leftMotorPidCb, this},
@@ -165,6 +166,7 @@ void Board::begin()
   // Publishers
   nh.advertise(statusPub);
   nh.advertise(encodersPub);
+  nh.advertise(commandsPub);
   nh.advertise(colorSensorPub);
   // Subscribers
   nh.subscribe(motorsSpeedSub);
@@ -202,11 +204,11 @@ void Board::publishFeedback()
   encodersMsg.header.stamp = nh.now();
   gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
-  // DEBUG("pwm l %d r %d\nin l %d r %d",
-  //       static_cast<int16_t>(leftMotorPwm),
-  //       static_cast<int16_t>(rightMotorPwm),
-  //       static_cast<int16_t>(leftMotorSpeed),
-  //       static_cast<int16_t>(rightMotorSpeed));
+
+  commandsMsg.header.stamp = nh.now();
+  commandsMsg.left = static_cast<int16_t>(leftMotorPwm);
+  commandsMsg.right = static_cast<int16_t>(rightMotorPwm);
+  commandsPub.publish(&commandsMsg);
 }
 
 void Board::publishStatus()
