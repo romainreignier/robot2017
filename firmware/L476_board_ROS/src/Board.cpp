@@ -213,6 +213,22 @@ void Board::publishFeedback()
 
 void Board::publishStatus()
 {
+  // Use color sensor only if starter is set (no use during the match)
+  if(starter.read())
+  {
+    tcsLed.set();
+    uint16_t r, g, b, c;
+    tcs.getRawData(&r, &g, &b, &c);
+    colorSensorMsg.r = static_cast<float>(r) / static_cast<float>(c) * 256.0f;
+    colorSensorMsg.g = static_cast<float>(g) / static_cast<float>(c) * 256.0f;
+    colorSensorMsg.b = static_cast<float>(b) / static_cast<float>(c) * 256.0f;
+    colorSensorMsg.a = 1.0;
+    colorSensorPub.publish(&colorSensorMsg);
+  }
+  else
+  {
+    tcsLed.clear();
+  }
   statusMsg.header.stamp = nh.now();
   statusMsg.starter = starter.read();
   statusMsg.eStop = !eStop.read();
