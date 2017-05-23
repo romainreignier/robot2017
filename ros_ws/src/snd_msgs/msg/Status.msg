@@ -11,3 +11,5 @@ uint16 right_motor_current
 uint8 STATUS_OK=0
 uint8 STATUS_MOTORS_OVERCURRENT=1
 uint8 status
+
+MotorControlMode motors_mode
