@@ -18,9 +18,12 @@ Homologation::Homologation()
   ros::NodeHandle controlNh("snd_control");
   m_funnyServoArmed = controlNh.param("launch_servo/armed_value", 270);
   m_funnyServoLaunch = controlNh.param("launch_servo/launch_value", 110);
+  m_armServoHigh = controlNh.param("arm_servo/high_value", 208);
+  m_armServoLow = controlNh.param("arm_servo/low_value", 385);
 
   // Publishers
   m_funnyServoPub = m_nh.advertise<std_msgs::UInt16>("/launch_servo", 1);
+  m_armServoPub = m_nh.advertise<std_msgs::UInt16>("/arm_servo", 1);
   m_motorsPub = m_nh.advertise<snd_msgs::Motors>("/motors_speed", 1);
   m_motorsModePub =
     m_nh.advertise<snd_msgs::MotorControlMode>("/motors_mode", 1);
@@ -74,9 +77,15 @@ void Homologation::init()
   // Stop the motors, just to be sure
   stopMotors();
 
+  // Lift the Arm to avoid any problem
+  ROS_INFO("Lift arm");
+  moveServo(m_armServoPub, m_armServoHigh);
+
   // Set the funny servo in ARMED position
   moveServo(m_funnyServoPub, m_funnyServoArmed);
 
+  // Disable the Arm servo
+  // moveServo(m_armServoPub, 0);
   // Start the timer
   m_timer.start();
 }

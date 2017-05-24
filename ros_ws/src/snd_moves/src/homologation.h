@@ -45,6 +45,7 @@ private:
   ros::Publisher m_motorsPub;
   ros::Publisher m_motorsModePub;
   ros::Publisher m_funnyServoPub;
+  ros::Publisher m_armServoPub;
   // Subscribers
   ros::Subscriber m_statusSub;
   ros::Subscriber m_lidarSub;
@@ -61,6 +62,8 @@ private:
   // Parameters
   int m_funnyServoArmed;
   int m_funnyServoLaunch;
+  int m_armServoLow;
+  int m_armServoHigh;
   State m_state;
   MatchState m_matchState;
   snd_msgs::Color m_color;
