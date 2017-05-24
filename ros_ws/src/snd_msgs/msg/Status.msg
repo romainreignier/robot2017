@@ -3,6 +3,7 @@ Header header
 
 bool starter
 bool eStop
+bool selector
 Color color_switch
 
 uint16 left_motor_current

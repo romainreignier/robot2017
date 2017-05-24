@@ -62,7 +62,7 @@ Board::Board()
     leftMotor{&PWMD3, 3, false, GPIOB, 4, GPIOB, 5, NULL, 0},
     rightMotor{&PWMD3, 4, false, GPIOD, 2, GPIOC, 12, NULL, 0},
     motors(leftMotor, rightMotor), qei{&QEID1, true, &QEID2, false},
-    starter{GPIOC, 13}, colorSwitch{GPIOC, 1},
+    starter{GPIOC, 13}, colorSwitch{GPIOC, 1}, selector{GPIOB, 12},
     eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP},
     frontProximitySensor{GPIOB, 1, PAL_MODE_INPUT_PULLUP},
     rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
@@ -159,6 +159,7 @@ void Board::begin()
   starter.begin();
   eStop.begin();
   colorSwitch.begin();
+  selector.begin();
   frontProximitySensor.begin();
   rearLeftProximitySensor.begin();
   rearRightProximitySensor.begin();
@@ -257,6 +258,7 @@ void Board::publishStatus()
   statusMsg.color_switch.color =
     colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::YELLOW)
                        : static_cast<uint8_t>(snd_msgs::Color::BLUE);
+  statusMsg.selector = selector.read();
   statusMsg.left_motor_current =
     motorsCurrentChecker.value1() * kAdcToMilliAmps;
   statusMsg.right_motor_current =

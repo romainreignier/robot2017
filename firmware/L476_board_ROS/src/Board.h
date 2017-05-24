@@ -98,6 +98,7 @@ struct Board
   Qei qei;
   Input starter;
   Input colorSwitch;
+  Input selector;
   Input eStop;
   Input frontProximitySensor;
   Input rearLeftProximitySensor;
