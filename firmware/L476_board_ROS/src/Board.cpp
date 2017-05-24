@@ -67,6 +67,7 @@ Board::Board()
     frontProximitySensor{GPIOB, 1, PAL_MODE_INPUT_PULLUP},
     rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
     rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
+    greenLed{GPIOA, 11},
     servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
     tcs{&I2CD2, &i2c2cfg, TCS34725_INTEGRATIONTIME_50MS}, tcsLed{GPIOA, 15},
 
@@ -92,6 +93,7 @@ Board::Board()
     grasp1ServoSub{"grasp1_servo", &Board::grasp1ServoCb, this},
     grasp2ServoSub{"grasp2_servo", &Board::grasp2ServoCb, this},
     pumpSub{"pump", &Board::pumpCb, this},
+    greenLedSub{"green_led", &Board::greenLedCb, this},
     launchServoSub{"launch_servo", &Board::launchServoCb, this},
     ramp1ServoSub{"ramp1_servo", &Board::ramp1ServoCb, this},
     ramp2ServoSub{"ramp2_servo", &Board::ramp2ServoCb, this}
@@ -164,6 +166,7 @@ void Board::begin()
   rearLeftProximitySensor.begin();
   rearRightProximitySensor.begin();
   pump.begin();
+  greenLed.begin();
   servos.begin();
   motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
   // leftVlx.begin(&i2c1cfg);
@@ -192,6 +195,7 @@ void Board::begin()
   nh.subscribe(grasp1ServoSub);
   nh.subscribe(grasp2ServoSub);
   nh.subscribe(pumpSub);
+  nh.subscribe(greenLedSub);
   nh.subscribe(launchServoSub);
   nh.subscribe(ramp1ServoSub);
   nh.subscribe(ramp2ServoSub);
@@ -402,6 +406,11 @@ void Board::ramp2ServoCb(const std_msgs::UInt16& _msg)
 void Board::pumpCb(const std_msgs::Bool& _msg)
 {
   _msg.data ? pump.set() : pump.clear();
+}
+
+void Board::greenLedCb(const std_msgs::Bool& _msg)
+{
+  _msg.data ? greenLed.set() : greenLed.clear();
 }
 
 void Board::checkMotorsCurrent()

@@ -83,6 +83,7 @@ struct Board
   void grasp1ServoCb(const std_msgs::UInt16& _msg);
   void grasp2ServoCb(const std_msgs::UInt16& _msg);
   void pumpCb(const std_msgs::Bool& _msg);
+  void greenLedCb(const std_msgs::Bool& _msg);
   void launchServoCb(const std_msgs::UInt16& _msg);
   void ramp1ServoCb(const std_msgs::UInt16& _msg);
   void ramp2ServoCb(const std_msgs::UInt16& _msg);
@@ -104,6 +105,7 @@ struct Board
   Input rearLeftProximitySensor;
   Input rearRightProximitySensor;
   Output pump;
+  Output greenLed;
   PCA9685 servos;
   const uint8_t kArmServoId = 15;
   const uint8_t kGrasp1ServoId = 7;
@@ -170,6 +172,7 @@ struct Board
   ros::Subscriber<std_msgs::UInt16, Board> grasp1ServoSub;
   ros::Subscriber<std_msgs::UInt16, Board> grasp2ServoSub;
   ros::Subscriber<std_msgs::Bool, Board> pumpSub;
+  ros::Subscriber<std_msgs::Bool, Board> greenLedSub;
   ros::Subscriber<std_msgs::UInt16, Board> launchServoSub;
   ros::Subscriber<std_msgs::UInt16, Board> ramp1ServoSub;
   ros::Subscriber<std_msgs::UInt16, Board> ramp2ServoSub;
