@@ -369,32 +369,32 @@ void Board::resetStatusCb(const std_msgs::Empty& _msg)
 
 void Board::armServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kArmServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kArmServoId, 0, boundServo(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::grasp1ServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kGrasp1ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kGrasp1ServoId, 0, boundServo(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::grasp2ServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kGrasp2ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kGrasp2ServoId, 0, boundServo(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::launchServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kLaunchServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kLaunchServoId, 0, boundServo(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::ramp1ServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kRamp1ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kRamp1ServoId, 0, boundServo(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::ramp2ServoCb(const std_msgs::UInt16& _msg)
 {
-  servos.setPWM(kRamp2ServoId, 0, bound(_msg.data, kServoMin, kServoMax));
+  servos.setPWM(kRamp2ServoId, 0, boundServo(_msg.data, kServoMin, kServoMax));
 }
 
 void Board::pumpCb(const std_msgs::Bool& _msg)

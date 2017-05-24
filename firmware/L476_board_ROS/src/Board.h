@@ -89,6 +89,7 @@ struct Board
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
+  template <typename T> T boundServo(T _in, T _min, T _max);
 
   // Components
   MonsterShield leftMotor;
@@ -178,6 +179,19 @@ template <typename T> T Board::bound(T _in, T _min, T _max)
   if(_in > _max) return _max;
   if(_in < _min) return _min;
   return _in;
+}
+
+// 4096 means OFF for pca
+template <typename T> T Board::boundServo(T _in, T _min, T _max)
+{
+    if(_in == 0)
+    {
+        return 4096;
+    }
+    else
+    {
+        return bound(_in, _min, _max);
+    }
 }
 
 // Global instance of the board struct
