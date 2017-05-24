@@ -43,6 +43,12 @@ Homologation::Homologation()
     boost::function<void(const snd_msgs::EncodersConstPtr&)>(
       [&](const snd_msgs::EncodersConstPtr _msg) { m_encodersMsg = _msg; }));
 
+  m_sensorsSub = m_nh.subscribe(
+    "/proximity_sensors",
+    1,
+    boost::function<void(const snd_msgs::ProximitySensorsConstPtr&)>(
+      [&](const snd_msgs::ProximitySensorsConstPtr _msg) { m_sensorsMsg = _msg; }));
+
   // Timer
   m_timer = m_nh.createTimer(
     ros::Duration(1 / updateRate), &Homologation::timerCb, this, false, false);
@@ -215,8 +221,17 @@ bool Homologation::isObstacleDetected(float _threshold)
 {
   if(!m_laserMsg)
   {
+    ROS_WARN("No laser message recived");
     // If there is no laser message, we are blind so don't move
     return true;
+  }
+  if(m_sensorsMsg)
+  {
+    // If proximity sensor detect something, no need to check the lidar...
+    if(m_sensorsMsg->front)
+    {
+      return true;
+    }
   }
   // TODO: only loop on the index in front of the robot
   for(size_t i = 50; i < 150; ++i)

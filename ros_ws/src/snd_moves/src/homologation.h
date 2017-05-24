@@ -6,6 +6,7 @@
 #include <snd_msgs/Encoders.h>
 #include <snd_msgs/MotorControlMode.h>
 #include <snd_msgs/Motors.h>
+#include <snd_msgs/ProximitySensors.h>
 #include <snd_msgs/Status.h>
 #include <std_msgs/UInt16.h>
 
@@ -48,10 +49,12 @@ private:
   ros::Subscriber m_statusSub;
   ros::Subscriber m_lidarSub;
   ros::Subscriber m_encodersSub;
+  ros::Subscriber m_sensorsSub;
   // Messages
   snd_msgs::StatusConstPtr m_statusMsg;
   snd_msgs::EncodersConstPtr m_encodersMsg;
   sensor_msgs::LaserScanConstPtr m_laserMsg;
+  snd_msgs::ProximitySensorsConstPtr m_sensorsMsg;
   // Time
   ros::Time m_startTime;
   ros::Timer m_timer;
