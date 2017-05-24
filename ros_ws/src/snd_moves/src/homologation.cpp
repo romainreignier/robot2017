@@ -27,6 +27,7 @@ Homologation::Homologation()
   m_motorsPub = m_nh.advertise<snd_msgs::Motors>("/motors_speed", 1);
   m_motorsModePub =
     m_nh.advertise<snd_msgs::MotorControlMode>("/motors_mode", 1);
+  m_greenLedPub = m_nh.advertise<std_msgs::Bool>("/green_led", 1);
 
   // Subscribers
   m_statusSub = m_nh.subscribe(
@@ -86,6 +87,12 @@ void Homologation::init()
 
   // Disable the Arm servo
   // moveServo(m_armServoPub, 0);
+
+  // swicth on the LED -> ready
+  std_msgs::Bool ledMsg;
+  ledMsg.data = true;
+  m_greenLedPub.publish(ledMsg);
+
   // Start the timer
   m_timer.start();
 }

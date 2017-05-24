@@ -8,6 +8,7 @@
 #include <snd_msgs/Motors.h>
 #include <snd_msgs/ProximitySensors.h>
 #include <snd_msgs/Status.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/UInt16.h>
 
 class Homologation
@@ -46,6 +47,7 @@ private:
   ros::Publisher m_motorsModePub;
   ros::Publisher m_funnyServoPub;
   ros::Publisher m_armServoPub;
+  ros::Publisher m_greenLedPub;
   // Subscribers
   ros::Subscriber m_statusSub;
   ros::Subscriber m_lidarSub;
