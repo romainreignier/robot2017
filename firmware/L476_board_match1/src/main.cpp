@@ -42,8 +42,18 @@ int main(void)
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
   DEBUG("Supmeca Never Dies!!!!");
+  gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 270);
+  // gBoard.main();
+  while(gBoard.starter.read())
+    ;
+  systime_t startTime = chVTGetSystemTimeX();
+  gBoard.motors.pwm(1500, 1500);
+  chThdSleepMilliseconds(2000);
+  gBoard.motors.pwm(0, 0);
+  chThdSleepUntil(startTime + S2ST(90));
+  gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 110);
+
   while(true)
   {
-    gBoard.main();
   }
 }
