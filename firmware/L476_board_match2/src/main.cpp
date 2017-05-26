@@ -246,7 +246,7 @@ int main(void)
     gBoard.greenLed.clear();
   }
   gBoard.motors.pwm(0, 0);
-  chThdSleepUntil(startTime + S2ST(90));
+  chThdSleepUntil(startTime + S2ST(91));
   gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 110);
   while(true)
   {
