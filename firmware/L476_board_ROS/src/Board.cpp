@@ -67,8 +67,7 @@ Board::Board()
     frontProximitySensor{GPIOB, 1, PAL_MODE_INPUT_PULLUP},
     rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
     rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
-    greenLed{GPIOA, 11},
-    servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
+    greenLed{GPIOA, 11}, servos{&I2CD2, &i2c2cfg}, // leftVlx(&I2CD1),
     tcs{&I2CD2, &i2c2cfg, TCS34725_INTEGRATIONTIME_50MS}, tcsLed{GPIOA, 15},
 
     motorsCurrentChecker{&ADCD1, &GPTD6, 1000}, timeStartOverCurrent{0},
@@ -76,7 +75,8 @@ Board::Board()
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
       &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 1, 0, 0, DIRECT},
-    lastLeftTicks{0}, lastRightTicks{0},
+    lastLeftTicks{0}, lastRightTicks{0}, leftMotorCorrector{0.46},
+    rightMotorCorrector{0.46},
     // ROS related
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
     commandsPub{"commands", &commandsMsg},
@@ -308,8 +308,8 @@ void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
     // Set direct PWM to motors
     // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
     // _msg.right);
-    motors.pwm(static_cast<int16_t>(_msg.left),
-               static_cast<int16_t>(_msg.right));
+    motors.pwm(static_cast<int16_t>(_msg.left * leftMotorCorrector),
+               static_cast<int16_t>(_msg.right * rightMotorCorrector));
     break;
   case snd_msgs::MotorControlMode::DISABLED:
   default:
@@ -335,7 +335,7 @@ void Board::leftMotorPwmCb(const std_msgs::Int16& _msg)
 {
   if(motorsMode.mode == snd_msgs::MotorControlMode::PWM)
   {
-    leftMotor.pwm(_msg.data);
+    leftMotor.pwm(static_cast<int16_t>(_msg.data * leftMotorCorrector));
   }
 }
 
@@ -343,7 +343,7 @@ void Board::rightMotorPwmCb(const std_msgs::Int16& _msg)
 {
   if(motorsMode.mode == snd_msgs::MotorControlMode::PWM)
   {
-    rightMotor.pwm(_msg.data);
+    rightMotor.pwm(static_cast<int16_t>(_msg.data * rightMotorCorrector));
   }
 }
 
@@ -354,6 +354,7 @@ void Board::leftMotorPidCb(const snd_msgs::Pid& _msg)
         _msg.i,
         _msg.d);
   leftMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
+  leftMotorCorrector = _msg.p;
 }
 
 void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
@@ -363,6 +364,7 @@ void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
         _msg.i,
         _msg.d);
   rightMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
+  rightMotorCorrector = _msg.p;
 }
 
 void Board::resetStatusCb(const std_msgs::Empty& _msg)

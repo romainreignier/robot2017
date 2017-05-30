@@ -146,6 +146,8 @@ struct Board
   int32_t lastLeftTicks;
   int32_t lastRightTicks;
   snd_msgs::MotorControlMode motorsMode;
+  float leftMotorCorrector;
+  float rightMotorCorrector;
 
   // ROS
   ros::NodeHandle nh;
