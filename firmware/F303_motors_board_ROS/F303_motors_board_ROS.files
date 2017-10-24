@@ -25,3 +25,4 @@ mcuconf_community.h
 ../common/ros_lib/ros.h
 ../common/ros_lib/ChibiOSHardware.h
 ../common/pca9685
+../common/RunningAverage/RunningAverage.h

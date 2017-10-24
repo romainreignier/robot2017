@@ -110,6 +110,7 @@ include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/AdcTimer/AdcTimer.mk
 include $(COMMON)/ros_lib/ros.mk
 include $(COMMON)/Pid/Pid.mk
+include $(COMMON)/RunningAverage/RunningAverage.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F303x8.ld
@@ -164,7 +165,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(PIDINC) \
-         $(PCA9685INC) $(ROSINC) \
+         $(ROSINC) $(RUNNINGAVERAGEINC) \
          src
 
 #
