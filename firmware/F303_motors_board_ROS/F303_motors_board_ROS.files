@@ -24,3 +24,4 @@ mcuconf_community.h
 ../common/Pid/Pid.cpp
 ../common/ros_lib/ros.h
 ../common/ros_lib/ChibiOSHardware.h
+../common/RunningAverage/RunningAverage.h

@@ -1,0 +1,1 @@
+RUNNINGAVERAGEINC := $(COMMON)/RunningAverage
