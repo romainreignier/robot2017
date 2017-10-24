@@ -63,6 +63,9 @@ Board::Board()
     // ROS related
     encodersPub{"encoders", &encodersMsg},
     motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
+    motorsModeSub{"motors_mode", &Board::motorsModeCb, this},
+    leftMotorPwmSub{"left_motor_pwm", &Board::leftMotorPwmCb, this},
+    rightMotorPwmSub{"right_motor_pwm", &Board::rightMotorPwmCb, this},
     leftMotorPidSub{"left_motor_pid", &Board::leftMotorPidCb, this},
     rightMotorPidSub{"right_motor_pid", &Board::rightMotorPidCb, this},
     resetStatusSub{"reset_status", &Board::resetStatusCb, this},
@@ -127,7 +130,7 @@ void Board::begin()
   eStop.begin();
   colorSwitch.begin();
   pump.begin();
-  servos.begin();
+  // servos.begin();
   motorsCurrentChecker.begin(&gpt6cfg, &adcConversionGroup);
 
   // ROS
@@ -184,18 +187,64 @@ void Board::publishStatus()
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 {
-  if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
+  switch(motorsMode.mode)
   {
+  case snd_msgs::MotorControlMode::PID:
+    // Update PIDs setpoints
+    if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
+    {
+      // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
+      // _msg.right);
+      leftMotorCommand = _msg.left;
+      rightMotorCommand = _msg.right;
+    }
+    else
+    {
+      // DEBUG("Motors Speed received but motors stopped because of
+      // overcurrent.\n");
+      motors.stop();
+    }
+    break;
+  case snd_msgs::MotorControlMode::PWM:
+    // Set direct PWM to motors
     // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
     // _msg.right);
-    leftMotorCommand = _msg.left;
-    rightMotorCommand = _msg.right;
+    motors.pwm(static_cast<int16_t>(_msg.left * leftMotorCorrector),
+               static_cast<int16_t>(_msg.right * rightMotorCorrector));
+    break;
+  case snd_msgs::MotorControlMode::DISABLED:
+  default:
+    // Do nothing
+    motors.stop();
+  }
+}
+
+void Board::motorsModeCb(const snd_msgs::MotorControlMode& _msg)
+{
+  motorsMode = _msg;
+  if(motorsMode.mode == snd_msgs::MotorControlMode::PID)
+  {
+    startPIDTimer();
   }
   else
   {
-    // DEBUG("Motors Speed received but motors stopped because of
-    // overcurrent.\n");
-    motors.stop();
+    stopPIDTimer();
+  }
+}
+
+void Board::leftMotorPwmCb(const std_msgs::Int16& _msg)
+{
+  if(motorsMode.mode == snd_msgs::MotorControlMode::PWM)
+  {
+    leftMotor.pwm(static_cast<int16_t>(_msg.data * leftMotorCorrector));
+  }
+}
+
+void Board::rightMotorPwmCb(const std_msgs::Int16& _msg)
+{
+  if(motorsMode.mode == snd_msgs::MotorControlMode::PWM)
+  {
+    rightMotor.pwm(static_cast<int16_t>(_msg.data * rightMotorCorrector));
   }
 }
 
@@ -206,6 +255,7 @@ void Board::leftMotorPidCb(const snd_msgs::Pid& _msg)
         _msg.i,
         _msg.d);
   leftMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
+  leftMotorCorrector = _msg.p;
 }
 
 void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
@@ -215,6 +265,7 @@ void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
         _msg.i,
         _msg.d);
   rightMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
+  rightMotorCorrector = _msg.p;
 }
 
 void Board::resetStatusCb(const std_msgs::Empty& _msg)
@@ -307,6 +358,18 @@ void Board::motorsControl()
                 static_cast<int16_t>(rightMotorPwm));
     chSysUnlockFromISR();
   }
+}
+
+void Board::startPIDTimer()
+{
+  // Start Timer at 10 kHz so the period = ms * 10
+  gptStartContinuous(&PID_TIMER, pidTimerPeriodMs * 10);
+}
+
+void Board::stopPIDTimer()
+{
+  // Stop the timer
+  gptStopTimer(&PID_TIMER);
 }
 
 Board gBoard;

@@ -52,7 +52,7 @@ int main(void)
     if(time - timeLastStatus >= statusPeriod)
     {
       timeLastStatus = time;
-      gBoard.checkMotorsCurrent();
+      // gBoard.checkMotorsCurrent();
       gBoard.publishStatus();
     }
     gBoard.publishFeedback();
