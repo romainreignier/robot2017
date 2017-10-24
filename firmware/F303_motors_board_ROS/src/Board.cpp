@@ -43,7 +43,7 @@ static const GPTConfig gpt6cfg = {80000, NULL, TIM_CR2_MMS_1, 0};
 static const GPTConfig pidGptCfg = {10000, pidGptCb, 0, 0};
 
 Board::Board()
-  : leftMotor{&PWMD1, 2, false, GPIOA, 12, GPIOA, 10, GPIOF, 1},
+  : leftMotor{&PWMD1, 2, false, GPIOA, 10, GPIOA, 12, GPIOF, 1},
     rightMotor{&PWMD1, 1, false, GPIOA, 6, GPIOA, 5, GPIOF, 0},
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 4}, colorSwitch{GPIOA, 11},
@@ -134,14 +134,18 @@ void Board::begin()
 
 void Board::publishFeedback()
 {
+  chSysLock();
+  {
+    gBoard.mustPublishFeedback = false;
+    encodersMsg.left_pos = leftQeiCnt;
+    encodersMsg.right_pos = rightQeiCnt;
+    encodersMsg.left_speed = leftQeiSpeed;
+    encodersMsg.right_speed = rightQeiSpeed;
+  }
+  chSysUnlock();
+
   encodersMsg.header.stamp = nh.now();
-  gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
-  // DEBUG("pwm l %d r %d\nin l %d r %d",
-  //       static_cast<int16_t>(leftMotorPwm),
-  //       static_cast<int16_t>(rightMotorPwm),
-  //       static_cast<int16_t>(leftMotorSpeed),
-  //       static_cast<int16_t>(rightMotorSpeed));
 }
 
 void Board::publishStatus()
@@ -276,24 +280,41 @@ void Board::checkMotorsCurrent()
 
 void Board::motorsControl()
 {
-  int32_t leftTicks;
-  int32_t rightTicks;
+  int dLeft;
+  int dRight;
+
   chSysLockFromISR();
-  gBoard.qei.getValuesI(&leftTicks, &rightTicks);
-  chSysUnlockFromISR();
-  // TODO see if it is better to get system time instead of fixed timer period
-  leftMotorSpeed =
-    (leftTicks - lastLeftTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
-  rightMotorSpeed =
-    (rightTicks - lastRightTicks) * 1000.0 / pidTimerPeriodMs; // ticks/s
-  lastLeftTicks = leftTicks;
-  lastRightTicks = rightTicks;
-  if(leftMotorPid.Compute() && rightMotorPid.Compute())
   {
-    chSysLockFromISR();
-    motors.pwmI(static_cast<int16_t>(leftMotorPwm),
-                static_cast<int16_t>(rightMotorPwm));
-    chSysUnlockFromISR();
+    dLeft = qeiUpdateI(qei.getLeftDriver());
+    dRight = qeiUpdateI(qei.getRightDriver());
+  }
+  chSysUnlockFromISR();
+
+  leftQeiCnt += dLeft;
+  rightQeiCnt += dRight;
+
+  leftQeiAvg.add(dLeft);
+  rightQeiAvg.add(dRight);
+
+  // TODO see if it is better to get system time instead of fixed timer period
+
+  // Speeds in ticks/s
+  leftMotorSpeed = (leftQeiAvg.getAverage() * 1000.0f) /
+                   (leftQeiAvg.getCount() * pidTimerPeriodMs);
+  rightMotorSpeed = (rightQeiAvg.getAverage() * 1000.0f) /
+                    (rightQeiAvg.getCount() * pidTimerPeriodMs);
+
+  gBoard.mustPublishFeedback = true;
+
+  if(gBoard.motorsMode.mode == snd_msgs::MotorControlMode::PID)
+  {
+    if(leftMotorPid.Compute() && rightMotorPid.Compute())
+    {
+      chSysLockFromISR();
+      motors.pwmI(static_cast<int16_t>(leftMotorPwm),
+                  static_cast<int16_t>(rightMotorPwm));
+      chSysUnlockFromISR();
+    }
   }
 }
 

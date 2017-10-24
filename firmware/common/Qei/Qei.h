@@ -15,8 +15,10 @@ public:
   Qei(QEIDriver* _driverLeft, bool _rightIsInverted, QEIDriver* _driverRight,
       bool _leftIsInverted);
   void begin();
-  void getValues(int32_t* _leftCnt, int32_t* rightCnt);
-  void getValuesI(int32_t* _leftCnt, int32_t* rightCnt);
+  // void getValues(int32_t* _leftCnt, int32_t* rightCnt);
+  // void getValuesI(int32_t* _leftCnt, int32_t* rightCnt);
+  QEIDriver* getLeftDriver() const;
+  QEIDriver* getRightDriver() const;
 
 private:
   QEIDriver* m_leftDriver;

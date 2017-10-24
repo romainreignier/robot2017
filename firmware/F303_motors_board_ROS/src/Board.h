@@ -11,6 +11,7 @@
 #include "Output.h"
 #include "Pid.h"
 #include "Qei.h"
+#include "RunningAverage.h"
 
 #include <ros.h>
 #include <snd_msgs/Encoders.h>
@@ -91,7 +92,7 @@ struct Board
   // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
   static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
 
-  uint16_t pidTimerPeriodMs = 25;
+  uint16_t pidTimerPeriodMs = 10;
   PID leftMotorPid;
   PID rightMotorPid;
   float leftMotorSpeed;
@@ -100,9 +101,14 @@ struct Board
   float rightMotorSpeed;
   float rightMotorPwm;
   float rightMotorCommand;
-  int32_t lastLeftTicks;
-  int32_t lastRightTicks;
   snd_msgs::MotorControlMode motorsMode;
+  bool mustPublishFeedback = false;
+  RunningAverage<int32_t, 5> leftQeiAvg;
+  RunningAverage<int32_t, 5> rightQeiAvg;
+  int32_t leftQeiCnt = 0;
+  int32_t rightQeiCnt = 0;
+  float leftQeiSpeed = 0.0f;
+  float rightQeiSpeed = 0.0f;
 
   // ROS
   ros::NodeHandle nh;
