@@ -9,7 +9,6 @@
 #include "MonsterShield.h"
 #include "Motors.h"
 #include "Output.h"
-#include "PCA9685.hpp"
 #include "Pid.h"
 #include "Qei.h"
 
@@ -49,8 +48,6 @@ extern char logBuffer[LOG_BUFFER_SIZE];
 
 // Here we use a struct instead of a class to ease the use of the object
 // So no need to use getters
-// Note that a Singleton Design Pattern could be used but
-// it needs dynamic memory allocation to be used.
 struct Board
 {
   // Methods
@@ -67,12 +64,6 @@ struct Board
   void leftMotorPidCb(const snd_msgs::Pid& _msg);
   void rightMotorPidCb(const snd_msgs::Pid& _msg);
   void resetStatusCb(const std_msgs::Empty& _msg);
-  void armServoCb(const std_msgs::UInt16& _msg);
-  void graspServoCb(const std_msgs::UInt16& _msg);
-  void pumpCb(const std_msgs::Bool& _msg);
-  void launchServoCb(const std_msgs::UInt16& _msg);
-  void ramp1ServoCb(const std_msgs::UInt16& _msg);
-  void ramp2ServoCb(const std_msgs::UInt16& _msg);
 
   void checkMotorsCurrent();
   void motorsControl();
@@ -90,27 +81,17 @@ struct Board
   Input starter;
   Input colorSwitch;
   Input eStop;
-  Output pump;
-  PCA9685 servos;
-  const uint8_t kArmServoId = 0;
-  const uint8_t kGraspServoId = 1;
-  const uint8_t kLaunchServoId = 2;
-  const uint8_t kRamp1ServoId = 3;
-  const uint8_t kRamp2ServoId = 4;
-  static constexpr uint16_t kServoMin =
-    100; // this is the 'minimum' pulse length count
-  static constexpr uint16_t kServoMax =
-    700; // this is the 'maximum' pulse length count
 
   AdcTimer motorsCurrentChecker;
-  systime_t timeStartOverCurrent;
+  systime_t timeStartOverCurrent = 0;
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
   static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
+  // From VNH2SP30 datasheet
   // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
   static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
 
-  uint16_t pidTimerPeriodMs;
+  uint16_t pidTimerPeriodMs = 25;
   PID leftMotorPid;
   PID rightMotorPid;
   float leftMotorSpeed;
@@ -122,8 +103,6 @@ struct Board
   int32_t lastLeftTicks;
   int32_t lastRightTicks;
   snd_msgs::MotorControlMode motorsMode;
-  float leftMotorCorrector;
-  float rightMotorCorrector;
 
   // ROS
   ros::NodeHandle nh;
@@ -140,12 +119,6 @@ struct Board
   ros::Subscriber<snd_msgs::Pid, Board> leftMotorPidSub;
   ros::Subscriber<snd_msgs::Pid, Board> rightMotorPidSub;
   ros::Subscriber<std_msgs::Empty, Board> resetStatusSub;
-  ros::Subscriber<std_msgs::UInt16, Board> armServoSub;
-  ros::Subscriber<std_msgs::UInt16, Board> graspServoSub;
-  ros::Subscriber<std_msgs::Bool, Board> pumpSub;
-  ros::Subscriber<std_msgs::UInt16, Board> launchServoSub;
-  ros::Subscriber<std_msgs::UInt16, Board> ramp1ServoSub;
-  ros::Subscriber<std_msgs::UInt16, Board> ramp2ServoSub;
 };
 
 template <typename T> T Board::bound(T _in, T _min, T _max)
