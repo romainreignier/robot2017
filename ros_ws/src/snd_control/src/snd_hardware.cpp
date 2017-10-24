@@ -54,8 +54,8 @@ void SndHardwareRos::read()
   if(m_encodersMsg && lock.owns_lock())
   {
     // Save the encoder position
-    m_joints[0].position = m_encodersMsg->left * m_ticksToRad;
-    m_joints[1].position = m_encodersMsg->right * m_ticksToRad;
+    m_joints[0].position = m_encodersMsg->left_pos * m_ticksToRad;
+    m_joints[1].position = m_encodersMsg->right_pos * m_ticksToRad;
   }
 }
 
