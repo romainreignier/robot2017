@@ -38,7 +38,6 @@ void Qei::begin()
   qeiEnable(m_rightDriver);
 }
 
-/*
 void Qei::getValues(int32_t* _left, int32_t* _right)
 {
   osalSysLock();
@@ -53,7 +52,6 @@ void Qei::getValuesI(int32_t* _left, int32_t* _right)
   *_left = m_leftCnt;
   *_right = m_rightCnt;
 }
-*/
 
 QEIDriver *Qei::getLeftDriver() const
 {
