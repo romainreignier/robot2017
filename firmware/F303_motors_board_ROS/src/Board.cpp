@@ -127,7 +127,7 @@ void Board::begin()
 
   // Start Timer
   gptStart(&PID_TIMER, &pidGptCfg);
-  startPIDTimer();
+  gptStartContinuous(&PID_TIMER, pidTimerPeriodMs * 10);
 
   // Start each component
   qei.begin();
@@ -227,14 +227,6 @@ void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 void Board::motorsModeCb(const snd_msgs::MotorControlMode& _msg)
 {
   motorsMode = _msg;
-  if(motorsMode.mode == snd_msgs::MotorControlMode::PID)
-  {
-    startPIDTimer();
-  }
-  else
-  {
-    stopPIDTimer();
-  }
 }
 
 void Board::leftMotorPwmCb(const std_msgs::Int16& _msg)
@@ -346,18 +338,6 @@ void Board::motorsControl()
       chSysUnlockFromISR();
     }
   }
-}
-
-void Board::startPIDTimer()
-{
-  // Start Timer at 10 kHz so the period = ms * 10
-  gptStartContinuous(&PID_TIMER, pidTimerPeriodMs * 10);
-}
-
-void Board::stopPIDTimer()
-{
-  // Stop the timer
-  gptStopTimer(&PID_TIMER);
 }
 
 Board gBoard;

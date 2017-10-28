@@ -68,8 +68,6 @@ struct Board
 
   void checkMotorsCurrent();
   void motorsControl();
-  void startPIDTimer();
-  void stopPIDTimer();
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
