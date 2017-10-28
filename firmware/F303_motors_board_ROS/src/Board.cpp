@@ -162,8 +162,8 @@ void Board::publishFeedback()
     gBoard.mustPublishFeedback = false;
     encodersMsg.left_pos = leftQeiCnt;
     encodersMsg.right_pos = rightQeiCnt;
-    encodersMsg.left_speed = leftQeiSpeed;
-    encodersMsg.right_speed = rightQeiSpeed;
+    encodersMsg.left_speed = leftMotorSpeed;
+    encodersMsg.right_speed = rightMotorSpeed;
   }
   chSysUnlock();
 
@@ -302,8 +302,8 @@ void Board::checkMotorsCurrent()
 
 void Board::motorsControl()
 {
-  int dLeft;
-  int dRight;
+  qeidelta_t dLeft;
+  qeidelta_t dRight;
 
   chSysLockFromISR();
   {
@@ -321,10 +321,8 @@ void Board::motorsControl()
   // TODO see if it is better to get system time instead of fixed timer period
 
   // Speeds in ticks/s
-  leftMotorSpeed = (leftQeiAvg.getAverage() * 1000.0f) /
-                   (leftQeiAvg.getCount() * pidTimerPeriodMs);
-  rightMotorSpeed = (rightQeiAvg.getAverage() * 1000.0f) /
-                    (rightQeiAvg.getCount() * pidTimerPeriodMs);
+  leftMotorSpeed = (leftQeiAvg.getAverage() * 1000.0f) / (pidTimerPeriodMs);
+  rightMotorSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (pidTimerPeriodMs);
 
   gBoard.mustPublishFeedback = true;
 

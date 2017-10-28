@@ -104,12 +104,10 @@ struct Board
   float rightMotorCommand;
   snd_msgs::MotorControlMode motorsMode;
   bool mustPublishFeedback = false;
-  RunningAverage<int32_t, 5> leftQeiAvg;
-  RunningAverage<int32_t, 5> rightQeiAvg;
+  RunningAverage<int32_t, 1> leftQeiAvg;
+  RunningAverage<int32_t, 1> rightQeiAvg;
   int32_t leftQeiCnt = 0;
   int32_t rightQeiCnt = 0;
-  float leftQeiSpeed = 0.0f;
-  float rightQeiSpeed = 0.0f;
 
   // ROS
   ros::NodeHandle nh;
