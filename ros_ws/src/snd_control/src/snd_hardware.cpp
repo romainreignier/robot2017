@@ -67,8 +67,6 @@ void SndHardwareRos::write()
   // Publish motors commands
   if(m_motorsPub.trylock())
   {
-    m_motorsPub.msg_.header.stamp = ros::Time::now();
-    m_motorsPub.msg_.header.frame_id = "base_link";
     m_motorsPub.msg_.left = leftCommandTicks;
     m_motorsPub.msg_.right = rightCommandTicks;
     m_motorsPub.unlockAndPublish();
