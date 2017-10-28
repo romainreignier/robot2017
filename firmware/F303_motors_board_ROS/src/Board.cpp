@@ -150,6 +150,7 @@ void Board::begin()
   nh.subscribe(leftMotorPidSub);
   nh.subscribe(rightMotorPidSub);
   nh.subscribe(resetStatusSub);
+  nh.subscribe(motorsModeSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
   motorsMode.mode = snd_msgs::MotorControlMode::PWM;
