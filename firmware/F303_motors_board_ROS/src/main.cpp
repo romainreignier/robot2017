@@ -50,12 +50,12 @@ int main(void)
     systime_t time = chVTGetSystemTimeX();
     if(gBoard.mustPublishFeedback)
     {
+        // gBoard.checkMotorsCurrent();
         gBoard.publishFeedback();
     }
     if(time - timeLastStatus >= statusPeriod)
     {
       timeLastStatus = time;
-      // gBoard.checkMotorsCurrent();
       gBoard.publishStatus();
     }
     gBoard.nh.spinOnce();

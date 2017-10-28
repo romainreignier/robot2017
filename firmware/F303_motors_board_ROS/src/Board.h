@@ -86,7 +86,7 @@ struct Board
   Input colorSwitch;
   Input eStop;
 
-  AdcTimer motorsCurrentChecker;
+  // AdcTimer motorsCurrentChecker;
   systime_t timeStartOverCurrent = 0;
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
@@ -120,6 +120,8 @@ struct Board
   ros::Publisher statusPub;
   snd_msgs::Encoders encodersMsg;
   ros::Publisher encodersPub;
+  snd_msgs::Motors motorsCurrentMsg;
+  ros::Publisher motorsCurrentPub;
   // Subscribers
   ros::Subscriber<snd_msgs::Motors, Board> motorsSpeedSub;
   ros::Subscriber<snd_msgs::MotorControlMode, Board> motorsModeSub;

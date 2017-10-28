@@ -9,7 +9,10 @@ char logBuffer[LOG_BUFFER_SIZE];
 // Drivers Callbacks
 static void adc1Callback(ADCDriver* _adcd, adcsample_t* _buffer, size_t _n)
 {
-  gBoard.motorsCurrentChecker.adcCb(_adcd, _buffer, _n);
+  (void)_adcd;
+  (void)_buffer;
+  (void)_n;
+  //  gBoard.motorsCurrentChecker.adcCb(_adcd, _buffer, _n);
 }
 
 static void pidGptCb(GPTDriver* _gptd)
@@ -37,7 +40,7 @@ static const ADCConversionGroup adcConversionGroup = {
    0}};
 
 // Timer to trigger ADC motors current checking
-static const GPTConfig gpt6cfg = {80000, NULL, TIM_CR2_MMS_1, 0};
+// static const GPTConfig gpt6cfg = {80000, NULL, TIM_CR2_MMS_1, 0};
 
 // Timer to trigger PID computation
 static const GPTConfig pidGptCfg = {10000, pidGptCb, 0, 0};
@@ -68,14 +71,14 @@ Board::Board()
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
     starter{GPIOA, 4}, colorSwitch{GPIOA, 11},
     eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
-    motorsCurrentChecker{&ADCD1, &GPTD6, 1000},
+    // motorsCurrentChecker{&ADCD1, &GPTD6, 1000},
     leftMotorPid{
       &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
     rightMotorPid{
       &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 1, 0, 0, DIRECT},
-    statusPub{"status", &statusMsg},
     // ROS related
-    encodersPub{"encoders", &encodersMsg},
+    statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
+    motorsCurrentPub{"current", &motorsCurrentMsg},
     motorsSpeedSub{"motors_speed", &Board::motorsSpeedCb, this},
     motorsModeSub{"motors_mode", &Board::motorsModeCb, this},
     leftMotorPwmSub{"left_motor_pwm", &Board::leftMotorPwmCb, this},
@@ -166,6 +169,10 @@ void Board::publishFeedback()
 
   encodersMsg.header.stamp = nh.now();
   encodersPub.publish(&encodersMsg);
+
+  // motorsCurrentMsg.left = motorsCurrentChecker.value1();
+  // motorsCurrentMsg.right = motorsCurrentChecker.value2();
+  // motorsCurrentPub.publish(&motorsCurrentMsg);
 }
 
 void Board::publishStatus()
@@ -176,21 +183,23 @@ void Board::publishStatus()
   statusMsg.color_switch.color =
     colorSwitch.read() ? static_cast<uint8_t>(snd_msgs::Color::BLUE)
                        : static_cast<uint8_t>(snd_msgs::Color::YELLOW);
-  statusMsg.left_motor_current =
-    static_cast<uint16_t>(motorsCurrentChecker.value1() * kAdcToMilliAmps);
-  statusMsg.right_motor_current =
-    static_cast<uint16_t>(motorsCurrentChecker.value2() * kAdcToMilliAmps);
-  statusMsg.status = globalStatus;
-  statusPub.publish(&statusMsg);
+  // statusMsg.left_motor_current =
+  //   static_cast<uint16_t>(motorsCurrentChecker.value1() * kAdcToMilliAmps);
+  // statusMsg.right_motor_current =
+  //   static_cast<uint16_t>(motorsCurrentChecker.value2() * kAdcToMilliAmps);
+  // statusMsg.status = globalStatus;
+  // statusPub.publish(&statusMsg);
 }
 
 void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
 {
+  /*
   if(globalStatus != snd_msgs::Status::STATUS_MOTORS_OVERCURRENT)
   {
     motors.stop();
     return;
   }
+  */
   switch(motorsMode.mode)
   {
   case snd_msgs::MotorControlMode::PID:
@@ -201,7 +210,6 @@ void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
     rightMotorCommand = _msg.right;
     // DEBUG("Motors Speed received but motors stopped because of
     // overcurrent.\n");
-    motors.stop();
   case snd_msgs::MotorControlMode::PWM:
     // Set direct PWM to motors
     // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
@@ -269,6 +277,7 @@ void Board::resetStatusCb(const std_msgs::Empty& _msg)
 
 void Board::checkMotorsCurrent()
 {
+  /*
   if(motorsCurrentChecker.value1() * kAdcToMilliAmps > kCurrentThreshold ||
      motorsCurrentChecker.value2() * kAdcToMilliAmps > kCurrentThreshold)
   {
@@ -296,6 +305,7 @@ void Board::checkMotorsCurrent()
       timeStartOverCurrent = 0;
     }
   }
+  */
 }
 
 void Board::motorsControl()
