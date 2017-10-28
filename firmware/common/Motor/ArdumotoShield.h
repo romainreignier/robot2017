@@ -13,8 +13,9 @@
 class ArdumotoShield : public Motor
 {
 public:
-  ArdumotoShield(PWMDriver* _driver, uint8_t _channel,
-                 bool _isComplementaryChannel, stm32_gpio_t* _dirGpio,
+  ArdumotoShield(PWMDriver* _driver, const uint32_t _timerFrequency,
+                 const uint32_t _timerPeriod, const uint8_t _channel,
+                 const bool _isComplementaryChannel, stm32_gpio_t* _dirGpio,
                  const uint32_t _dirPin);
   virtual void brake() override;
   virtual void changeDirection(eDirection _direction) override;

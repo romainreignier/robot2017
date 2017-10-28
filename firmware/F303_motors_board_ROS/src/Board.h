@@ -75,6 +75,9 @@ struct Board
   template <typename T> T bound(T _in, T _min, T _max);
 
   // Components
+  // Clock @ 48 MHz, Timer @ 12 MHz, Period = 1,2 k -> PWM @ 10 kHz
+  static constexpr uint32_t kPwmTimerFrequency{12'000'000};
+  static constexpr uint16_t kPwmTimerPeriod{1200};
   MonsterShield leftMotor;
   MonsterShield rightMotor;
   Motors motors;

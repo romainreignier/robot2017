@@ -13,8 +13,8 @@ void Motors::begin()
   {
     m_useSameDriver = true;
     // Only use the left config for both motors
-    m_leftPwmConfig.frequency = Motor::kPwmFrequency;
-    m_leftPwmConfig.period = Motor::kPwmPeriod;
+    m_leftPwmConfig.frequency = m_leftMotor.m_timerFrequency;
+    m_leftPwmConfig.period = m_leftMotor.m_timerPeriod;
     m_leftPwmConfig.callback = NULL; // no pwm callback
     m_leftPwmConfig.channels[m_leftMotor.m_channel].mode =
       (m_leftMotor.m_isComplementaryChannel
@@ -28,16 +28,16 @@ void Motors::begin()
   else
   {
     m_useSameDriver = false;
-    m_leftPwmConfig.frequency = Motor::kPwmFrequency;
-    m_leftPwmConfig.period = Motor::kPwmPeriod;
+    m_leftPwmConfig.frequency = m_leftMotor.m_timerFrequency;
+    m_leftPwmConfig.period = m_leftMotor.m_timerPeriod;
     m_leftPwmConfig.callback = NULL; // no pwm callback
     m_leftPwmConfig.channels[m_leftMotor.m_channel].mode =
       (m_leftMotor.m_isComplementaryChannel
          ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH
          : PWM_OUTPUT_ACTIVE_HIGH);
 
-    m_rightPwmConfig.frequency = Motor::kPwmFrequency;
-    m_rightPwmConfig.period = Motor::kPwmPeriod;
+    m_rightPwmConfig.frequency = m_rightMotor.m_timerFrequency;
+    m_rightPwmConfig.period = m_rightMotor.m_timerPeriod;
     m_rightPwmConfig.callback = NULL; // no pwm callback
     m_rightPwmConfig.channels[m_rightMotor.m_channel].mode =
       (m_rightMotor.m_isComplementaryChannel

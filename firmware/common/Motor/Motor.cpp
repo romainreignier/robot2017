@@ -8,17 +8,19 @@
 #include "Motor.h"
 #include "Board.h"
 
-Motor::Motor(PWMDriver* _driver, const uint8_t _channel,
+Motor::Motor(PWMDriver* _driver, const uint32_t _timerFrequency,
+             const uint32_t _timerPeriod, const uint8_t _channel,
              bool _isComplementaryChannel)
-  : m_driver{_driver}, m_channel(_channel - 1),
+  : m_driver{_driver}, m_timerFrequency{_timerFrequency},
+    m_timerPeriod{_timerPeriod}, m_channel(_channel - 1),
     m_isComplementaryChannel(_isComplementaryChannel)
 {
 }
 
 void Motor::begin()
 {
-  m_pwmCfg.frequency = kPwmFrequency;
-  m_pwmCfg.period = kPwmPeriod;
+  m_pwmCfg.frequency = m_timerFrequency;
+  m_pwmCfg.period = m_timerPeriod;
   m_pwmCfg.callback = NULL;
   m_pwmCfg.channels[m_channel].mode =
     (m_isComplementaryChannel ? PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH

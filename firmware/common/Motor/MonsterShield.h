@@ -13,8 +13,9 @@
 class MonsterShield : public Motor
 {
 public:
-  MonsterShield(PWMDriver* _driver, uint8_t _channel,
-                bool _isComplementaryChannel, stm32_gpio_t* _CWGpio,
+  MonsterShield(PWMDriver* _driver, const uint32_t _timerFrequency,
+                const uint32_t _timerPeriod, const uint8_t _channel,
+                const bool _isComplementaryChannel, stm32_gpio_t* _CWGpio,
                 const uint32_t _CWPin, stm32_gpio_t* _CCWGpio,
                 const uint32_t _CCWPin, stm32_gpio_t* _ENGpio,
                 const uint32_t _ENPin);

@@ -14,16 +14,19 @@
 class Motor
 {
   friend class Motors;
+
 public:
   enum eDirection
   {
     FORWARD,
     BACKWARD
   };
-  static constexpr uint32_t kPwmFrequency{1'000'000};
-  static constexpr uint16_t kPwmPeriod{1'000}; // -> PWM 1kHz
-  Motor(PWMDriver* _driver, const uint8_t _channel,
+
+
+  Motor(PWMDriver* _driver, const uint32_t _timerFrequency,
+        const uint32_t _timerPeriod, const uint8_t _channel,
         bool _isComplementaryChannel = false);
+  virtual ~Motor() = default;
   void begin();
   void stop();
   void pwm(int16_t _percentage);
@@ -34,6 +37,8 @@ public:
 
 protected:
   PWMDriver* m_driver;
+  const uint32_t m_timerFrequency;
+  const uint32_t m_timerPeriod;
   uint8_t m_channel;
   bool m_isComplementaryChannel;
   PWMConfig m_pwmCfg;
