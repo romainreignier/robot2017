@@ -27,6 +27,7 @@
 #define DEBUG_DRIVER SD1
 
 #define PID_TIMER GPTD7
+#define ENCODER_COUNT_TIMER GPTD6
 
 extern BaseSequentialStream* dbg;
 
@@ -104,6 +105,8 @@ struct Board
   float rightMotorCommand;
   snd_msgs::MotorControlMode motorsMode;
   bool mustPublishFeedback = false;
+  // 500 kHz -> 1 timer tick = 2 µs
+  static constexpr uint32_t kQeiTimerFrequency{500000};
   RunningAverage<int32_t, 1> leftQeiAvg;
   RunningAverage<int32_t, 1> rightQeiAvg;
   int32_t leftQeiCnt = 0;

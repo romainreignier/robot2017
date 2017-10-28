@@ -25,3 +25,4 @@ mcuconf_community.h
 ../common/ros_lib/ros.h
 ../common/ros_lib/ChibiOSHardware.h
 ../common/RunningAverage/RunningAverage.h
+../common/ChibiOS/os/common/ext/CMSIS/ST/STM32F3xx/stm32f303x8.h

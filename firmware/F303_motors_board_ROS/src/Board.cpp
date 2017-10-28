@@ -22,7 +22,72 @@ static void pidGptCb(GPTDriver* _gptd)
   gBoard.motorsControl();
 }
 
+static uint16_t g_righTimerACount = 0;
+// unit : µs between 2 rising edges of the same channel (µs for 4 ticks)
+static int32_t g_rightMeasuredSpeedWithTimer = 0;
+
+static void rightEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
+{
+  (void)_extp;
+  (void)_channel;
+  const uint16_t secondRisingEdgeCount = (uint16_t)ENCODER_COUNT_TIMER.tim->CNT;
+  const int chBLevel = palReadPad(GPIOA, 1);
+
+  if(!chBLevel)
+  {
+    // positive direction
+    g_rightMeasuredSpeedWithTimer = static_cast<int32_t>(
+      static_cast<uint16_t>(secondRisingEdgeCount - g_righTimerACount));
+  }
+  else
+  {
+    // negative direction
+    g_rightMeasuredSpeedWithTimer = -static_cast<int32_t>(
+      static_cast<uint16_t>(secondRisingEdgeCount - g_righTimerACount));
+  }
+
+  g_righTimerACount = secondRisingEdgeCount;
+}
+
 // Drivers configs
+static const EXTConfig extcfg = {
+  {{EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOA,
+    rightEncoderChAExtCb}, // 0
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   // {EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB,
+   // leftEncoderChAExtCb}, // 4
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL},
+   {EXT_CH_MODE_DISABLED, NULL}}};
+
 // ADC for motors current checking
 static const ADCConversionGroup adcConversionGroup = {
   TRUE,
@@ -44,6 +109,9 @@ static const ADCConversionGroup adcConversionGroup = {
 
 // Timer to trigger PID computation
 static const GPTConfig pidGptCfg = {10000, pidGptCb, 0, 0};
+
+static const GPTConfig encodersCountGptCfg = {
+  gBoard.kQeiTimerFrequency, NULL, 0, 0};
 
 Board::Board()
   : leftMotor{&PWMD1,
@@ -125,9 +193,13 @@ void Board::begin()
   // sdStart(&DEBUG_DRIVER, NULL);
   sdStart(&SERIAL_DRIVER, NULL);
 
-  // Start Timer
+  // Start Timers
   gptStart(&PID_TIMER, &pidGptCfg);
   gptStartContinuous(&PID_TIMER, pidTimerPeriodMs * 10);
+
+  gptStart(&ENCODER_COUNT_TIMER, &encodersCountGptCfg);
+  gptStartContinuous(&ENCODER_COUNT_TIMER, 0xffff);
+  extStart(&EXTD1, &extcfg);
 
   // Start each component
   qei.begin();
@@ -158,8 +230,10 @@ void Board::begin()
 
 void Board::publishFeedback()
 {
+  int32_t rightMeasuredSpeedWithTimer;
   chSysLock();
   {
+    rightMeasuredSpeedWithTimer = g_rightMeasuredSpeedWithTimer;
     gBoard.mustPublishFeedback = false;
     encodersMsg.left_pos = leftQeiCnt;
     encodersMsg.right_pos = rightQeiCnt;
@@ -167,6 +241,10 @@ void Board::publishFeedback()
     encodersMsg.right_speed = rightMotorSpeed;
   }
   chSysUnlock();
+
+  // If uses the time between 2 ticks to compute the speed
+  // encodersMsg.right_speed = (4.0f * kQeiTimerFrequency) /
+  // (rightMeasuredSpeedWithTimer);
 
   encodersMsg.header.stamp = nh.now();
   encodersPub.publish(&encodersMsg);
@@ -209,8 +287,8 @@ void Board::motorsSpeedCb(const snd_msgs::Motors& _msg)
     // _msg.right);
     leftMotorCommand = _msg.left;
     rightMotorCommand = _msg.right;
-    // DEBUG("Motors Speed received but motors stopped because of
-    // overcurrent.\n");
+  // DEBUG("Motors Speed received but motors stopped because of
+  // overcurrent.\n");
   case snd_msgs::MotorControlMode::PWM:
     // Set direct PWM to motors
     // DEBUG("Motors Speed received, left: %f right: %f\n", _msg.left,
@@ -255,8 +333,10 @@ void Board::leftMotorPidCb(const snd_msgs::Pid& _msg)
 
 void Board::rightMotorPidCb(const snd_msgs::Pid& _msg)
 {
-  // DEBUG("Right Motor Pid received: P: %.4f I: %.4f  D: %.4f", _msg.p, _msg.i,
-  // _msg.d);
+  DEBUG("Right Motor Pid received: P: %.4f I: %.4f  D: %.4f",
+        _msg.p,
+        _msg.i,
+        _msg.d);
   rightMotorPid.SetTunings(_msg.p, _msg.i, _msg.d);
 }
 
@@ -305,28 +385,37 @@ void Board::motorsControl()
 {
   qeidelta_t dLeft;
   qeidelta_t dRight;
+  int32_t rightMeasuredSpeedWithTimer;
 
+  // Retrieve the values from a locked system
   chSysLockFromISR();
   {
     dLeft = qeiUpdateI(qei.getLeftDriver());
     dRight = qeiUpdateI(qei.getRightDriver());
+    rightMeasuredSpeedWithTimer = g_rightMeasuredSpeedWithTimer;
   }
   chSysUnlockFromISR();
 
+  // Increment the internal counters
   leftQeiCnt += dLeft;
   rightQeiCnt += dRight;
 
+  // Compute the average
   leftQeiAvg.add(dLeft);
   rightQeiAvg.add(dRight);
-
-  // TODO see if it is better to get system time instead of fixed timer period
 
   // Speeds in ticks/s
   leftMotorSpeed = (leftQeiAvg.getAverage() * 1000.0f) / (pidTimerPeriodMs);
   rightMotorSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (pidTimerPeriodMs);
 
+  // If uses the time between 2 ticks to compute the speed
+  // rightMotorSpeed = (4.0f * kQeiTimerFrequency) /
+  // (rightMeasuredSpeedWithTimer);
+
+  // Set the flag
   gBoard.mustPublishFeedback = true;
 
+  // Update the PID if it is used
   if(gBoard.motorsMode.mode == snd_msgs::MotorControlMode::PID)
   {
     if(leftMotorPid.Compute() && rightMotorPid.Compute())
