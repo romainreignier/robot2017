@@ -9,11 +9,10 @@
 
 #include "hal.h"
 
-#include "Motors.h"
-
 class Motor
 {
   friend class Motors;
+  friend class L298Motors;
 
 public:
   enum eDirection
@@ -27,10 +26,10 @@ public:
         const uint32_t _timerPeriod, const uint8_t _channel,
         bool _isComplementaryChannel = false);
   virtual ~Motor() = default;
-  void begin();
-  void stop();
-  void pwm(int16_t _percentage);
-  void pwmI(int16_t _percentage);
+  virtual void begin();
+  virtual void stop();
+  virtual void pwm(int16_t _percentage);
+  virtual void pwmI(int16_t _percentage);
   virtual void brake() = 0;
   virtual void changeDirection(eDirection _direction) = 0;
   virtual void setOutputPinsMode() = 0;

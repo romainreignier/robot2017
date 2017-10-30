@@ -114,7 +114,9 @@ static const GPTConfig encodersCountGptCfg = {
   gBoard.kQeiTimerFrequency, NULL, 0, 0};
 
 Board::Board()
-  : leftMotor{&PWMD1,
+  :
+#if defined(USE_MONSTER_SHIELD)
+    leftMotor{&PWMD1,
               kPwmTimerFrequency,
               kPwmTimerPeriod,
               2,
@@ -136,8 +138,32 @@ Board::Board()
                6,
                GPIOF,
                0},
+#elif defined(USE_L298)
+    leftMotor{&PWMD1,
+               kPwmTimerFrequency,
+               kPwmTimerPeriod,
+               1,
+               false,
+               4,
+               false,
+               GPIOA,
+               8, // ch1
+               GPIOA,
+               11}, // ch4
+    rightMotor{&PWMD1,
+              kPwmTimerFrequency,
+              kPwmTimerPeriod,
+              2,
+              false,
+              3,
+              false,
+              GPIOA,
+              9, // ch2
+              GPIOA,
+              10}, // ch3
+#endif
     motors(leftMotor, rightMotor), qei{&QEID3, false, &QEID2, false},
-    starter{GPIOA, 4}, colorSwitch{GPIOA, 11},
+    starter{GPIOA, 4}, colorSwitch{GPIOA, 4},
     eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
     // motorsCurrentChecker{&ADCD1, &GPTD6, 1000},
     leftMotorPid{
@@ -176,6 +202,12 @@ void Board::begin()
   palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(6));
   // PWM Motor right: PA8 = TIM1_CH1
   palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(6));
+#if defined(USE_L298)
+  // PWM Motor left: PA10 = TIM1_CH3
+  palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(6));
+  // PWM Motor right: PA11 = TIM1_CH4
+  palSetPadMode(GPIOA, 11, PAL_MODE_ALTERNATE(11));
+#endif
 
   // ADC motor left: PB0 = ADC1_IN11
   palSetPadMode(GPIOB, 0, PAL_MODE_INPUT_ANALOG);

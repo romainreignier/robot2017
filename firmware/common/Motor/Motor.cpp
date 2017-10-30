@@ -38,7 +38,9 @@ void Motor::stop()
 
 void Motor::pwm(int16_t _percentage)
 {
+  osalDbgCheck((m_driver != NULL) && (m_channel < m_driver->channels));
   osalSysLock();
+  osalDbgAssert(m_driver->state == PWM_READY, "not ready");
   pwmI(_percentage);
   osalSysUnlock();
 }
@@ -56,5 +58,7 @@ void Motor::pwmI(int16_t _percentage)
   }
   _percentage = (_percentage > 10000) ? 10000 : _percentage;
   pwmEnableChannelI(
-    m_driver, m_channel, PWM_PERCENTAGE_TO_WIDTH(m_driver, static_cast<uint16_t>(_percentage)));
+    m_driver,
+    m_channel,
+    PWM_PERCENTAGE_TO_WIDTH(m_driver, static_cast<uint16_t>(_percentage)));
 }

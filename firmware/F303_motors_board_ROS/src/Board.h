@@ -6,12 +6,19 @@
 
 #include "AdcTimer.h"
 #include "Input.h"
-#include "MonsterShield.h"
-#include "Motors.h"
 #include "Output.h"
 #include "Pid.h"
 #include "Qei.h"
 #include "RunningAverage.h"
+
+#define USE_L298
+#if defined(USE_MONSTER_SHIELD)
+#include "MonsterShield.h"
+#include "Motors.h"
+#elif defined(USE_L298)
+#include "L298.h"
+#include "L298Motors.h"
+#endif
 
 #include <ros.h>
 #include <snd_msgs/Encoders.h>
@@ -77,9 +84,15 @@ struct Board
   // Clock @ 48 MHz, Timer @ 12 MHz, Period = 1,2 k -> PWM @ 10 kHz
   static constexpr uint32_t kPwmTimerFrequency{12'000'000};
   static constexpr uint16_t kPwmTimerPeriod{1200};
+#if defined(USE_MONSTER_SHIELD)
   MonsterShield leftMotor;
   MonsterShield rightMotor;
   Motors motors;
+#elif defined(USE_L298)
+  L298 leftMotor;
+  L298 rightMotor;
+  L298Motors motors;
+#endif
   Qei qei;
   Input starter;
   Input colorSwitch;
