@@ -87,6 +87,7 @@ void PID::SetTunings(float Kp, float Ki, float Kd)
     ki = (0 - ki);
     kd = (0 - kd);
   }
+  ITerm = 0;
 }
 
 /* SetSampleTime(...) *********************************************************
