@@ -120,8 +120,8 @@ struct Board
   bool mustPublishFeedback = false;
   // 500 kHz -> 1 timer tick = 2 µs
   static constexpr uint32_t kQeiTimerFrequency{500000};
-  RunningAverage<int32_t, 1> leftQeiAvg;
-  RunningAverage<int32_t, 1> rightQeiAvg;
+  RunningAverage<int32_t, 2> leftQeiAvg;
+  RunningAverage<int32_t, 2> rightQeiAvg;
   int32_t leftQeiCnt = 0;
   int32_t rightQeiCnt = 0;
 
