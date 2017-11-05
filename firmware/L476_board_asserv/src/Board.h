@@ -126,6 +126,8 @@ struct Board
   float vLinMax;
   float vAngMax;
 
+  float smoothRotation;
+
   static constexpr float kPi = 3.14159265358979323846f;
   static constexpr float wheelSeparationMM = 102.1f;
   static constexpr int32_t encoderResolution = 2400;

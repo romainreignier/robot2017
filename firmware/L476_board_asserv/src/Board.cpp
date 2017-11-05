@@ -45,7 +45,8 @@ Board::Board()
     kpAng{700.0f}, kiDist{0.15f}, kiAng{10.0f}, kdDist{650.0f}, kdAng{1000.0f},
     iMinDist(-maxPwm), iMaxDist(maxPwm), iMinAng(-maxPwm), iMaxAng(maxPwm),
     finish(true), vLinMax{4}, // 200 mm/s -> 4 mm / periode (20ms)
-    vAngMax{0.087964594f}     // 0.7 tr/s -> rad/periode
+    vAngMax{0.087964594f},     // 0.7 tr/s -> rad/periode
+    smoothRotation(0.0)
 {
 }
 
@@ -300,7 +301,6 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
 {
   float correctionDistance  = 0.0;
   float correctionAngle     = 0.0;
-  float smoothRotation      = 0.0;
 
   // Estimation deplacement
   const float dl = static_cast<float>(_dLeft) *
@@ -365,10 +365,13 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   lastErreurDistance = erreurDistance;
   lastErreurAngle = erreurAngle;
 
+  smoothRotation =
+          bound(( -(0.9/2200.0) * correctionDistance + 1.0), 0.05, 1.0);
+
   leftPwm =
-    boundPwm(static_cast<int16_t>(correctionDistance - correctionAngle));
+    boundPwm(static_cast<int16_t>(correctionDistance - smoothRotation * correctionAngle));
   rightPwm =
-    boundPwm(static_cast<int16_t>(correctionDistance + correctionAngle));
+    boundPwm(static_cast<int16_t>(correctionDistance + smoothRotation * correctionAngle));
 
   chSysLockFromISR();
   motors.pwmI(leftPwm, rightPwm);
