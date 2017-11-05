@@ -41,7 +41,7 @@ Board::Board()
     rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
     rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     greenLed{GPIOA, 11}, servos{&I2CD2, &i2c2cfg}, tcsLed{GPIOA, 15},
-    maxPwm{3000}, cptRestOnPosition(0),cptRestOnAngle(0), compensationDist(0),compensationAng(0) kpDist{15.0},
+    maxPwm{3000}, cptRestOnPosition(0),cptRestOnAngle(0), compensationDist(0),compensationAng(0), kpDist{15.0},
     kpAng{700.0f}, kiDist{0.15f}, kiAng{10.0f}, kdDist{650.0f}, kdAng{1000.0f},
     iMinDist(-maxPwm), iMaxDist(maxPwm), iMinAng(-maxPwm), iMaxAng(maxPwm),
     finish(true), vLinMax{4}, // 200 mm/s -> 4 mm / periode (20ms)
@@ -301,22 +301,12 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   float correctionDistance  = 0.0;
   float correctionAngle     = 0.0;
   float smoothRotation      = 0.0;
-  // Recuperation codeurs
-  int32_t leftTicks         = 0;
-  int32_t rightTicks        = 0;
-
-  chSysLockFromISR();
-  gBoard.qei.getValuesI(&leftTicks, &rightTicks);
-  chSysUnlockFromISR();
 
   // Estimation deplacement
   const float dl = static_cast<float>(_dLeft) *
                    LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
   const float dr = static_cast<float>(_dRight) *
                    RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
-
-  lastLeftTicks = leftTicks;
-  lastRightTicks = rightTicks;
 
   // calcul du déplacement su robot
   const float dD = (dr + dl) / 2;
