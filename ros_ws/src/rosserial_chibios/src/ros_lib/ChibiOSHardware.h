@@ -5,10 +5,7 @@
 extern "C" {
 #endif
 
-#include "ch.h"
 #include "hal.h"
-
-// TODO use OSAL
 
 class ChibiOSHardware
 {
@@ -19,22 +16,26 @@ public:
 
   void init() {}
 
-  void setDriver(SerialDriver* driver)
-  {
-    iostream = (BaseChannel*)driver;
-  }
+  void setDriver(SerialDriver* driver) { iostream = (BaseChannel*)driver; }
 
-  int read()
-  {
-    return chnGetTimeout(iostream, TIME_IMMEDIATE);
-  }
+  int read() { return chnGetTimeout(iostream, TIME_IMMEDIATE); }
 
-  void write(uint8_t* data, int length)
-  {
-    chnWrite(iostream, data, length);
-  }
+  void write(uint8_t* data, int length) { chnWrite(iostream, data, length); }
 
-  unsigned long time() { return ST2MS(chVTGetSystemTimeX()); }
+  unsigned long time()
+  {
+#if OSAL_ST_FREQUENCY == 1000
+    return (u32_t)osalOsGetSystemTimeX();
+#elif(OSAL_ST_FREQUENCY / 1000) >= 1 && (OSAL_ST_FREQUENCY % 1000) == 0
+    return ((u32_t)osalOsGetSystemTimeX() - 1) / (OSAL_ST_FREQUENCY / 1000) + 1;
+#elif(1000 / OSAL_ST_FREQUENCY) >= 1 && (1000 % OSAL_ST_FREQUENCY) == 0
+    return ((u32_t)osalOsGetSystemTimeX() - 1) * (1000 / OSAL_ST_FREQUENCY) + 1;
+#else
+    return (u32_t)(((u64_t)(osalOsGetSystemTimeX() - 1) * 1000) /
+                   OSAL_ST_FREQUENCY) +
+           1;
+#endif
+  }
 
 protected:
   BaseChannel* iostream;
