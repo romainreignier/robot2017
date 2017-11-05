@@ -25,6 +25,7 @@ THD_FUNCTION(ThreadRosserial, arg)
   std_msgs::Float32 cible_angle;
   std_msgs::Float32 left_speed;
   std_msgs::Float32 right_speed;
+  std_msgs::Float32 smoothRotation;
   std_msgs::Int16 left_pwm;
   std_msgs::Int16 right_pwm;
   // Publishers
@@ -40,6 +41,7 @@ THD_FUNCTION(ThreadRosserial, arg)
   ros::Publisher right_speed_pub("right_speed", &right_speed);
   ros::Publisher right_pwm_pub("right_pwm", &right_pwm);
   ros::Publisher left_pwm_pub("left_pwm", &left_pwm);
+  ros::Publisher smooth_rotation_pub("smooth_rotation", &smoothRotation);
   // Init Node Handle
   nh.getHardware()->setDriver(&SD1);
   nh.initNode();
@@ -56,6 +58,7 @@ THD_FUNCTION(ThreadRosserial, arg)
   nh.advertise(right_speed_pub);
   nh.advertise(right_pwm_pub);
   nh.advertise(left_pwm_pub);
+  nh.advertise(smooth_rotation_pub);
 
   systime_t time = chVTGetSystemTimeX();
   constexpr systime_t kPublishPeriodMs{50};
@@ -76,6 +79,7 @@ THD_FUNCTION(ThreadRosserial, arg)
     right_speed.data = gBoard.rightSpeed;
     left_pwm.data = gBoard.leftPwm;
     right_pwm.data = gBoard.rightPwm;
+    smoothRotation.data = gBoard.smoothRotation;
 
     // Publish the data
     consigne_distance_pub.publish(&consigne_distance);
@@ -90,6 +94,7 @@ THD_FUNCTION(ThreadRosserial, arg)
     right_speed_pub.publish(&right_speed);
     right_pwm_pub.publish(&right_pwm);
     left_pwm_pub.publish(&left_pwm);
+    smooth_rotation_pub.publish(&smoothRotation);
 
     // Spin
     nh.spinOnce();
