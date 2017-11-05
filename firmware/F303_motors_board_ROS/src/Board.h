@@ -34,7 +34,9 @@
 #define DEBUG_DRIVER SD1
 
 #define PID_TIMER GPTD7
-#define ENCODER_COUNT_TIMER GPTD6
+// TODO Find a way to use Timer 15, 16, 17
+#define LEFT_ENCODER_COUNT_TIMER GPTD6
+#define RIGHT_ENCODER_COUNT_TIMER GPTD6
 
 extern BaseSequentialStream* dbg;
 

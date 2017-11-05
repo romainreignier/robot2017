@@ -23,14 +23,39 @@ static void pidGptCb(GPTDriver* _gptd)
 }
 
 static uint16_t g_righTimerACount = 0;
+static uint16_t g_leftTimerACount = 0;
 // unit : µs between 2 rising edges of the same channel (µs for 4 ticks)
+static int32_t g_leftMeasuredSpeedWithTimer = 0;
 static int32_t g_rightMeasuredSpeedWithTimer = 0;
+
+static void leftEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
+{
+  (void)_extp;
+  (void)_channel;
+  const uint16_t secondRisingEdgeCount = (uint16_t)LEFT_ENCODER_COUNT_TIMER.tim->CNT;
+  const int chBLevel = palReadPad(GPIOB, 5);
+
+  if(!chBLevel)
+  {
+    // positive direction
+    g_leftMeasuredSpeedWithTimer = static_cast<int32_t>(
+      static_cast<uint16_t>(secondRisingEdgeCount - g_righTimerACount));
+  }
+  else
+  {
+    // negative direction
+    g_leftMeasuredSpeedWithTimer = -static_cast<int32_t>(
+      static_cast<uint16_t>(secondRisingEdgeCount - g_righTimerACount));
+  }
+
+  g_righTimerACount = secondRisingEdgeCount;
+}
 
 static void rightEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
 {
   (void)_extp;
   (void)_channel;
-  const uint16_t secondRisingEdgeCount = (uint16_t)ENCODER_COUNT_TIMER.tim->CNT;
+  const uint16_t secondRisingEdgeCount = (uint16_t)RIGHT_ENCODER_COUNT_TIMER.tim->CNT;
   const int chBLevel = palReadPad(GPIOA, 1);
 
   if(!chBLevel)
@@ -229,8 +254,10 @@ void Board::begin()
   gptStart(&PID_TIMER, &pidGptCfg);
   gptStartContinuous(&PID_TIMER, pidTimerPeriodMs * 10);
 
-  gptStart(&ENCODER_COUNT_TIMER, &encodersCountGptCfg);
-  gptStartContinuous(&ENCODER_COUNT_TIMER, 0xffff);
+  // gptStart(&LEFT_ENCODER_COUNT_TIMER, &encodersCountGptCfg);
+  // gptStartContinuous(&LEFT_ENCODER_COUNT_TIMER, 0xffff);
+  gptStart(&RIGHT_ENCODER_COUNT_TIMER, &encodersCountGptCfg);
+  gptStartContinuous(&RIGHT_ENCODER_COUNT_TIMER, 0xffff);
   extStart(&EXTD1, &extcfg);
 
   // Start each component
