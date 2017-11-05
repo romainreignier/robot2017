@@ -108,6 +108,7 @@ include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/pca9685/pca9685.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/ros_lib/ros.mk
+include $(COMMON)/RunningAverage/RunningAverage.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32L476xG.ld
@@ -163,7 +164,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(SHELLINC) \
          $(MOTORINC) $(QEIINC) $(GPIOINC) \
-         $(PCA9685INC) $(ROSINC) \
+         $(PCA9685INC) $(ROSINC) $(RUNNINGAVERAGEINC) \
          src
 
 #
@@ -203,7 +204,7 @@ TOPT = -mthumb -DTHUMB
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -fdiagnostics-color=auto
 
 # Define C++ warning options here
-CPPWARN = -std=c++11 -Wall -Wextra -Wundef -fdiagnostics-color=auto
+CPPWARN = -std=c++14 -Wall -Wextra -Wundef -fdiagnostics-color=auto
 
 #
 # Compiler settings

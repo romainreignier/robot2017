@@ -37,3 +37,4 @@
 ../common/vl53l0x_cpp
 ../common/Pid
 ../common/ros_lib
+../common/RunningAverage

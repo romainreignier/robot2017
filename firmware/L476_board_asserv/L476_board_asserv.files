@@ -38,3 +38,5 @@ Makefile
 ../common/pca9685/PCA9685.cpp
 ../common/tcs34725_adafruit/Adafruit_TCS34725.h
 ../common/tcs34725_adafruit/Adafruit_TCS34725.cpp
+../common/RunningAverage/RunningAverage.h
+../common/RunningAverage/RunningAverage.mk
