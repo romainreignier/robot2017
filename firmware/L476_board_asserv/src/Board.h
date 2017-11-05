@@ -96,7 +96,9 @@ struct Board
   volatile float lastErreurDistance;
   volatile float lastErreurAngle;
   volatile int16_t cptRestOnPosition;
-  volatile int16_t compensation;
+  volatile int16_t cptRestOnAngle;
+  volatile int16_t compensationDist;
+  volatile int16_t compensationAng;
   float kpDist;
   float kpAng;
   float kiDist;

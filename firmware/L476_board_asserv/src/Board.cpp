@@ -41,8 +41,8 @@ Board::Board()
     rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
     rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     greenLed{GPIOA, 11}, servos{&I2CD2, &i2c2cfg}, tcsLed{GPIOA, 15},
-    maxPwm{3000}, cptRestOnPosition(0), compensation(0), kpDist{15.0},
-    kpAng{600}, kiDist{0.15f}, kiAng{0.1f}, kdDist{650}, kdAng{1500},
+    maxPwm{3000}, cptRestOnPosition(0),cptRestOnAngle(0), compensationDist(0),compensationAng(0) kpDist{15.0},
+    kpAng{700.0f}, kiDist{0.15f}, kiAng{10.0f}, kdDist{650.0f}, kdAng{1000.0f},
     iMinDist(-maxPwm), iMaxDist(maxPwm), iMinAng(-maxPwm), iMaxAng(maxPwm),
     finish(true), vLinMax{4}, // 200 mm/s -> 4 mm / periode (20ms)
     vAngMax{0.087964594f}     // 0.7 tr/s -> rad/periode
@@ -154,10 +154,13 @@ void Board::moveLinear(float _distance)
   mesureDistance = 0;
   mesureAngle = 0;
   finAsservIterations = 0;
+  iTermDist=0.0;
+  iTermAng=0.0;
   finish = false;
   mustComputeTraj = false;
-  compensation = 0;
+  compensationDist = 0;
   cptRestOnPosition = 0;
+  cptRestOnAngle = 0;
   erreurDistance = 0;
   lastErreurDistance = 0;
   chSysUnlock();
@@ -180,6 +183,10 @@ void Board::moveAngular(float _angle)
   consigneAngle = cibleAngle; // 0 si mustComputeTraj True
   mesureDistance = 0;
   mesureAngle = 0;
+  iTermAng = 0.0;
+  iTermDist = 0.0;
+  cptRestOnPosition = 0;
+  cptRestOnAngle = 0;
   finAsservIterations = 0;
   finish = false;
   mustComputeTraj = false; // On desactive la rampe avec false
@@ -291,11 +298,25 @@ void Board::computeTraj()
 
 void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
 {
+  float correctionDistance  = 0.0;
+  float correctionAngle     = 0.0;
+  float smoothRotation      = 0.0;
+  // Recuperation codeurs
+  int32_t leftTicks         = 0;
+  int32_t rightTicks        = 0;
+
+  chSysLockFromISR();
+  gBoard.qei.getValuesI(&leftTicks, &rightTicks);
+  chSysUnlockFromISR();
+
   // Estimation deplacement
   const float dl = static_cast<float>(_dLeft) *
                    LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
   const float dr = static_cast<float>(_dRight) *
                    RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
+
+  lastLeftTicks = leftTicks;
+  lastRightTicks = rightTicks;
 
   // calcul du déplacement su robot
   const float dD = (dr + dl) / 2;
@@ -311,48 +332,45 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   erreurDistance = consigneDistance - mesureDistance;
   erreurAngle = normalize_angle(consigneAngle - mesureAngle);
 
-  // iTermDist += kiDist * erreurDistance;
   iTermAng += kiAng * erreurAngle;
-  // iTermDist = bound(iTermDist, iMinDist, iMaxDist);
   iTermAng = bound(iTermAng, iMinAng, iMaxAng);
 
-  /*const float correctionDistance =
-    (kpDist * erreurDistance + kdDist * (lastErreurDistance - erreurDistance) +
-    iTermDist)+ 800;*/
-  float correctionDistance = 0.0f;
-
-  if(erreurDistance >= 0.0f)
-    correctionDistance = (kpDist * erreurDistance +
-                          (kdDist * (erreurDistance - lastErreurDistance))) +
-                         700.0f + compensation;
+  if(erreurDistance >= 0.0)
+    correctionDistance = (kpDist * erreurDistance + 
+			( kdDist * (erreurDistance 
+			- lastErreurDistance)) )
+			+ 700.0 + compensationDist;
   else
-    correctionDistance = (kpDist * erreurDistance +
-                          (kdDist * (erreurDistance - lastErreurDistance))) -
-                         700.0f - compensation;
+    correctionDistance = (kpDist * erreurDistance + ( kdDist * (erreurDistance - lastErreurDistance)) )- 700.0 + compensationDist;
 
-  // correctionDistance = 0.0;
-
-  float correctionAngle = 0.0f;
-
-  if(erreurAngle >= 0.0f)
-    correctionAngle = kpAng * erreurAngle +
-                      kdAng * (erreurAngle - lastErreurAngle) + iTermAng +
-                      800.0f;
+  if(erreurAngle >= 0.0)
+      correctionAngle = kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng + 750.0 + compensationAng;
   else
-    correctionAngle = kpAng * erreurAngle +
-                      kdAng * (erreurAngle - lastErreurAngle) + iTermAng -
-                      800.0f;
+      correctionAngle = kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng - 750.0 + compensationAng;
 
   if(erreurDistance == lastErreurDistance)
   {
-    ++cptRestOnPosition;
-    iTermDist += kiDist * erreurDistance;
-    iTermDist = bound(iTermDist, iMinDist, iMaxDist);
+      ++cptRestOnPosition;
+      iTermDist += kiDist * erreurDistance;
+      iTermDist = bound(iTermDist, iMinDist, iMaxDist);
   }
   else
-    compensation = 0;
+      compensationDist=0;
 
-  if(cptRestOnPosition > 3) compensation = iTermDist;
+  if(cptRestOnPosition > 3)
+      compensationDist = iTermDist;
+
+  if(erreurAngle == lastErreurAngle)
+  {
+      ++cptRestOnAngle;
+      iTermAng += kiAng * erreurAngle;
+      iTermAng = bound(iTermAng, iMinAng, iMaxAng);
+  }
+  else
+      compensationAng=0;
+
+  if(cptRestOnPosition > 3)
+      compensationAng = iTermAng;
 
   lastErreurDistance = erreurDistance;
   lastErreurAngle = erreurAngle;
@@ -366,7 +384,7 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   motors.pwmI(leftPwm, rightPwm);
   chSysUnlockFromISR();
 
-  if(std::fabs(erreurDistance) < 1.0f && std::fabs(erreurAngle) < 0.02f)
+  if(fabs(erreurDistance) < 1 && fabs(erreurAngle) < 0.02)
   {
     finAsservIterations++;
     if(finAsservIterations > 50)
@@ -433,6 +451,7 @@ float Board::normalize_angle_positive(float angle)
 {
   return fmod(fmod(angle, 2.0 * M_PI) + 2.0 * M_PI, 2.0 * M_PI);
 }
+
 
 /*!
  * \brief normalize
