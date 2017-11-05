@@ -6,7 +6,6 @@
  */
 
 #include "Motor.h"
-#include "Board.h"
 
 Motor::Motor(PWMDriver* _driver, const uint8_t _channel,
              bool _isComplementaryChannel)

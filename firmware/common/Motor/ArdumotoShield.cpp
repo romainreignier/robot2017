@@ -6,7 +6,6 @@
  */
 
 #include "ArdumotoShield.h"
-#include "Board.h"
 
 ArdumotoShield::ArdumotoShield(PWMDriver* _driver, uint8_t _channel,
                                bool _isComplementaryChannel,
