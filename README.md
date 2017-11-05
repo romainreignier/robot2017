@@ -20,7 +20,7 @@ Make sure you initialize and update the submodules in order to build.
 
 ## Firmware
 
-Install a compiler suite:
+Install a compiler suite (but a bit old):
 
     $ sudo apt install binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 
@@ -45,4 +45,4 @@ To generate the rosserial headers:
     $ source devel/setup.bash
     $ cd ../firmware/common
     $ rm -r ros_lib
-    $ rosrun rosserial_client make_libraries .
+    $ rosrun rosserial_chibios make_libraries.py .
