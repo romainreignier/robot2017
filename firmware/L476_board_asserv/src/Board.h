@@ -81,10 +81,9 @@ struct Board
   static constexpr uint16_t kServoMax = 700;
   Output tcsLed;
 
-  uint16_t pidTimerPeriodMs = 10;
+  static constexpr uint32_t kPidTimerPeriodMs = 10;
+  static constexpr uint32_t kQeiTimerFrequency = 500'000;
 
-  volatile int32_t lastLeftTicks;
-  volatile int32_t lastRightTicks;
   float cibleDistance;
   float cibleAngle;
   int16_t maxPwm;
@@ -100,10 +99,10 @@ struct Board
   volatile int16_t compensation;
   float kpDist;
   float kpAng;
-  float kdDist;
-  float kdAng;
   float kiDist;
   float kiAng;
+  float kdDist;
+  float kdAng;
   volatile float iTermDist;
   volatile float iTermAng;
   float iMinDist;
@@ -125,11 +124,11 @@ struct Board
   float vLinMax;
   float vAngMax;
 
-  static constexpr float kPi = 3.14159265358979323846;
-  static constexpr float wheelSeparationMM = 102.1;
+  static constexpr float kPi = 3.14159265358979323846f;
+  static constexpr float wheelSeparationMM = 102.1f;
   static constexpr int32_t encoderResolution = 2400;
-  static constexpr float leftWheelRadius = 26.125;
-  static constexpr float rightWheelRadius = 26.075;
+  static constexpr float leftWheelRadius = 26.125f;
+  static constexpr float rightWheelRadius = 26.075f;
   static constexpr float LEFT_TICKS_TO_MM =
     (2 * kPi * leftWheelRadius) / encoderResolution;
   static constexpr float RIGHT_TICKS_TO_MM =

@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "RosPublisher.h"
 #include "Board.h"
+#include "RosPublisher.h"
 
 // Green LED blinker thread
 static THD_WORKING_AREA(waThreadBlinker, 256);
@@ -35,8 +35,7 @@ static THD_FUNCTION(ThreadBlinker, arg)
   }
 }
 
-systime_t startTime;
-int16_t maxPwm = 2000;
+static int16_t maxPwm = 2000;
 int16_t boundPWM(int16_t _pwm)
 {
   if(_pwm > maxPwm) return maxPwm;
@@ -111,32 +110,44 @@ static void cmd_kid(BaseSequentialStream* chp, int argc, char* argv[])
 
 static void cmd_print_kpa(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    chprintf(chp, "Kp Angulaire = %f\r\n", gBoard.kpAng);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Kp Angulaire = %f\r\n", gBoard.kpAng);
 }
 
 static void cmd_print_kpd(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    chprintf(chp, "Kp Distance = %f\r\n", gBoard.kpDist);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Kp Distance = %f\r\n", gBoard.kpDist);
 }
 
 static void cmd_print_kda(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    chprintf(chp, "Kd Angulaire = %f\r\n", gBoard.kdAng);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Kd Angulaire = %f\r\n", gBoard.kdAng);
 }
 
 static void cmd_print_kdd(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    chprintf(chp, "Kd Distance = %f\r\n", gBoard.kdDist);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Kd Distance = %f\r\n", gBoard.kdDist);
 }
 
 static void cmd_print_kia(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    chprintf(chp, "Ki Angulaire = %f\r\n", gBoard.kiAng);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Ki Angulaire = %f\r\n", gBoard.kiAng);
 }
 
 static void cmd_print_kid(BaseSequentialStream* chp, int argc, char* argv[])
 {
-    chprintf(chp, "Ki Distance = %f\r\n", gBoard.kiDist);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Ki Distance = %f\r\n", gBoard.kiDist);
 }
 
 static void cmd_vlinmax(BaseSequentialStream* chp, int argc, char* argv[])
@@ -144,7 +155,7 @@ static void cmd_vlinmax(BaseSequentialStream* chp, int argc, char* argv[])
   if(argc > 0)
   {
     const float val = atof(argv[0]);
-    gBoard.vLinMax = val / (1 / (gBoard.pidTimerPeriodMs * 0.001));
+    gBoard.vLinMax = val / (1 / (gBoard.kPidTimerPeriodMs * 0.001f));
     chprintf(chp,
              "Vitesse Lineaire Max = %f mm/s -> %f mm/periode\r\n",
              val,
@@ -157,7 +168,7 @@ static void cmd_vangmax(BaseSequentialStream* chp, int argc, char* argv[])
   if(argc > 0)
   {
     const float val = atof(argv[0]);
-    gBoard.vAngMax = val / (1 / (gBoard.pidTimerPeriodMs * 0.001));
+    gBoard.vAngMax = val / (1 / (gBoard.kPidTimerPeriodMs * 0.001f));
     chprintf(chp,
              "Vitesse Angulaire Max = %f rad/s -> %f rad/Periode\r\n",
              val,
@@ -207,7 +218,7 @@ static void cmd_tourne_deg(BaseSequentialStream* chp, int argc, char* argv[])
     return;
   }
   const float val = atof(argv[0]);
-  const float valRad = val * gBoard.kPi / 180.0;
+  const float valRad = val * gBoard.kPi / 180.0f;
   chprintf(chp, "tourne de %f degres -> %f rad\r\n", val, valRad);
   gBoard.moveAngular(valRad);
 }
@@ -245,14 +256,16 @@ static void cmd_tourne_ech_deg(BaseSequentialStream* chp, int argc,
     return;
   }
   const float val = atof(argv[0]);
-  const float valRad = val * gBoard.kPi / 180.0;
+  const float valRad = val * gBoard.kPi / 180.0f;
   chprintf(chp, "tourne de %f degres -> %f rad\r\n", val, valRad);
   gBoard.moveAngularEchelon(valRad);
 }
 
 static void cmd_dist(BaseSequentialStream* chp, int argc, char* argv[])
 {
- chprintf(chp, "Lecture Distance= %f\r\n", gBoard.mesureDistance);
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Lecture Distance= %f\r\n", gBoard.mesureDistance);
 }
 
 static const ShellCommand commands[] = {{"kpd", cmd_kpd},
@@ -293,8 +306,11 @@ int main(void)
   chThdCreateStatic(
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
-  chThdCreateStatic(
-    waThreadRosserial, sizeof(waThreadRosserial), NORMALPRIO, ThreadRosserial, NULL);
+  chThdCreateStatic(waThreadRosserial,
+                    sizeof(waThreadRosserial),
+                    NORMALPRIO,
+                    ThreadRosserial,
+                    NULL);
 
   DEBUG("Supmeca Never Dies!!!!");
 
@@ -307,13 +323,5 @@ int main(void)
                                             shellThread,
                                             (void*)&shell_cfg1);
     chThdWait(shelltp); /* Waiting termination. */
-    //chThdSleepMilliseconds(2000);
-    //chSysLockFromISR();
-    //gBoard.motors.pwmI(620, 620);
-    //chSysUnlockFromISR();
-    //DEBUG("FIN!!!!");
-    //chThdSleepMilliseconds(500);
-    //gBoard.motors.pwmI(0, 0);
-    //chThdSleepMilliseconds(1000);
   }
 }
