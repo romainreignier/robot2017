@@ -5,10 +5,6 @@ logs
 .catkin_workspace
 .catkin_tools
 firmware/common/ros_lib
-!firmware/common/ros_lib/ros.h
-!firmware/common/ros_lib/ChibiOSHardware.h
-!firmware/common/ros_lib/ros/node_handle.h
-!firmware/common/ros_lib/ros/service_server.h
 
 # ChibiOS
 .dep
