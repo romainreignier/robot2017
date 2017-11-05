@@ -127,6 +127,7 @@ struct Board
   float vAngMax;
 
   float smoothRotation;
+  float linear_speed;
 
   static constexpr float kPi = 3.14159265358979323846f;
   static constexpr float wheelSeparationMM = 102.1f;

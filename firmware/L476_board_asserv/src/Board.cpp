@@ -46,7 +46,8 @@ Board::Board()
     iMinDist(-maxPwm), iMaxDist(maxPwm), iMinAng(-maxPwm), iMaxAng(maxPwm),
     finish(true), vLinMax{4}, // 200 mm/s -> 4 mm / periode (20ms)
     vAngMax{0.087964594f},     // 0.7 tr/s -> rad/periode
-    smoothRotation(0.0)
+    smoothRotation(1.0),
+    linear_speed(0.0)
 {
 }
 
@@ -308,12 +309,13 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   const float dr = static_cast<float>(_dRight) *
                    RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
 
-  // calcul du déplacement su robot
+  // calcul du déplacement du robot
   const float dD = (dr + dl) / 2;
   // calcul de la variation de l'angle alpha du robot
   const float dA = (dr - dl) / wheelSeparationMM;
 
   // Incrementation des mesures
+  //linear_speed = ((dD / kPidTimerPeriodMs) * 1000 );
   mesureDistance += dD;
   mesureAngle += dA;
   mesureAngle = normalize_angle(mesureAngle);
@@ -365,13 +367,12 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   lastErreurDistance = erreurDistance;
   lastErreurAngle = erreurAngle;
 
-  smoothRotation =
-          bound(( -(0.9/2200.0) * correctionDistance + 1.0), 0.05, 1.0);
+
 
   leftPwm =
-    boundPwm(static_cast<int16_t>(correctionDistance - smoothRotation * correctionAngle));
+    boundPwm(static_cast<int16_t>(correctionDistance - smoothRotation *  correctionAngle));
   rightPwm =
-    boundPwm(static_cast<int16_t>(correctionDistance + smoothRotation * correctionAngle));
+    boundPwm(static_cast<int16_t>(correctionDistance + smoothRotation *  correctionAngle));
 
   chSysLockFromISR();
   motors.pwmI(leftPwm, rightPwm);
@@ -409,6 +410,9 @@ void Board::lectureCodeur(int32_t& _dLeft, int32_t& _dRight)
   // Speeds in ticks/s
   leftSpeed = (leftQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
   rightSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
+  linear_speed = ((leftSpeed + rightSpeed) / 2);
+  smoothRotation =
+          bound(( -(0.9/1500.0) * fabs(linear_speed) + 1.0), 0.05, 1.0);
 }
 
 void Board::printErrors()
