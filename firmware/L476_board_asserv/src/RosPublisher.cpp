@@ -23,6 +23,8 @@ THD_FUNCTION(ThreadRosserial, arg)
   std_msgs::Float32 erreur_angle;
   std_msgs::Float32 cible_distance;
   std_msgs::Float32 cible_angle;
+  std_msgs::Float32 left_speed;
+  std_msgs::Float32 right_speed;
   std_msgs::Int16 left_pwm;
   std_msgs::Int16 right_pwm;
   // Publishers
@@ -34,6 +36,8 @@ THD_FUNCTION(ThreadRosserial, arg)
   ros::Publisher erreur_angle_pub("erreur_angle", &erreur_angle);
   ros::Publisher cible_distance_pub("cible_distance", &cible_distance);
   ros::Publisher cible_angle_pub("cible_angle", &cible_angle);
+  ros::Publisher left_speed_pub("left_speed", &left_speed);
+  ros::Publisher right_speed_pub("right_speed", &right_speed);
   ros::Publisher right_pwm_pub("right_pwm", &right_pwm);
   ros::Publisher left_pwm_pub("left_pwm", &left_pwm);
   // Init Node Handle
@@ -48,6 +52,8 @@ THD_FUNCTION(ThreadRosserial, arg)
   nh.advertise(erreur_angle_pub);
   nh.advertise(cible_distance_pub);
   nh.advertise(cible_angle_pub);
+  nh.advertise(left_speed_pub);
+  nh.advertise(right_speed_pub);
   nh.advertise(right_pwm_pub);
   nh.advertise(left_pwm_pub);
 
@@ -66,6 +72,8 @@ THD_FUNCTION(ThreadRosserial, arg)
     erreur_angle.data = gBoard.erreurAngle;
     cible_distance.data = gBoard.cibleDistance;
     cible_angle.data = gBoard.cibleAngle;
+    left_speed.data = gBoard.leftSpeed;
+    right_speed.data = gBoard.rightSpeed;
     left_pwm.data = gBoard.leftPwm;
     right_pwm.data = gBoard.rightPwm;
 
@@ -78,6 +86,8 @@ THD_FUNCTION(ThreadRosserial, arg)
     erreur_angle_pub.publish(&erreur_angle);
     cible_distance_pub.publish(&cible_distance);
     cible_angle_pub.publish(&cible_angle);
+    left_speed_pub.publish(&left_speed);
+    right_speed_pub.publish(&right_speed);
     right_pwm_pub.publish(&right_pwm);
     left_pwm_pub.publish(&left_pwm);
 

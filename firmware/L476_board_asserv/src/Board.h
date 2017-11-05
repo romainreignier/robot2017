@@ -10,6 +10,7 @@
 #include "Output.h"
 #include "PCA9685.hpp"
 #include "Qei.h"
+#include "RunningAverage.h"
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD2
@@ -42,10 +43,10 @@ struct Board
   void moveLinearEchelon(float _distance);
   void moveAngularEchelon(float _angle);
   void computeTraj();
-  void asserv();
+  void asserv(const int32_t& _dLeft, const int32_t& _dRight);
   void printErrors();
   int16_t boundPwm(int16_t _pwm);
-  void lectureCodeur();
+  void lectureCodeur(int32_t& _dLeft, int32_t& _dRight);
   float normalize_angle(float angle);
   float normalize_angle_positive(float angle);
 
@@ -114,6 +115,12 @@ struct Board
   bool mustComputeTraj;
   volatile int16_t leftPwm;
   volatile int16_t rightPwm;
+  float leftSpeed;
+  float rightSpeed;
+  RunningAverage<int32_t, 2> leftQeiAvg;
+  RunningAverage<int32_t, 2> rightQeiAvg;
+  int32_t leftQeiCnt = 0;
+  int32_t rightQeiCnt = 0;
 
   float vLinMax;
   float vAngMax;

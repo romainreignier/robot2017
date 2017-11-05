@@ -131,14 +131,18 @@ void Board::stopPIDTimer()
 
 void Board::PIDTimerCb()
 {
+  int32_t dLeft;
+  int32_t dRight;
+  lectureCodeur(dLeft, dRight);
+
   // Appele a 20Hz
   if(mustComputeTraj)
   {
     computeTraj();
   }
-  if(!finish){
-    asserv();
-    //lectureCodeur();
+  if(!finish)
+  {
+    asserv(dLeft, dRight);
   }
 }
 
@@ -288,23 +292,13 @@ void Board::computeTraj()
   }
 }
 
-void Board::asserv()
+void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
 {
-  // Recuperation codeurs
-  int32_t leftTicks;
-  int32_t rightTicks;
-  chSysLockFromISR();
-  gBoard.qei.getValuesI(&leftTicks, &rightTicks);
-  chSysUnlockFromISR();
-
   // Estimation deplacement
-  const float dl = float(leftTicks - lastLeftTicks) *
+  const float dl = static_cast<float>(_dLeft) *
                    LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
-  const float dr = float(rightTicks - lastRightTicks) *
+  const float dr = static_cast<float>(_dRight) *
                    RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
-
-  lastLeftTicks = leftTicks;
-  lastRightTicks = rightTicks;
 
   // calcul du déplacement su robot
   const float dD = (dr + dl) / 2;
@@ -380,36 +374,27 @@ void Board::asserv()
   }
 }
 
-void
-Board::lectureCodeur(){
-    // Recuperation codeurs
-    int32_t leftTicks;
-    int32_t rightTicks;
-    chSysLockFromISR();
-    gBoard.qei.getValuesI(&leftTicks, &rightTicks);
-    chSysUnlockFromISR();
+void Board::lectureCodeur(int32_t& _dLeft, int32_t& _dRight)
+{
+  // Retrieve the values from a locked system
+  chSysLockFromISR();
+  {
+    _dLeft = qeiUpdateI(qei.getLeftDriver());
+    _dRight = qeiUpdateI(qei.getRightDriver());
+  }
+  chSysUnlockFromISR();
 
-    // Estimation deplacement
-    const float dl = float(leftTicks - lastLeftTicks) *
-                     LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
-    const float dr = float(rightTicks - lastRightTicks) *
-                     RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
+  // Increment the internal counters
+  leftQeiCnt += _dLeft;
+  rightQeiCnt += _dRight;
 
-    lastLeftTicks = leftTicks;
-    lastRightTicks = rightTicks;
+  // Compute the average
+  leftQeiAvg.add(_dLeft);
+  rightQeiAvg.add(_dRight);
 
-    // calcul du déplacement su robot
-    const float dD = (dr + dl) / 2;
-    // calcul de la variation de l'angle alpha du robot
-    const float dA = (dr - dl) / wheelSeparationMM;
-
-    // Incrementation des mesures
-    mesureDistance += dD;
-    mesureAngle += dA;
-    mesureAngle = normalize_angle(mesureAngle);
-
-    //chprintf(dbg, "\nmesure dist: %f\n", mesureDistance);
-    //chprintf(dbg, "mesure ang: %f\n", mesureAngle);
+  // Speeds in ticks/s
+  leftSpeed = (leftQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
+  rightSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
 }
 
 void Board::printErrors()
@@ -445,7 +430,6 @@ float Board::normalize_angle_positive(float angle)
 {
   return fmod(fmod(angle, 2.0*M_PI) + 2.0*M_PI, 2.0*M_PI);
 }
-
 
 /*!
  * \brief normalize
