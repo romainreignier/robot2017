@@ -45,6 +45,9 @@ struct Board
   void asserv();
   void printErrors();
   int16_t boundPwm(int16_t _pwm);
+  void lectureCodeur();
+  float normalize_angle(float angle);
+  float normalize_angle_positive(float angle);
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
@@ -77,7 +80,7 @@ struct Board
   static constexpr uint16_t kServoMax = 700;
   Output tcsLed;
 
-  uint16_t pidTimerPeriodMs = 20;
+  uint16_t pidTimerPeriodMs = 10;
 
   volatile int32_t lastLeftTicks;
   volatile int32_t lastRightTicks;
@@ -92,6 +95,8 @@ struct Board
   volatile float erreurAngle;
   volatile float lastErreurDistance;
   volatile float lastErreurAngle;
+  volatile int16_t cptRestOnPosition;
+  volatile int16_t compensation;
   float kpDist;
   float kpAng;
   float kdDist;

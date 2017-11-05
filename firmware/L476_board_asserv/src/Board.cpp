@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+# define M_PI		3.14159265358979323846	/* pi */
 BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 
 #if defined(USE_ROS_LOG)
@@ -41,10 +42,13 @@ Board::Board()
     rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     greenLed{GPIOA, 11}, servos{&I2CD2, &i2c2cfg}, tcsLed{GPIOA, 15},
     lastLeftTicks{0}, lastRightTicks{0}, maxPwm{3000}, iMinDist{-maxPwm},
-    iMaxDist{maxPwm}, iMinAng{-maxPwm}, iMaxAng{maxPwm}, kpDist{1.0},
-    kpAng{1.0}, kiDist{0}, kiAng{0}, kdDist{0}, kdAng{0},
+    iMaxDist{maxPwm}, iMinAng{-maxPwm}, iMaxAng{maxPwm}, kpDist{15.0},
+    kpAng{600}, kiDist{0.15}, kiAng{0.1}, kdDist{650}, kdAng{1500},
     vLinMax{4},          // 200 mm/s -> 4 mm / periode (20ms)
-    vAngMax{0.087964594} // 0.7 tr/s -> rad/periode
+    vAngMax{0.087964594}, // 0.7 tr/s -> rad/periode
+    finish(true),
+    cptRestOnPosition(0),
+    compensation(0)
 {
 }
 
@@ -84,7 +88,7 @@ void Board::begin()
                   PAL_STM32_OTYPE_OPENDRAIN);
 
   // Activate Serial Driver for debug
-  sdStart(&DEBUG_DRIVER, NULL);
+  sdStart(&SD1, NULL);
   sdStart(&SERIAL_DRIVER, NULL);
 
   // Start GPT Peripheral for PID Timer
@@ -132,7 +136,10 @@ void Board::PIDTimerCb()
   {
     computeTraj();
   }
-  asserv();
+  if(!finish){
+    asserv();
+    //lectureCodeur();
+  }
 }
 
 void Board::moveLinear(float _distance)
@@ -141,13 +148,17 @@ void Board::moveLinear(float _distance)
   chSysLock();
   cibleAngle = 0;
   cibleDistance = _distance;
-  consigneDistance = 0;
+  consigneDistance = _distance;
   consigneAngle = 0;
   mesureDistance = 0;
   mesureAngle = 0;
   finAsservIterations = 0;
   finish = false;
-  mustComputeTraj = true;
+  mustComputeTraj = false;
+  compensation=0;
+  cptRestOnPosition=0;
+  erreurDistance=0;
+  lastErreurDistance=0;
   chSysUnlock();
   while(!finish)
   {
@@ -163,14 +174,14 @@ void Board::moveAngular(float _angle)
   // Lock system before modifying data used in interrupt
   chSysLock();
   cibleDistance = 0;
-  cibleAngle = _angle;
+  cibleAngle = normalize_angle(_angle);
   consigneDistance = 0;
-  consigneAngle = 0;
+  consigneAngle = cibleAngle; // 0 si mustComputeTraj True
   mesureDistance = 0;
   mesureAngle = 0;
   finAsservIterations = 0;
   finish = false;
-  mustComputeTraj = true;
+  mustComputeTraj = false; // On desactive la rampe avec false
   chSysUnlock();
   while(!finish)
   {
@@ -303,21 +314,49 @@ void Board::asserv()
   // Incrementation des mesures
   mesureDistance += dD;
   mesureAngle += dA;
+  mesureAngle = normalize_angle(mesureAngle);
 
   // Calcul des erreurs
-  const float erreurDistance = consigneDistance - mesureDistance;
-  const float erreurAngle = consigneAngle - mesureAngle;
+  erreurDistance = consigneDistance - mesureDistance;
+  erreurAngle = normalize_angle(consigneAngle - mesureAngle);
 
-  iTermDist += kiDist * erreurDistance;
+
+  //iTermDist += kiDist * erreurDistance;
   iTermAng += kiAng * erreurAngle;
-  iTermDist = bound(iTermDist, iMinDist, iMaxDist);
+  //iTermDist = bound(iTermDist, iMinDist, iMaxDist);
   iTermAng = bound(iTermAng, iMinAng, iMaxAng);
 
-  const float correctionDistance =
-    kpDist * erreurDistance + kdDist * (lastErreurDistance - erreurDistance) +
-    iTermDist;
-  const float correctionAngle =
-    kpAng * erreurAngle + kdAng * (lastErreurAngle - erreurAngle) + iTermAng;
+  /*const float correctionDistance =
+    (kpDist * erreurDistance + kdDist * (lastErreurDistance - erreurDistance) +
+    iTermDist)+ 800;*/
+  float correctionDistance=0.0;
+
+  if(erreurDistance >= 0.0)
+    correctionDistance = (kpDist * erreurDistance + ( kdDist * (erreurDistance - lastErreurDistance)) )+ 700.0 + compensation;
+  else
+    correctionDistance = (kpDist * erreurDistance + ( kdDist * (erreurDistance - lastErreurDistance)) )- 700.0 - compensation;
+
+  //correctionDistance = 0.0;
+
+  float correctionAngle = 0.0;
+
+  if(erreurAngle >= 0.0)
+      correctionAngle = kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng + 800.0 ;
+  else
+      correctionAngle = kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng - 800.0 ;
+
+  if(erreurDistance == lastErreurDistance)
+  {
+      ++cptRestOnPosition;
+      iTermDist += kiDist * erreurDistance;
+      iTermDist = bound(iTermDist, iMinDist, iMaxDist);
+  }
+  else
+      compensation=0;
+
+  if(cptRestOnPosition > 3)
+      compensation = iTermDist;
+
   lastErreurDistance = erreurDistance;
   lastErreurAngle = erreurAngle;
 
@@ -336,24 +375,57 @@ void Board::asserv()
     if(finAsservIterations > 50)
     {
       finish = true;
+      motors.pwmI(0, 0);
     }
   }
 }
 
+void
+Board::lectureCodeur(){
+    // Recuperation codeurs
+    int32_t leftTicks;
+    int32_t rightTicks;
+    chSysLockFromISR();
+    gBoard.qei.getValuesI(&leftTicks, &rightTicks);
+    chSysUnlockFromISR();
+
+    // Estimation deplacement
+    const float dl = float(leftTicks - lastLeftTicks) *
+                     LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
+    const float dr = float(rightTicks - lastRightTicks) *
+                     RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
+
+    lastLeftTicks = leftTicks;
+    lastRightTicks = rightTicks;
+
+    // calcul du déplacement su robot
+    const float dD = (dr + dl) / 2;
+    // calcul de la variation de l'angle alpha du robot
+    const float dA = (dr - dl) / wheelSeparationMM;
+
+    // Incrementation des mesures
+    mesureDistance += dD;
+    mesureAngle += dA;
+    mesureAngle = normalize_angle(mesureAngle);
+
+    //chprintf(dbg, "\nmesure dist: %f\n", mesureDistance);
+    //chprintf(dbg, "mesure ang: %f\n", mesureAngle);
+}
+
 void Board::printErrors()
 {
-  chprintf(dbg, "\ncible dist: %f\n", cibleDistance);
-  chprintf(dbg, "cible ang: %f\n", cibleAngle);
-  chprintf(dbg, "consigne dist: %f\n", consigneDistance);
-  chprintf(dbg, "consigne ang: %f\n", consigneAngle);
-  chprintf(dbg, "mesure dist: %f\n", mesureDistance);
-  chprintf(dbg, "mesure ang: %f\n", mesureAngle);
-  chprintf(dbg, "erreur dist: %f\n", lastErreurDistance);
-  chprintf(dbg, "erreur ang: %f\n", lastErreurAngle);
-  chprintf(dbg, "left pwm: %d\n", leftPwm);
-  chprintf(dbg, "right pwm: %d\n", rightPwm);
-  chprintf(dbg, "finish: %d\n", finish);
-  chprintf(dbg, "finIterations: %d\n", finAsservIterations);
+  chprintf(dbg, "\ncible dist: %f\r\n", cibleDistance);
+  chprintf(dbg, "cible ang: %f\r\n", cibleAngle);
+  chprintf(dbg, "consigne dist: %f\r\n", consigneDistance);
+  chprintf(dbg, "consigne ang: %f\r\n", consigneAngle);
+  chprintf(dbg, "mesure dist: %f\r\n", mesureDistance);
+  chprintf(dbg, "mesure ang: %f\r\n", mesureAngle);
+  chprintf(dbg, "erreur dist: %f\r\n", lastErreurDistance);
+  chprintf(dbg, "erreur ang: %f\r\n", lastErreurAngle);
+  chprintf(dbg, "left pwm: %d\r\n", leftPwm);
+  chprintf(dbg, "right pwm: %d\r\n", rightPwm);
+  chprintf(dbg, "finish: %d\r\n", finish);
+  chprintf(dbg, "finIterations: %d\r\n", finAsservIterations);
 }
 
 int16_t Board::boundPwm(int16_t _pwm)
@@ -361,6 +433,33 @@ int16_t Board::boundPwm(int16_t _pwm)
   if(_pwm > maxPwm) return maxPwm;
   if(_pwm < -maxPwm) return -maxPwm;
   return _pwm;
+}
+
+/*!
+ * \brief normalize_angle_positive
+ *
+ *        Normalizes the angle to be 0 to 2*M_PI
+ *        It takes and returns radians.
+ */
+float Board::normalize_angle_positive(float angle)
+{
+  return fmod(fmod(angle, 2.0*M_PI) + 2.0*M_PI, 2.0*M_PI);
+}
+
+
+/*!
+ * \brief normalize
+ *
+ * Normalizes the angle to be -M_PI circle to +M_PI circle
+ * It takes and returns radians.
+ *
+ */
+float Board::normalize_angle(float angle)
+{
+  float a = normalize_angle_positive(angle);
+  if (a > M_PI)
+    a -= 2.0 *M_PI;
+  return a;
 }
 
 Board gBoard;

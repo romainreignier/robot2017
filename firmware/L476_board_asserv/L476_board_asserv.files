@@ -1,11 +1,14 @@
 src/Board.cpp
 src/Board.h
+src/RosPublisher.cpp
+src/RosPublisher.h
 src/main.cpp
 chconf.h
 halconf.h
 halconf_community.h
 mcuconf.h
 mcuconf_community.h
+Makefile
 ../common/Motor/Motors.h
 ../common/Motor/Motors.cpp
 ../common/Motor/Motor.h

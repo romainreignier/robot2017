@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O2 -lm -ggdb -fomit-frame-pointer -falign-functions=16
 endif
 
 # C specific options here (added to USE_OPT).
@@ -130,7 +130,7 @@ CSRC = $(STARTUPSRC) \
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
          $(ROSSRC) \
-         src/Board.cpp src/main.cpp
+         src/Board.cpp src/RosPublisher.cpp src/main.cpp
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler

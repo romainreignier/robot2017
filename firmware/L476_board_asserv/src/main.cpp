@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "RosPublisher.h"
 #include "Board.h"
 
 // Green LED blinker thread
@@ -249,6 +250,11 @@ static void cmd_tourne_ech_deg(BaseSequentialStream* chp, int argc,
   gBoard.moveAngularEchelon(valRad);
 }
 
+static void cmd_dist(BaseSequentialStream* chp, int argc, char* argv[])
+{
+ chprintf(chp, "Lecture Distance= %f\r\n", gBoard.mesureDistance);
+}
+
 static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"kid", cmd_kid},
                                         {"kdd", cmd_kdd},
@@ -270,6 +276,7 @@ static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"ave", cmd_avance_ech},
                                         {"toe", cmd_tourne_ech},
                                         {"toed", cmd_tourne_ech_deg},
+                                        {"dist", cmd_dist},
                                         {NULL, NULL}};
 
 static const ShellConfig shell_cfg1 = {(BaseSequentialStream*)&SD2, commands};
@@ -286,6 +293,9 @@ int main(void)
   chThdCreateStatic(
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
+  chThdCreateStatic(
+    waThreadRosserial, sizeof(waThreadRosserial), NORMALPRIO, ThreadRosserial, NULL);
+
   DEBUG("Supmeca Never Dies!!!!");
 
   while(true)
@@ -296,7 +306,14 @@ int main(void)
                                             NORMALPRIO + 1,
                                             shellThread,
                                             (void*)&shell_cfg1);
-    chThdWait(shelltp); /* Waiting termination.             */
-    chThdSleepMilliseconds(1000);
+    chThdWait(shelltp); /* Waiting termination. */
+    //chThdSleepMilliseconds(2000);
+    //chSysLockFromISR();
+    //gBoard.motors.pwmI(620, 620);
+    //chSysUnlockFromISR();
+    //DEBUG("FIN!!!!");
+    //chThdSleepMilliseconds(500);
+    //gBoard.motors.pwmI(0, 0);
+    //chThdSleepMilliseconds(1000);
   }
 }
