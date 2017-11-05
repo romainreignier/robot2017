@@ -192,9 +192,9 @@ Board::Board()
     eStop{GPIOA, 3, PAL_MODE_INPUT_PULLUP},
     // motorsCurrentChecker{&ADCD1, &GPTD6, 1000},
     leftMotorPid{
-      &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 1, 0, 0, DIRECT},
+      &leftMotorSpeed, &leftMotorPwm, &leftMotorCommand, 2, 20, 0, DIRECT},
     rightMotorPid{
-      &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 1, 0, 0, DIRECT},
+      &rightMotorSpeed, &rightMotorPwm, &rightMotorCommand, 2, 20, 0, DIRECT},
     // ROS related
     statusPub{"status", &statusMsg}, encodersPub{"encoders", &encodersMsg},
     motorsCurrentPub{"current", &motorsCurrentMsg},
@@ -284,7 +284,7 @@ void Board::begin()
   nh.subscribe(motorsModeSub);
 
   globalStatus = snd_msgs::Status::STATUS_OK;
-  motorsMode.mode = snd_msgs::MotorControlMode::PWM;
+  motorsMode.mode = snd_msgs::MotorControlMode::PID;
 }
 
 void Board::publishFeedback()
