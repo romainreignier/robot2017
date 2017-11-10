@@ -37,14 +37,14 @@
                 <always_on>true</always_on>
                 <update_rate>10</update_rate>
                 <pose>0 0 0 0 0 0</pose>
-                <visualize>false</visualize>
+                <visualize>true</visualize>
                 <ray>
                     <scan>
                         <horizontal>
                             <samples>360</samples>
                             <resolution>1</resolution>
                             <min_angle>0</min_angle>
-                            <max_angle>6,28318530718</max_angle>
+                            <max_angle>6.28318530718</max_angle>
                         </horizontal>
                     </scan>
                     <range>
@@ -57,7 +57,7 @@
                     <gaussianNoise>0.005</gaussianNoise>
                     <alwaysOn>true</alwaysOn>
                     <updateRate>10</updateRate>
-                    <topicName>rplidar/scan</topicName>
+                    <topicName>/scan</topicName>
                     <frameName>rplidar_link</frameName>
                 </plugin>
             </sensor>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="snd_robot">
+    <xacro:include filename="$(find snd_description)/urdf/macros.xacro"/>
+    <xacro:include filename="$(find snd_description)/urdf/simple_robot_base.urdf.xacro"/>
+    <xacro:robot_body/>
+
+    <!-- Rplidar -->
+    <xacro:include filename="$(find snd_description)/urdf/sensors/rplidara2.urdf.xacro"/>
+    <xacro:sensor_rplidara2 parent="base_link">
+        <origin xyz="0.0 0.0 0.05" rpy="0 0 1.570796327"/>
+    </xacro:sensor_rplidara2>
+
+</robot>
+
