@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="use_teleop" default="true"/>
+    <arg name="world_file" default="$(find snd_gazebo)/worlds/field2018.world"/>
+
+    <!-- Convert a xacro model and put on parameter server -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find snd_description)/urdf/simple_robot.urdf.xacro' --inorder"/>
+
+    <!-- Spawn a robot into Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model snd_robot"/>
+
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_file)"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="verbose" value="true"/>
+    </include>
+
+    <!-- convert joint states to TF transforms -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen"/>
+
+    <!-- teleop -->
+    <node pkg="joy" type="joy_node" name="joy_node" if="$(arg use_teleop)">
+        <param name="dev" value="/dev/input/js0"/>
+        <param name="deadzone" value="0.15"/>
+        <param name="autorepeat_rate" value="20"/>
+    </node>
+
+    <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node" if="$(arg use_teleop)">
+        <param name="enable_button" value="5"/>
+        <param name="axis_linear" value="4"/>
+        <param name="scale_linear" value="0.5"/>
+        <param name="axis_angular" value="0"/>
+        <param name="scale_angular" value="1.0"/>
+    </node>
+
+    <node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map odom 100"/>
+
+</launch>
