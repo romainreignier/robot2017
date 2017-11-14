@@ -6,7 +6,7 @@
     <xacro:include filename="$(find snd_description)/urdf/simple_robot_base.urdf.xacro"/>
     <xacro:robot_body/>
 
-    <xacro:include filename="$(find snd_description)/urdf/simple_robot_gazebo.xacro"/>
+    <xacro:include filename="$(find snd_description)/urdf/simple_robot_lowlevel_gazebo.xacro"/>
 
     <!-- Rplidar -->
     <xacro:include filename="$(find snd_description)/urdf/sensors/rplidara2.urdf.xacro"/>

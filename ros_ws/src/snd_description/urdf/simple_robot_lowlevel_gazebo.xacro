@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="snd_robot">
+
+        <gazebo>
+            <plugin name="differential_drive_low_level_controller" filename="libsnd_robot_plugin.so">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>100</updateRate>
+                <leftJoint>left_wheel_joint</leftJoint>
+                <rightJoint>right_wheel_joint</rightJoint>
+                <wheelSeparation>${motor_wheel_separation}</wheelSeparation>
+                <wheelDiameter>${2.0 * motor_wheel_radius}</wheelDiameter>
+                <torque>20</torque>
+                <commandTopic>motors</commandTopic>
+                <odometryTopic>odom</odometryTopic>
+                <odometryFrame>odom</odometryFrame>
+                <robotBaseFrame>base_link</robotBaseFrame>
+                <publishTf>true</publishTf>
+                <publishWheelTF>true</publishWheelTF>
+                <publishWheelEncoders>true</publishWheelEncoders>
+                <encoderResolution>2400</encoderResolution>
+                <publishWheelJointState>true</publishWheelJointState>
+            </plugin>
+        </gazebo>
+
+</robot>
