@@ -4,20 +4,15 @@
     <xacro:include filename="$(find snd_description)/urdf/robot_base.urdf.xacro"/>
     <xacro:robot_body/>
 
-    <!--gazebo>
-        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-            <robotNamespace>/snd_robot</robotNamespace>
-        </plugin>
-    </gazebo-->
 
     <!-- Rplidar -->
     <xacro:include filename="$(find snd_description)/urdf/sensors/rplidara2.urdf.xacro"/>
     <xacro:sensor_rplidara2 parent="base_link">
-        <origin xyz="0.085 -0.07 0.03" rpy="0 0 1.570796327"/>
+        <origin xyz="0.085 -0.07 0.05" rpy="0 0 1.570796327"/>
     </xacro:sensor_rplidara2>
 
     <!-- Module arm -->
-    <link name="arm">
+    <!--link name="arm">
         <visual>
             <origin xyz="-0.045 0 -0.006" rpy="0 0 ${pi/2}"/>
             <geometry>
@@ -36,14 +31,14 @@
             <mass value="0.005"/>
             <xacro:cylinder_inertia m="0.005" r="0.0275" h="0.130"/>
         </inertial>
-    </link>
+    </link-->
     <!--joint name="arm_servo_joint" type="continuous"-->
-    <joint name="arm_servo_joint" type="fixed">
+    <!--joint name="arm_servo_joint" type="fixed">
         <parent link="base_link"/>
         <child link="arm"/>
         <origin xyz="0.025 0.15 0.05" rpy="0 0 ${pi/2}"/>
         <axis xyz="1 0 0"/>
-    </joint>
+    </joint-->
     <!--transmission name="arm_transmission">
         <type>transmission_interface/SimpleTransmission</type>
         <joint name="arm_servo_joint">
