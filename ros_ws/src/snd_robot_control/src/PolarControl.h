@@ -48,6 +48,7 @@ protected:
   // Control methods
   void controlLoop(const ros::TimerEvent&);
   void computeTraj();
+  void computeTrajWithAcc();
   void asserv(const int32_t& _dLeft, const int32_t& _dRight);
   void lectureCodeur(int32_t& _dLeft, int32_t& _dRight);
 
@@ -70,6 +71,8 @@ protected:
     m_moveLinearStepAs;
   actionlib::SimpleActionServer<snd_msgs::MoveAngularStepAction>
     m_moveAngularStepAs;
+
+  bool m_useAccel = false;
 
   // Variables from STM32 code
   uint32_t kPidTimerPeriodMs = 10;
@@ -119,8 +122,13 @@ protected:
   int32_t leftQeiCnt = 0;
   int32_t rightQeiCnt = 0;
 
+  float currentLinearVelocity = 0;
+  float currentAngularVelocity = 0;
+
   float vLinMax;
+  float accLinMax;
   float vAngMax;
+  float accAngMax;
   float outputMax;
 
   float smoothRotation;

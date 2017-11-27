@@ -17,6 +17,7 @@ PolarControl::PolarControl()
   wheelSeparationMM = m_nh.param("wheels_separation_mm", 230.0);
   leftWheelRadius = m_nh.param("left_wheel_radius_mm", 35.5);
   rightWheelRadius = m_nh.param("right_wheel_radius_mm", 35.5);
+  m_useAccel = m_nh.param("use_acceleration", false);
 
   LEFT_TICKS_TO_MM = (2 * kPi * leftWheelRadius) / encoderResolution;
   RIGHT_TICKS_TO_MM = (2 * kPi * rightWheelRadius) / encoderResolution;
@@ -92,6 +93,8 @@ void PolarControl::dynParamCb(const snd_robot_control::PidConfig& _cfg,
   iMaxDist = _cfg.distance_max_i_term;
   toleranceDistance = _cfg.distance_tolerance;
   vLinMax = _cfg.distance_max_speed * kPidTimerPeriodMs / 1000.0;
+  // TODO check the computation to convert the acc
+  accLinMax = _cfg.distance_max_acceleration * kPidTimerPeriodMs / 1000.0;
 
   kpAng = _cfg.angular_p;
   kiAng = _cfg.angular_i;
@@ -101,6 +104,7 @@ void PolarControl::dynParamCb(const snd_robot_control::PidConfig& _cfg,
   toleranceAngle = _cfg.angular_tolerance;
   // rad/s
   vAngMax = _cfg.angular_max_speed * kPidTimerPeriodMs / 1000.0;
+  accAngMax = _cfg.angular_max_acceleration * kPidTimerPeriodMs / 1000.0;
 
   outputMax = _cfg.max_wheel_output;
 }
@@ -114,7 +118,14 @@ void PolarControl::controlLoop(const ros::TimerEvent&)
   // Appele a 20Hz
   if(mustComputeTraj)
   {
-    computeTraj();
+    if(m_useAccel)
+    {
+      computeTrajWithAcc();
+    }
+    else
+    {
+      computeTraj();
+    }
   }
   if(!finish)
   {
@@ -164,6 +175,104 @@ void PolarControl::computeTraj()
     if(consigneAngle > cibleAngle)
     {
       consigneAngle -= vAngMax;
+    }
+    else
+    {
+      consigneAngle = cibleAngle;
+    }
+  }
+}
+
+void PolarControl::computeTrajWithAcc()
+{
+  // Increment the linear velocity
+  if(currentLinearVelocity >= 0)
+  {
+    if(currentLinearVelocity < vLinMax)
+    {
+      currentLinearVelocity += accLinMax;
+    }
+    else
+    {
+      currentLinearVelocity = vLinMax;
+    }
+  }
+  else
+  {
+    if(currentLinearVelocity > -vLinMax)
+    {
+      currentLinearVelocity -= accLinMax;
+    }
+    else
+    {
+      currentLinearVelocity = -vLinMax;
+    }
+  }
+
+  // Increment the angular velocity
+  if(currentAngularVelocity >= 0)
+  {
+    if(currentAngularVelocity < vAngMax)
+    {
+      currentAngularVelocity += accAngMax;
+    }
+    else
+    {
+      currentAngularVelocity = vAngMax;
+    }
+  }
+  else
+  {
+    if(currentAngularVelocity > -vAngMax)
+    {
+      currentAngularVelocity -= accAngMax;
+    }
+    else
+    {
+      currentAngularVelocity = -vAngMax;
+    }
+  }
+
+  // Increment distance
+  if(cibleDistance >= 0)
+  {
+    if(consigneDistance < cibleDistance)
+    {
+      consigneDistance += currentLinearVelocity;
+    }
+    else
+    {
+      consigneDistance = cibleDistance;
+    }
+  }
+  else
+  {
+    if(consigneDistance > cibleDistance)
+    {
+      consigneDistance -= currentLinearVelocity;
+    }
+    else
+    {
+      consigneDistance = cibleDistance;
+    }
+  }
+  // Increment Angle
+  if(cibleAngle >= 0)
+  {
+    if(consigneAngle < cibleAngle)
+    {
+      consigneAngle += currentAngularVelocity;
+    }
+    else
+    {
+      consigneAngle = cibleAngle;
+    }
+  }
+  else
+  {
+    if(consigneAngle > cibleAngle)
+    {
+      consigneAngle -= currentAngularVelocity;
     }
     else
     {
