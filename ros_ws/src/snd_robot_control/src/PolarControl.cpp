@@ -17,7 +17,13 @@ PolarControl::PolarControl()
   wheelSeparationMM = m_nh.param("wheels_separation_mm", 230.0);
   leftWheelRadius = m_nh.param("left_wheel_radius_mm", 35.5);
   rightWheelRadius = m_nh.param("right_wheel_radius_mm", 35.5);
+  m_outputPwm = m_nh.param("output_pwm", false);
   m_useAccel = m_nh.param("use_acceleration", false);
+
+  if(m_outputPwm)
+  {
+      ROS_WARN("Output PWM");
+  }
 
   LEFT_TICKS_TO_MM = (2 * kPi * leftWheelRadius) / encoderResolution;
   RIGHT_TICKS_TO_MM = (2 * kPi * rightWheelRadius) / encoderResolution;
@@ -310,64 +316,69 @@ void PolarControl::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   iTermAng += kiAng * erreurAngle;
   iTermAng = bound(iTermAng, iMinAng, iMaxAng);
 
-#if CMD_PWM
-  if(erreurDistance >= 0.0f)
-    correctionDistance = (kpDist * erreurDistance +
-                          (kdDist * (erreurDistance - lastErreurDistance))) +
-                         700.0f + compensationDist;
-  else
-    correctionDistance = (kpDist * erreurDistance +
-                          (kdDist * (erreurDistance - lastErreurDistance))) -
-                         700.0f + compensationDist;
-
-  if(erreurAngle >= 0.0f)
-    correctionAngle = kpAng * erreurAngle +
-                      kdAng * (erreurAngle - lastErreurAngle) + iTermAng +
-                      750.0f + compensationAng;
-  else
-    correctionAngle = kpAng * erreurAngle +
-                      kdAng * (erreurAngle - lastErreurAngle) + iTermAng -
-                      750.0f + compensationAng;
-
-  if(std::fabs(erreurDistance - lastErreurDistance) < 1e-6f)
+  if(m_outputPwm)
   {
-    ++cptRestOnPosition;
+    if(erreurDistance >= 0.0f)
+      correctionDistance = (kpDist * erreurDistance +
+                            (kdDist * (erreurDistance - lastErreurDistance))) +
+                           700.0f + compensationDist;
+    else
+      correctionDistance = (kpDist * erreurDistance +
+                            (kdDist * (erreurDistance - lastErreurDistance))) -
+                           700.0f + compensationDist;
+
+    if(erreurAngle >= 0.0f)
+      correctionAngle = kpAng * erreurAngle +
+                        kdAng * (erreurAngle - lastErreurAngle) + iTermAng +
+                        750.0f + compensationAng;
+    else
+      correctionAngle = kpAng * erreurAngle +
+                        kdAng * (erreurAngle - lastErreurAngle) + iTermAng -
+                        750.0f + compensationAng;
+
+    if(std::fabs(erreurDistance - lastErreurDistance) < 1e-6f)
+    {
+      ++cptRestOnPosition;
+      iTermDist += kiDist * erreurDistance;
+      iTermDist = bound(iTermDist, iMinDist, iMaxDist);
+    }
+    else
+      compensationDist = 0;
+
+    if(cptRestOnPosition > 3) compensationDist = iTermDist;
+
+    if(std::fabs(erreurAngle - lastErreurAngle) < 1e-6f)
+    {
+      ++cptRestOnAngle;
+      iTermAng += kiAng * erreurAngle;
+      iTermAng = bound(iTermAng, iMinAng, iMaxAng);
+    }
+    else
+      compensationAng = 0;
+
+    if(cptRestOnPosition > 3) compensationAng = iTermAng;
+
+    leftPwm = boundPwm(correctionDistance -
+                                            smoothRotation * correctionAngle);
+    rightPwm = boundPwm(correctionDistance +
+                                             smoothRotation * correctionAngle);
+  }
+  else
+  {
     iTermDist += kiDist * erreurDistance;
     iTermDist = bound(iTermDist, iMinDist, iMaxDist);
+
+    correctionDistance = kpDist * erreurDistance +
+                         kdDist * (erreurDistance - lastErreurDistance) +
+                         iTermDist;
+    correctionAngle =
+      kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng;
+
+    leftPwm =
+      bound(correctionDistance - correctionAngle, -outputMax, outputMax);
+    rightPwm =
+      bound(correctionDistance + correctionAngle, -outputMax, outputMax);
   }
-  else
-    compensationDist = 0;
-
-  if(cptRestOnPosition > 3) compensationDist = iTermDist;
-
-  if(std::fabs(erreurAngle - lastErreurAngle) < 1e-6f)
-  {
-    ++cptRestOnAngle;
-    iTermAng += kiAng * erreurAngle;
-    iTermAng = bound(iTermAng, iMinAng, iMaxAng);
-  }
-  else
-    compensationAng = 0;
-
-  if(cptRestOnPosition > 3) compensationAng = iTermAng;
-
-  leftPwm = boundPwm(static_cast<int16_t>(correctionDistance -
-                                          smoothRotation * correctionAngle));
-  rightPwm = boundPwm(static_cast<int16_t>(correctionDistance +
-                                           smoothRotation * correctionAngle));
-#else
-  iTermDist += kiDist * erreurDistance;
-  iTermDist = bound(iTermDist, iMinDist, iMaxDist);
-
-  correctionDistance = kpDist * erreurDistance +
-                       kdDist * (erreurDistance - lastErreurDistance) +
-                       iTermDist;
-  correctionAngle =
-    kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng;
-
-  leftPwm = bound(correctionDistance - correctionAngle, -outputMax, outputMax);
-  rightPwm = bound(correctionDistance + correctionAngle, -outputMax, outputMax);
-#endif
 
   lastErreurDistance = erreurDistance;
   lastErreurAngle = erreurAngle;
@@ -383,7 +394,8 @@ void PolarControl::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   //           << " correction distance: " << correctionDistance
   //           << " erreur angle: " << erreurAngle
   //           << " correction angle: " << correctionAngle
-  //           << " out left: " << leftPwm << " out right: " << rightPwm << '\n';
+  //           << " out left: " << leftPwm << " out right: " << rightPwm <<
+  //           '\n';
 
   if(std::fabs(erreurDistance) < toleranceDistance &&
      std::fabs(erreurAngle) < toleranceAngle)

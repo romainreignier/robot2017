@@ -129,6 +129,9 @@ include_directories(
 )
 
 ## Declare a C++ library
+
+add_library(lib_lut src/lib_lut/LibLut.cpp)
+
 add_library(snd_robot_plugin SHARED
     src/RobotPlugin/RobotPlugin.cpp
 )
@@ -136,6 +139,7 @@ add_library(snd_robot_plugin SHARED
 target_link_libraries(snd_robot_plugin
     ${GAZEBO_LIBRARIES}
     ${catkin_LIBRARIES}
+    lib_lut
 )
 
 #############

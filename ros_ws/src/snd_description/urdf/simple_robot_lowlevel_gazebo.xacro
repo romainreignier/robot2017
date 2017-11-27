@@ -19,6 +19,7 @@
                 <publishWheelEncoders>true</publishWheelEncoders>
                 <encoderResolution>2400</encoderResolution>
                 <publishWheelJointState>true</publishWheelJointState>
+                <pwm_input>true</pwm_input>
             </plugin>
         </gazebo>
 

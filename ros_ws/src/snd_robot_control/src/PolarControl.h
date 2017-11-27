@@ -72,6 +72,7 @@ protected:
   actionlib::SimpleActionServer<snd_msgs::MoveAngularStepAction>
     m_moveAngularStepAs;
 
+  bool m_outputPwm = false;
   bool m_useAccel = false;
 
   // Variables from STM32 code
@@ -108,13 +109,8 @@ protected:
   uint32_t finAsservIterations;
   bool finish;
   bool mustComputeTraj;
-#if CMD_PWM
-  int16_t leftPwm;
-  int16_t rightPwm;
-#else
   float leftPwm;
   float rightPwm;
-#endif
   float leftSpeed;
   float rightSpeed;
   RunningAverage<int32_t, 2> leftQeiAvg;

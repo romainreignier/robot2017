@@ -31,4 +31,11 @@
 
     <node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map odom 100"/>
 
+    <node name="polar_control" pkg="snd_robot_control" type="polar_control_node" output="screen">
+        <param name="output_pwm" value="true"/>
+        <param name="use_acceleration" value="false"/>
+    </node>
+
+    <node name="rqt_reconfigure_robot" pkg="rqt_reconfigure" type="rqt_reconfigure"/>
+
 </launch>

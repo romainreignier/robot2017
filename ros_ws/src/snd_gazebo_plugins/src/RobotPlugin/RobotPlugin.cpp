@@ -8,6 +8,8 @@
 
 #include <ros/ros.h>
 
+#include "PwmData.h"
+
 namespace gazebo
 {
 
@@ -16,6 +18,11 @@ enum
   RIGHT,
   LEFT,
 };
+
+GazeboRosDiffDriveLowLevel::GazeboRosDiffDriveLowLevel()
+  : left_pwm_lut_{left_pwm}, right_pwm_lut_{right_pwm}
+{
+}
 
 // Load the controller
 void GazeboRosDiffDriveLowLevel::Load(physics::ModelPtr _parent,
@@ -40,6 +47,7 @@ void GazeboRosDiffDriveLowLevel::Load(physics::ModelPtr _parent,
     publishWheelEncoders_, "publishWheelEncoders", false);
   gazebo_ros_->getParameterBoolean(
     publishWheelJointState_, "publishWheelJointState", false);
+  gazebo_ros_->getParameterBoolean(pwm_input_, "pwm_input", false);
   gazebo_ros_->getParameter<double>(wheel_separation_, "wheelSeparation", 0.18);
   gazebo_ros_->getParameter<double>(wheel_diameter_, "wheelDiameter", 0.060);
   gazebo_ros_->getParameter<unsigned>(
@@ -54,6 +62,11 @@ void GazeboRosDiffDriveLowLevel::Load(physics::ModelPtr _parent,
 
   gzmsg << "wheel diameter: " << wheel_diameter_ << '\n';
   gzmsg << "wheels separation: " << wheel_separation_ << '\n';
+
+  if(pwm_input_)
+  {
+    ROS_WARN_NAMED("diff_drive", "%s: PWM input mode", gazebo_ros_->info());
+  }
 
   joints_.resize(2);
   joints_[LEFT] = gazebo_ros_->getJoint(parent, "leftJoint", "left_joint");
@@ -179,8 +192,8 @@ void GazeboRosDiffDriveLowLevel::publishFakeEncoders()
       (wheel_absolute_angle_[i] * encoder_resolution_) / (2 * M_PI));
   }
   snd_msgs::Encoders msg;
-  msg.left = encoder_counter_[LEFT];
-  msg.right = encoder_counter_[RIGHT];
+  msg.left = static_cast<int32_t>(encoder_counter_[LEFT]);
+  msg.right = static_cast<int32_t>(encoder_counter_[RIGHT]);
   encoders_publisher_.publish(msg);
 }
 
@@ -256,8 +269,26 @@ void GazeboRosDiffDriveLowLevel::cmdVelCallback(
   const snd_msgs::Motors::ConstPtr& cmd_msg)
 {
   boost::mutex::scoped_lock scoped_lock(lock);
-  vel_cmd_[LEFT] = static_cast<double>(cmd_msg->left);
-  vel_cmd_[RIGHT] = static_cast<double>(cmd_msg->right);
+  if(pwm_input_)
+  {
+    vel_cmd_[LEFT] =
+      (left_pwm_lut_.InterpolateLinear(static_cast<double>(cmd_msg->left)) * 2 *
+       M_PI) /
+      encoder_resolution_;
+    vel_cmd_[RIGHT] =
+      (right_pwm_lut_.InterpolateLinear(static_cast<double>(cmd_msg->right)) *
+       2 * M_PI) /
+      encoder_resolution_;
+    gzmsg << "left_cmd: " << cmd_msg->left << " speed: " << vel_cmd_[LEFT]
+          << " | ";
+    gzmsg << "right_cmd: " << cmd_msg->right << " speed: " << vel_cmd_[RIGHT]
+          << "\n";
+  }
+  else
+  {
+    vel_cmd_[LEFT] = static_cast<double>(cmd_msg->left);
+    vel_cmd_[RIGHT] = static_cast<double>(cmd_msg->right);
+  }
 }
 
 void GazeboRosDiffDriveLowLevel::QueueThread()
@@ -297,7 +328,7 @@ void GazeboRosDiffDriveLowLevel::UpdateOdometryEncoder()
   pose_encoder_.theta += dtheta;
 
   double w = dtheta / seconds_since_last_update;
-  double v = sqrt(dx * dx + dy * dy) / seconds_since_last_update;
+  // double v = sqrt(dx * dx + dy * dy) / seconds_since_last_update;
 
   tf::Quaternion qt;
   tf::Vector3 vt;
@@ -320,7 +351,7 @@ void GazeboRosDiffDriveLowLevel::UpdateOdometryEncoder()
 
 void GazeboRosDiffDriveLowLevel::publishOdometry(double step_time)
 {
-
+  (void)step_time;
   ros::Time current_time = ros::Time::now();
   std::string odom_frame = gazebo_ros_->resolveTF(odometry_frame_);
   std::string base_footprint_frame = gazebo_ros_->resolveTF(robot_base_frame_);
@@ -361,9 +392,11 @@ void GazeboRosDiffDriveLowLevel::publishOdometry(double step_time)
     odom_.twist.twist.angular.z = parent->GetWorldAngularVel().z;
 
     // convert velocity to child_frame_id (aka base_footprint)
-    float yaw = pose.rot.GetYaw();
-    odom_.twist.twist.linear.x = cosf(yaw) * linear.x + sinf(yaw) * linear.y;
-    odom_.twist.twist.linear.y = cosf(yaw) * linear.y - sinf(yaw) * linear.x;
+    const double yaw = pose.rot.GetYaw();
+    odom_.twist.twist.linear.x =
+      std::cos(yaw) * linear.x + std::sin(yaw) * linear.y;
+    odom_.twist.twist.linear.y =
+      std::cos(yaw) * linear.y - std::sin(yaw) * linear.x;
   }
 
   tf::Transform base_footprint_to_odom(qt, vt);

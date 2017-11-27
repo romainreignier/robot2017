@@ -23,6 +23,8 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
+#include "../lib_lut/LibLut.h"
+
 namespace gazebo
 {
 
@@ -39,7 +41,7 @@ class GazeboRosDiffDriveLowLevel : public ModelPlugin
   };
 
 public:
-  GazeboRosDiffDriveLowLevel() = default;
+  GazeboRosDiffDriveLowLevel();
   ~GazeboRosDiffDriveLowLevel() = default;
   void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
   void Reset();
@@ -110,10 +112,15 @@ private:
   common::Time last_odom_update_;
 
   // Flags
+  bool pwm_input_;
   bool publishTF_;
   bool publishWheelTF_;
   bool publishWheelJointState_;
   bool publishWheelEncoders_;
+
+  // LUT
+  LibLut left_pwm_lut_;
+  LibLut right_pwm_lut_;
 };
 
 } // namespace gazebo
