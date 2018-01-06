@@ -49,6 +49,8 @@ struct Board
   void lectureCodeur(int32_t& _dLeft, int32_t& _dRight);
   float normalize_angle(float angle);
   float normalize_angle_positive(float angle);
+  void needMotorGraph();
+  void SetInitPosition(const float & pX, const float & pY, const float & pTheta);
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
@@ -138,6 +140,11 @@ struct Board
     (2 * kPi * leftWheelRadius) / encoderResolution;
   static constexpr float RIGHT_TICKS_TO_MM =
     (2 * kPi * rightWheelRadius) / encoderResolution;
+
+private:
+  float G_X;
+  float G_Y;
+  float G_Theta;
 };
 
 template <typename T> T Board::bound(T _in, T _min, T _max)

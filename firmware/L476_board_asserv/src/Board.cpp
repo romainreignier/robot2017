@@ -327,19 +327,31 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   iTermAng += kiAng * erreurAngle;
   iTermAng = bound(iTermAng, iMinAng, iMaxAng);
 
+  //############## Gestion PID ##############
+  //##############   Distance  ##############
   if(erreurDistance >= 0.0)
-    correctionDistance = (kpDist * erreurDistance + 
+      correctionDistance = (kpDist * erreurDistance +
 			( kdDist * (erreurDistance 
 			- lastErreurDistance)) )
-			+ 700.0 + compensationDist;
+            + 700.0 + compensationDist;
   else
-    correctionDistance = (kpDist * erreurDistance + ( kdDist * (erreurDistance - lastErreurDistance)) )- 700.0 + compensationDist;
+      correctionDistance = ( kpDist * erreurDistance +
+             ( kdDist * (erreurDistance - lastErreurDistance ))) -
+             700.0 + compensationDist;
 
+  //############## Gestion PID ##############
+  //##############    Angle    ##############
   if(erreurAngle >= 0.0)
-      correctionAngle = kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng + 750.0 + compensationAng;
+      correctionAngle = ( kpAng * erreurAngle +
+             ( kdAng * (erreurAngle - lastErreurAngle) + iTermAng )) +
+             750.0 + compensationAng;
   else
-      correctionAngle = kpAng * erreurAngle + kdAng * (erreurAngle - lastErreurAngle) + iTermAng - 750.0 + compensationAng;
+      correctionAngle = ( kpAng * erreurAngle +
+              (kdAng * (erreurAngle - lastErreurAngle) + iTermAng )) -
+              750.0 + compensationAng;
 
+  //############## Compensation ##############
+  //##############   Distance  ##############
   if(erreurDistance == lastErreurDistance)
   {
       ++cptRestOnPosition;
@@ -352,6 +364,8 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   if(cptRestOnPosition > 3)
       compensationDist = iTermDist;
 
+  //############## Compensation ##############
+  //##############     Angle    ##############
   if(erreurAngle == lastErreurAngle)
   {
       ++cptRestOnAngle;
@@ -364,9 +378,9 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   if(cptRestOnPosition > 3)
       compensationAng = iTermAng;
 
+
   lastErreurDistance = erreurDistance;
   lastErreurAngle = erreurAngle;
-
 
 
   leftPwm =
@@ -378,7 +392,7 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   motors.pwmI(leftPwm, rightPwm);
   chSysUnlockFromISR();
 
-  if(fabs(erreurDistance) < 1 && fabs(erreurAngle) < 0.02)
+  if(fabs(erreurDistance) < 2.0 && fabs(erreurAngle) < 0.02)
   {
     finAsservIterations++;
     if(finAsservIterations > 50)
@@ -411,8 +425,9 @@ void Board::lectureCodeur(int32_t& _dLeft, int32_t& _dRight)
   leftSpeed = (leftQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
   rightSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
   linear_speed = ((leftSpeed + rightSpeed) / 2);
-  smoothRotation =
-          bound(( -(0.9/1500.0) * fabs(linear_speed) + 1.0), 0.05, 1.0);
+  smoothRotation = bound(( -(0.6/20.0) * fabs(lastErreurDistance) + 1.0), 0.05, 1.0);
+  /*smoothRotation =
+          bound(( -(0.9/1500.0) * fabs(linear_speed) + 1.0), 0.05, 1.0);*/
 }
 
 void Board::printErrors()
@@ -464,4 +479,47 @@ float Board::normalize_angle(float angle)
   return a;
 }
 
+
+void
+Board::needMotorGraph(){
+    leftPwm=0;
+    rightPwm=0;
+
+    while (leftPwm < 850) {
+        leftPwm++;
+        rightPwm=leftPwm;
+
+        //chSysLockFromISR();
+        motors.pwmI(leftPwm, rightPwm);
+        //chSysUnlockFromISR();
+
+        chThdSleepMilliseconds(2);
+    }
+
+    chThdSleepMilliseconds(200);
+
+    while (leftPwm < 2600) {
+        leftPwm+=50;
+        rightPwm=leftPwm;
+
+        //chSysLockFromISR();
+        motors.pwmI(leftPwm, rightPwm);
+        //chSysUnlockFromISR();
+
+        chThdSleepMilliseconds(300);
+    }
+
+    while (leftPwm > 0) {
+        leftPwm-=50;
+        rightPwm=leftPwm;
+
+        //chSysLockFromISR();
+        motors.pwmI(leftPwm, rightPwm);
+        //chSysUnlockFromISR();
+
+        chThdSleepMilliseconds(10);
+    }
+
+
+}
 Board gBoard;
