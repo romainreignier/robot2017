@@ -268,6 +268,14 @@ static void cmd_dist(BaseSequentialStream* chp, int argc, char* argv[])
   chprintf(chp, "Lecture Distance= %f\r\n", gBoard.mesureDistance);
 }
 
+static void cmd_graph(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "lancement fonction tracage de courbe moteur\r\n");
+  gBoard.needMotorGraph();
+}
+
 static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"kid", cmd_kid},
                                         {"kdd", cmd_kdd},
@@ -290,6 +298,7 @@ static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"toe", cmd_tourne_ech},
                                         {"toed", cmd_tourne_ech_deg},
                                         {"dist", cmd_dist},
+                                        {"graph", cmd_graph},
                                         {NULL, NULL}};
 
 static const ShellConfig shell_cfg1 = {(BaseSequentialStream*)&SD2, commands};
