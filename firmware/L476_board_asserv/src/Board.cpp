@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #define M_PI 3.14159265358979323846 /* pi */
+
 BaseSequentialStream* dbg = (BaseSequentialStream*)&DEBUG_DRIVER;
 
 #if defined(USE_ROS_LOG)
@@ -47,7 +48,8 @@ Board::Board()
     finish(true), vLinMax{4}, // 200 mm/s -> 4 mm / periode (20ms)
     vAngMax{0.087964594f},     // 0.7 tr/s -> rad/periode
     smoothRotation(1.0),
-    linear_speed(0.0)
+    linear_speed(0.0),
+    G_X_mm(0.0),G_Y_mm(0.0),G_Theta_rad(0.0)
 {
 }
 
@@ -107,7 +109,7 @@ void Board::begin()
   rearRightProximitySensor.begin();
   pump.begin();
   greenLed.begin();
-  // servos.begin();
+  servos.begin();
   tcsLed.begin();
   tcsLed.clear();
 }
@@ -130,9 +132,7 @@ void Board::stopPIDTimer()
 
 void Board::PIDTimerCb()
 {
-  int32_t dLeft;
-  int32_t dRight;
-  lectureCodeur(dLeft, dRight);
+  lectureCodeur();
 
   // Appele a 20Hz
   if(mustComputeTraj)
@@ -141,8 +141,15 @@ void Board::PIDTimerCb()
   }
   if(!finish)
   {
-    asserv(dLeft, dRight);
+    asserv();
   }
+}
+
+void
+Board::SetInitPosition(const float & pX, const float & pY, const float & pTheta){
+    G_X_mm = pX;
+    G_Y_mm = pY;
+    G_Theta_rad = pTheta * DTOR;
 }
 
 void Board::moveLinear(float _distance)
@@ -298,21 +305,10 @@ void Board::computeTraj()
   }
 }
 
-void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
+void Board::asserv()
 {
   float correctionDistance  = 0.0;
   float correctionAngle     = 0.0;
-
-  // Estimation deplacement
-  const float dl = static_cast<float>(_dLeft) *
-                   LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
-  const float dr = static_cast<float>(_dRight) *
-                   RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
-
-  // calcul du déplacement du robot
-  const float dD = (dr + dl) / 2;
-  // calcul de la variation de l'angle alpha du robot
-  const float dA = (dr - dl) / wheelSeparationMM;
 
   // Incrementation des mesures
   //linear_speed = ((dD / kPidTimerPeriodMs) * 1000 );
@@ -403,8 +399,9 @@ void Board::asserv(const int32_t& _dLeft, const int32_t& _dRight)
   }
 }
 
-void Board::lectureCodeur(int32_t& _dLeft, int32_t& _dRight)
+void Board::lectureCodeur()
 {
+  int32_t _dLeft,_dRight;
   // Retrieve the values from a locked system
   chSysLockFromISR();
   {
@@ -426,8 +423,22 @@ void Board::lectureCodeur(int32_t& _dLeft, int32_t& _dRight)
   rightSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
   linear_speed = ((leftSpeed + rightSpeed) / 2);
   smoothRotation = bound(( -(0.6/20.0) * fabs(lastErreurDistance) + 1.0), 0.05, 1.0);
-  /*smoothRotation =
-          bound(( -(0.9/1500.0) * fabs(linear_speed) + 1.0), 0.05, 1.0);*/
+
+  // Estimation deplacement
+  const float dl = static_cast<float>(_dLeft) *
+                   LEFT_TICKS_TO_MM; // calcul du déplacement de la roue droite
+  const float dr = static_cast<float>(_dRight) *
+                   RIGHT_TICKS_TO_MM; // calcul du déplacement de la roue gauche
+
+  // calcul du déplacement du robot
+  dD = (dr + dl) / 2;
+  // calcul de la variation de l'angle alpha du robot
+  dA = (dr - dl) / wheelSeparationMM;
+
+  G_X_mm+= dD * cos(G_Theta_rad + dA/2.0);
+  G_Y_mm+= dD * sin(G_Theta_rad + dA/2.0);
+  G_Theta_rad += dA;
+  G_Theta_rad = normalize_angle(G_Theta_rad);
 }
 
 void Board::printErrors()
@@ -444,6 +455,10 @@ void Board::printErrors()
   chprintf(dbg, "right pwm: %d\r\n", rightPwm);
   chprintf(dbg, "finish: %d\r\n", finish);
   chprintf(dbg, "finIterations: %d\r\n", finAsservIterations);
+  chprintf(dbg, "G_X_mm : %f\r\n", G_X_mm);
+  chprintf(dbg, "G_Y_mm: %f\r\n", G_Y_mm);
+  chprintf(dbg, "G_Theta_rad: %f\r\n", G_Theta_rad);
+
 }
 
 int16_t Board::boundPwm(int16_t _pwm)
@@ -516,8 +531,8 @@ Board::needMotorGraph(){
         //chSysLockFromISR();
         motors.pwmI(leftPwm, rightPwm);
         //chSysUnlockFromISR();
+        chThdSleepMilliseconds(500);
 
-        chThdSleepMilliseconds(10);
     }
 
 

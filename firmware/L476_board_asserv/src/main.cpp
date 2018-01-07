@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "trajecto.h"
 #include "Board.h"
 #include "RosPublisher.h"
 
@@ -276,6 +277,42 @@ static void cmd_graph(BaseSequentialStream* chp, int argc, char* argv[])
   gBoard.needMotorGraph();
 }
 
+static void cmd_trace(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  (void)argc;
+  (void)argv;
+  (void) chp;
+
+    while(true){
+        chprintf(dbg, "\n\nG_X_mm : %f\r\n", gBoard.G_X_mm);
+        chprintf(dbg, "G_Y_mm: %f\r\n", gBoard.G_Y_mm);
+        chprintf(dbg, "G_Theta_rad[deg]: %f\r\n", gBoard.G_Theta_rad * RTOD);
+        chThdSleepMilliseconds(200);
+    }
+}
+
+static void cmd_square(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  (void)argc;
+  (void)argv;
+  (void) chp;
+  MoveSquare();
+}
+
+static void cmd_arm_auto(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  (void)argc;
+  (void)argv;
+  (void) chp;
+  while(1){
+    if(gBoard.starter.read())
+        gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 270);
+    else
+        gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 110);
+  }
+
+}
+
 static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"kid", cmd_kid},
                                         {"kdd", cmd_kdd},
@@ -299,6 +336,9 @@ static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"toed", cmd_tourne_ech_deg},
                                         {"dist", cmd_dist},
                                         {"graph", cmd_graph},
+                                        {"trace", cmd_trace},
+                                        {"square", cmd_square},
+                                        {"auto", cmd_arm_auto},
                                         {NULL, NULL}};
 
 static const ShellConfig shell_cfg1 = {(BaseSequentialStream*)&SD2, commands};

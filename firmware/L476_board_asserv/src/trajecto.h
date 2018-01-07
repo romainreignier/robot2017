@@ -1,14 +1,7 @@
-#ifndef TRAJECTO_H
-#define TRAJECTO_H
+#pragma once
 
 
-class Trajecto
-{
-public:
-    Trajecto();
-    void MoveSquare();
-    void GoingToPoint(const float & x, const float & y);
-    void GoingToPoint(const float & x, const float & y, const float & theta);
-};
+extern void MoveSquare();
+extern void GoingToPoint(const float & pX, const float & pY);
+extern void GoingToPoint(const float & pX, const float & pY, const float & pTheta_deg);
 
-#endif // TRAJECTO_H

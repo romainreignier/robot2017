@@ -12,6 +12,9 @@
 #include "Qei.h"
 #include "RunningAverage.h"
 
+#define DTOR 0.0174532925199433
+#define RTOD 57.29577951308230
+
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD2
 
@@ -43,10 +46,10 @@ struct Board
   void moveLinearEchelon(float _distance);
   void moveAngularEchelon(float _angle);
   void computeTraj();
-  void asserv(const int32_t& _dLeft, const int32_t& _dRight);
+  void asserv();
   void printErrors();
   int16_t boundPwm(int16_t _pwm);
-  void lectureCodeur(int32_t& _dLeft, int32_t& _dRight);
+  void lectureCodeur();
   float normalize_angle(float angle);
   float normalize_angle_positive(float angle);
   void needMotorGraph();
@@ -84,7 +87,7 @@ struct Board
   Output tcsLed;
 
   static constexpr uint32_t kPidTimerPeriodMs = 10;
-  static constexpr uint32_t kQeiTimerFrequency = 500'000;
+  static constexpr uint32_t kQeiTimerFrequency = 500000;
 
   float cibleDistance;
   float cibleAngle;
@@ -141,10 +144,11 @@ struct Board
   static constexpr float RIGHT_TICKS_TO_MM =
     (2 * kPi * rightWheelRadius) / encoderResolution;
 
-private:
-  float G_X;
-  float G_Y;
-  float G_Theta;
+  float G_X_mm;
+  float G_Y_mm;
+  float G_Theta_rad;
+  float dD;
+  float dA;
 };
 
 template <typename T> T Board::bound(T _in, T _min, T _max)
