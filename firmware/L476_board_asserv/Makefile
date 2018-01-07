@@ -131,7 +131,7 @@ CSRC = $(STARTUPSRC) \
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
          $(ROSSRC) \
-         src/Board.cpp src/RosPublisher.cpp src/main.cpp
+         src/Board.cpp src/RosPublisher.cpp src/trajecto.cpp src/main.cpp
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
