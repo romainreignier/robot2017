@@ -131,7 +131,7 @@ CSRC = $(STARTUPSRC) \
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
          $(ROSSRC) \
-         src/Board.cpp src/RosPublisher.cpp src/trajecto.cpp src/main.cpp
+         src/Board.cpp src/RosSerial.cpp src/trajecto.cpp src/main.cpp
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
@@ -239,8 +239,16 @@ ULIBS =
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
-.PHONY: flash
+
+
+.PHONY: flash rasp copyonrasp openocdorasp
 flash: build/$(PROJECT).elf
 	openocd -f board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
 
+copyonrasp:
+	scp build/ch.elf snd@snd:DirectDeploie
+openocdonrasp:
+	ssh snd@snd 'openocd -f board/st_nucleo_l476rg.cfg -c "program DirectDeploie/ch.elf verify reset exit"'
+
+rasp: build/$(PROJECT).elf copyonrasp openocdonrasp
 # vim: ts=2 sw=2 et
