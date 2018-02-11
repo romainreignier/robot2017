@@ -13,7 +13,7 @@ class ChibiOSHardware
 public:
   ChibiOSHardware(BaseChannel* io) { iostream = io; }
 
-  ChibiOSHardware() { iostream = (BaseChannel*)&SD2; }
+  ChibiOSHardware() { iostream = (BaseChannel*)&SD1; }
 
   void init() {}
 
