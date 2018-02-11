@@ -15,7 +15,7 @@
 
 #include "trajecto.h"
 #include "Board.h"
-#include "RosPublisher.h"
+#include "RosSerial.h"
 
 // Green LED blinker thread
 static THD_WORKING_AREA(waThreadBlinker, 256);
@@ -313,6 +313,32 @@ static void cmd_arm_auto(BaseSequentialStream* chp, int argc, char* argv[])
 
 }
 
+
+static void cmd_display(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  (void)argc;
+  (void)argv;
+  (void) chp;
+  gBoard.DisplayInfo();
+}
+
+static void cmd_print_wheel_separation(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  (void)argc;
+  (void)argv;
+  chprintf(chp, "Wheel Separation = %f\r\n", gBoard.wheelSeparationMM);
+}
+
+static void cmd_wheel_separation(BaseSequentialStream* chp, int argc, char* argv[])
+{
+  if(argc > 0)
+  {
+    const float val = atof(argv[0]);
+    gBoard.wheelSeparationMM = val;
+    chprintf(chp, "Wheel Separation = %f\r\n", val);
+  }
+}
+
 static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"kid", cmd_kid},
                                         {"kdd", cmd_kdd},
@@ -339,6 +365,9 @@ static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"trace", cmd_trace},
                                         {"square", cmd_square},
                                         {"auto", cmd_arm_auto},
+                                        {"display", cmd_display},
+                                        {"ws?", cmd_print_wheel_separation},
+                                        {"ws", cmd_wheel_separation},
                                         {NULL, NULL}};
 
 static const ShellConfig shell_cfg1 = {(BaseSequentialStream*)&SD2, commands};
@@ -360,6 +389,7 @@ int main(void)
                     NORMALPRIO,
                     ThreadRosserial,
                     NULL);
+
 
   DEBUG("Supmeca Never Dies!!!!");
 

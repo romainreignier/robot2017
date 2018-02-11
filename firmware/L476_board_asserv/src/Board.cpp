@@ -152,6 +152,45 @@ Board::SetInitPosition(const float & pX, const float & pY, const float & pTheta)
     G_Theta_rad = pTheta * DTOR;
 }
 
+void
+Board::DisplayInfo()
+{
+    SetInitPosition(0.0,0.0,0.0);
+
+    for(int i = 0 ; i < 550 ; ++i)
+    {
+        chprintf(dbg, "G_X_mm : %f\r\n", G_X_mm);
+        chprintf(dbg, "G_Y_mm: %f\r\n", G_Y_mm);
+        chprintf(dbg, "G_Theta_deg: %f\r\n", G_Theta_rad * RTOD);
+        chprintf(dbg, "drr:%f drg: %f\r\n\r\n", drr,drg);
+        chThdSleepMilliseconds(100);
+    }
+}
+
+
+void Board::move(float pDistance, float pTheta){
+    // Lock system before modifying data used in interrupt
+    chSysLock();
+    cibleAngle = normalize_angle(pTheta);
+    cibleDistance = pDistance;
+    consigneDistance = pDistance;
+    consigneAngle = cibleAngle;
+    mustComputeTraj = false;
+    compensationDist = 0;
+
+    if(finish == false){
+        mesureDistance = 0;
+        mesureAngle = 0;
+        finAsservIterations = 0;
+        iTermDist=0.0;
+        iTermAng=0.0;
+        erreurDistance = 0;
+        lastErreurDistance = 0;
+        cptRestOnPosition = 0;
+        cptRestOnAngle = 0;
+    }
+    chSysUnlock();
+}
 void Board::moveLinear(float _distance)
 {
   // Lock system before modifying data used in interrupt
@@ -327,8 +366,8 @@ void Board::asserv()
   //##############   Distance  ##############
   if(erreurDistance >= 0.0)
       correctionDistance = (kpDist * erreurDistance +
-			( kdDist * (erreurDistance 
-			- lastErreurDistance)) )
+            ( kdDist * (erreurDistance
+            - lastErreurDistance)) )
             + 700.0 + compensationDist;
   else
       correctionDistance = ( kpDist * erreurDistance +
@@ -388,7 +427,7 @@ void Board::asserv()
   motors.pwmI(leftPwm, rightPwm);
   chSysUnlockFromISR();
 
-  if(fabs(erreurDistance) < 2.0 && fabs(erreurAngle) < 0.02)
+  if(fabs(erreurDistance) < 2.0 && fabs(erreurAngle) < 0.002)
   {
     finAsservIterations++;
     if(finAsservIterations > 50)
@@ -435,8 +474,14 @@ void Board::lectureCodeur()
   // calcul de la variation de l'angle alpha du robot
   dA = (dr - dl) / wheelSeparationMM;
 
+  drr+=dr;
+  drg+=dl;
+
   G_X_mm+= dD * cos(G_Theta_rad + dA/2.0);
   G_Y_mm+= dD * sin(G_Theta_rad + dA/2.0);
+  /*G_X_mm+= dD * cos(G_Theta_rad + dA/2.0);
+  G_Y_mm+= dD * sin(G_Theta_rad + dA/2.0);
+  */
   G_Theta_rad += dA;
   G_Theta_rad = normalize_angle(G_Theta_rad);
 }
