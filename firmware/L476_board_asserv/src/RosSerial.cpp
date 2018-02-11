@@ -1,11 +1,20 @@
-#include "RosPublisher.h"
+#include "RosSerial.h"
 
 #include "Board.h"
+#include "trajecto.h"
 
 #include <ros.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int16.h>
+#include <geometry_msgs/Pose2D.h>
 
+
+
+
+void CallbackDeplacement(const geometry_msgs::Pose2D & msg)
+{
+    GoingToPoint(msg.x,msg.y);
+}
 THD_WORKING_AREA(waThreadRosserial, 2048);
 THD_FUNCTION(ThreadRosserial, arg)
 {
@@ -14,6 +23,7 @@ THD_FUNCTION(ThreadRosserial, arg)
 
   // ROS
   ros::NodeHandle nh;
+  //ros::NodeHandle_<ChibiOSHardware,25,25,512,512> nh;
   // Messages
   std_msgs::Float32 consigne_distance;
   std_msgs::Float32 consigne_angle;
@@ -44,6 +54,15 @@ THD_FUNCTION(ThreadRosserial, arg)
   ros::Publisher left_pwm_pub("left_pwm", &left_pwm);
   ros::Publisher smooth_rotation_pub("smooth_rotation", &smoothRotation);
   ros::Publisher linear_speed_pub("linear_speed", &linear_speed);
+
+
+  // Subscribers
+  ros::Subscriber <geometry_msgs::Pose2D>
+          consigne_deplacement_sub("consigne_deplacement", CallbackDeplacement);
+
+  //Init Subscribers
+  nh.subscribe(consigne_deplacement_sub);
+
   // Init Node Handle
   nh.getHardware()->setDriver(&SD1);
   nh.initNode();
@@ -69,42 +88,39 @@ THD_FUNCTION(ThreadRosserial, arg)
   {
     time += MS2ST(kPublishPeriodMs);
 
-    // Copy the values
-    consigne_distance.data = gBoard.consigneDistance;
-    consigne_angle.data = gBoard.consigneAngle;
-    mesure_distance.data = gBoard.mesureDistance;
-    mesure_angle.data = gBoard.mesureAngle;
-    erreur_distance.data = gBoard.erreurDistance;
-    erreur_angle.data = gBoard.erreurAngle;
-    cible_distance.data = gBoard.cibleDistance;
-    cible_angle.data = gBoard.cibleAngle;
-    left_speed.data = gBoard.leftSpeed;
-    right_speed.data = gBoard.rightSpeed;
-    left_pwm.data = gBoard.leftPwm;
-    right_pwm.data = gBoard.rightPwm;
-    smoothRotation.data = gBoard.smoothRotation;
-    linear_speed.data = gBoard.linear_speed;
+        // Copy the values
+        consigne_distance.data = gBoard.consigneDistance;
+        consigne_angle.data = gBoard.consigneAngle;
+        mesure_distance.data = gBoard.mesureDistance;
+        mesure_angle.data = gBoard.mesureAngle;
+        erreur_distance.data = gBoard.erreurDistance;
+        erreur_angle.data = gBoard.erreurAngle;
+        cible_distance.data = gBoard.cibleDistance;
+        cible_angle.data = gBoard.cibleAngle;
+        left_speed.data = gBoard.leftSpeed;
+        right_speed.data = gBoard.rightSpeed;
+        left_pwm.data = gBoard.leftPwm;
+        right_pwm.data = gBoard.rightPwm;
+        smoothRotation.data = gBoard.smoothRotation;
+        linear_speed.data = gBoard.linear_speed;
 
-    // Publish the data
-    consigne_distance_pub.publish(&consigne_distance);
-    consigne_angle_pub.publish(&consigne_angle);
-    mesure_distance_pub.publish(&mesure_distance);
-    mesure_angle_pub.publish(&mesure_angle);
-    erreur_distance_pub.publish(&erreur_distance);
-    erreur_angle_pub.publish(&erreur_angle);
-    cible_distance_pub.publish(&cible_distance);
-    cible_angle_pub.publish(&cible_angle);
-    left_speed_pub.publish(&left_speed);
-    right_speed_pub.publish(&right_speed);
-    right_pwm_pub.publish(&right_pwm);
-    left_pwm_pub.publish(&left_pwm);
-    smooth_rotation_pub.publish(&smoothRotation);
-    linear_speed_pub.publish(&linear_speed);
-
+        // Publish the data
+        consigne_distance_pub.publish(&consigne_distance);
+        consigne_angle_pub.publish(&consigne_angle);
+        mesure_distance_pub.publish(&mesure_distance);
+        mesure_angle_pub.publish(&mesure_angle);
+        erreur_distance_pub.publish(&erreur_distance);
+        erreur_angle_pub.publish(&erreur_angle);
+        cible_distance_pub.publish(&cible_distance);
+        cible_angle_pub.publish(&cible_angle);
+        left_speed_pub.publish(&left_speed);
+        right_speed_pub.publish(&right_speed);
+        right_pwm_pub.publish(&right_pwm);
+        left_pwm_pub.publish(&left_pwm);
+        smooth_rotation_pub.publish(&smoothRotation);
+        linear_speed_pub.publish(&linear_speed);
     // Spin
     nh.spinOnce();
-
-
     chThdSleepUntil(time);
   }
 }
