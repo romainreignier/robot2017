@@ -339,6 +339,13 @@ static void cmd_wheel_separation(BaseSequentialStream* chp, int argc, char* argv
   }
 }
 
+static void cmd_found_pwm(BaseSequentialStream* chp, int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+    gBoard.FoundPWM();
+}
+
 static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"kid", cmd_kid},
                                         {"kdd", cmd_kdd},
@@ -368,6 +375,7 @@ static const ShellCommand commands[] = {{"kpd", cmd_kpd},
                                         {"display", cmd_display},
                                         {"ws?", cmd_print_wheel_separation},
                                         {"ws", cmd_wheel_separation},
+                                        {"foundpwm", cmd_found_pwm},
                                         {NULL, NULL}};
 
 static const ShellConfig shell_cfg1 = {(BaseSequentialStream*)&SD2, commands};
@@ -392,6 +400,14 @@ int main(void)
 
 
   DEBUG("Supmeca Never Dies!!!!");
+
+
+  /*while(1){
+    if(gBoard.starter.read())
+        gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 480);
+    else
+        gBoard.servos.setPWM(gBoard.kLaunchServoId, 0, 150);
+  }*/
 
   while(true)
   {
