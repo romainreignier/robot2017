@@ -53,6 +53,8 @@ add_message_files(
   FILES
   Color.msg
   Encoders.msg
+  GlobalStatus.msg
+  Feedback.msg
   Motors.msg
   MotorControlMode.msg
   Pid.msg
