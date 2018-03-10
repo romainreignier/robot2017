@@ -49,7 +49,8 @@ Board::Board()
     vAngMax{0.087964594f},     // 0.7 tr/s -> rad/periode
     smoothRotation(1.0),
     linear_speed(0.0),
-    G_X_mm(0.0),G_Y_mm(0.0),G_Theta_rad(0.0)
+    G_X_mm(0.0),G_Y_mm(0.0),G_Theta_rad(0.0),
+    tickg(0),tickr(0)
 {
 }
 
@@ -162,7 +163,8 @@ Board::DisplayInfo()
         chprintf(dbg, "G_X_mm : %f\r\n", G_X_mm);
         chprintf(dbg, "G_Y_mm: %f\r\n", G_Y_mm);
         chprintf(dbg, "G_Theta_deg: %f\r\n", G_Theta_rad * RTOD);
-        chprintf(dbg, "drr:%f drg: %f\r\n\r\n", drr,drg);
+        chprintf(dbg, "drg:%f drr: %f\r\n\r\n", drr,drg);
+        chprintf(dbg, "tickg:%f tickr: %f\r\n\r\n", tickg,tickr);
         chThdSleepMilliseconds(100);
     }
 }
@@ -379,11 +381,11 @@ void Board::asserv()
   if(erreurAngle >= 0.0)
       correctionAngle = ( kpAng * erreurAngle +
              ( kdAng * (erreurAngle - lastErreurAngle) + iTermAng )) +
-             750.0 + compensationAng;
+             650.0 + compensationAng;
   else
       correctionAngle = ( kpAng * erreurAngle +
               (kdAng * (erreurAngle - lastErreurAngle) + iTermAng )) -
-              750.0 + compensationAng;
+              650.0 + compensationAng;
 
   //############## Compensation ##############
   //##############   Distance  ##############
@@ -427,7 +429,7 @@ void Board::asserv()
   motors.pwmI(leftPwm, rightPwm);
   chSysUnlockFromISR();
 
-  if(fabs(erreurDistance) < 2.0 && fabs(erreurAngle) < 0.002)
+  if(fabs(erreurDistance) < 2.0 && fabs(erreurAngle) < 0.0087) //0.5 degres
   {
     finAsservIterations++;
     if(finAsservIterations > 50)
@@ -452,7 +454,8 @@ void Board::lectureCodeur()
   // Increment the internal counters
   leftQeiCnt += _dLeft;
   rightQeiCnt += _dRight;
-
+  tickg +=_dLeft;
+  tickr +=_dRight;
   // Compute the average
   leftQeiAvg.add(_dLeft);
   rightQeiAvg.add(_dRight);
@@ -477,8 +480,8 @@ void Board::lectureCodeur()
   drr+=dr;
   drg+=dl;
 
-  G_X_mm+= dD * cos(G_Theta_rad + dA/2.0);
-  G_Y_mm+= dD * sin(G_Theta_rad + dA/2.0);
+  G_X_mm+= dD * cos(G_Theta_rad);
+  G_Y_mm+= dD * sin(G_Theta_rad);
   /*G_X_mm+= dD * cos(G_Theta_rad + dA/2.0);
   G_Y_mm+= dD * sin(G_Theta_rad + dA/2.0);
   */
@@ -582,4 +585,36 @@ Board::needMotorGraph(){
 
 
 }
+
+void
+Board::FoundPWM(){
+    int mPWM=0;
+
+    G_X_mm = 0.0;
+
+    while(G_X_mm < 2.0)
+    {
+        ++mPWM;
+        motors.pwmI(mPWM, mPWM);
+        chThdSleepMilliseconds(20);
+    }
+    motors.pwmI(0, 0);
+    chprintf(dbg, "PWM found in linear: %d\r\n", mPWM);
+
+    G_Theta_rad = 0.0;
+    mPWM = 0;
+
+    chThdSleepMilliseconds(1000);
+
+    while(G_Theta_rad * RTOD < 0.5)
+    {
+        ++mPWM;
+        motors.pwmI(-mPWM, mPWM);
+        chThdSleepMilliseconds(20);
+    }
+    motors.pwmI(0, 0);
+    chprintf(dbg, "PWM found in rotate: %d\r\n", mPWM);
+
+}
+
 Board gBoard;

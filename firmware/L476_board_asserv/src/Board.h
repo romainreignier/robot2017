@@ -56,6 +56,7 @@ struct Board
   void needMotorGraph();
   void SetInitPosition(const float & pX, const float & pY, const float & pTheta);
   void DisplayInfo();
+  void FoundPWM();
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
@@ -88,7 +89,7 @@ struct Board
   static constexpr uint16_t kServoMax = 700;
   Output tcsLed;
 
-  static constexpr uint32_t kPidTimerPeriodMs = 100;
+  static constexpr uint32_t kPidTimerPeriodMs = 50;
   static constexpr uint32_t kQeiTimerFrequency = 500000;
 
   float cibleDistance;
@@ -139,8 +140,8 @@ struct Board
   static constexpr float kPi = 3.14159265358979323846f;
   float wheelSeparationMM = 111.725f;
   static constexpr int32_t encoderResolution = 2400;
-  static constexpr float leftWheelRadius = 26.125f;
-  static constexpr float rightWheelRadius = 26.0359f;//26.075
+  static constexpr float leftWheelRadius = 26.195f;
+  static constexpr float rightWheelRadius = 26.164f;//26.075 // 26.0359
   static constexpr float LEFT_TICKS_TO_MM =
     (2 * kPi * leftWheelRadius) / encoderResolution;
   static constexpr float RIGHT_TICKS_TO_MM =
@@ -154,6 +155,8 @@ struct Board
   float drr;
   float drg;
   float lprecedent;
+  float tickr;
+  float tickg;
 };
 
 template <typename T> T Board::bound(T _in, T _min, T _max)
