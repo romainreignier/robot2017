@@ -1,7 +1,9 @@
 src/Board.cpp
 src/Board.h
-src/RosPublisher.cpp
-src/RosPublisher.h
+src/RosSerial.cpp
+src/RosSerial.h
+src/trajecto.cpp
+src/trajecto.h
 src/main.cpp
 chconf.h
 halconf.h
