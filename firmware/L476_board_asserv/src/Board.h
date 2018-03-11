@@ -68,7 +68,7 @@ struct Board
   Motors motors;
   Qei qei;
   Input starter;
-  Input colorSwitch;
+  Input startingSide;
   Input selector;
   Input eStop;
   Input frontProximitySensor;
@@ -89,7 +89,7 @@ struct Board
   static constexpr uint16_t kServoMax = 700;
   Output tcsLed;
 
-  static constexpr uint32_t kPidTimerPeriodMs = 50;
+  static constexpr uint32_t kPidTimerPeriodMs = 10;
   static constexpr uint32_t kQeiTimerFrequency = 500000;
 
   float cibleDistance;

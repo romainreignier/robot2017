@@ -36,14 +36,14 @@ Board::Board()
     leftMotor{&PWMD3, 3, false, GPIOB, 4, GPIOB, 5, NULL, 0},
     rightMotor{&PWMD3, 4, false, GPIOD, 2, GPIOC, 12, NULL, 0},
     motors(leftMotor, rightMotor), qei{&QEID1, true, &QEID2, false},
-    starter{GPIOC, 13}, colorSwitch{GPIOC, 1}, selector{GPIOB, 12},
+    starter{GPIOC, 13}, startingSide{GPIOC, 1}, selector{GPIOB, 12},
     eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP},
     frontProximitySensor{GPIOB, 1, PAL_MODE_INPUT_PULLUP},
     rearLeftProximitySensor{GPIOC, 7, PAL_MODE_INPUT_PULLUP},
     rearRightProximitySensor{GPIOC, 0, PAL_MODE_INPUT_PULLUP}, pump{GPIOB, 0},
     greenLed{GPIOA, 11}, servos{&I2CD2, &i2c2cfg}, tcsLed{GPIOA, 15},
-    maxPwm{3000}, cptRestOnPosition(0),cptRestOnAngle(0), compensationDist(0),compensationAng(0), kpDist{15.0},
-    kpAng{700.0f}, kiDist{0.15f}, kiAng{10.0f}, kdDist{650.0f}, kdAng{1000.0f},
+    maxPwm{6000}, cptRestOnPosition(0),cptRestOnAngle(0), compensationDist(0),compensationAng(0), kpDist{60.0},
+    kpAng{2800.0f}, kiDist{0.15f}, kiAng{1.0f}, kdDist{650.0f}, kdAng{4000.0f},
     iMinDist(-maxPwm), iMaxDist(maxPwm), iMinAng(-maxPwm), iMaxAng(maxPwm),
     finish(true), vLinMax{4}, // 200 mm/s -> 4 mm / periode (20ms)
     vAngMax{0.087964594f},     // 0.7 tr/s -> rad/periode
@@ -103,7 +103,7 @@ void Board::begin()
   motors.begin();
   starter.begin();
   eStop.begin();
-  colorSwitch.begin();
+  startingSide.begin();
   selector.begin();
   frontProximitySensor.begin();
   rearLeftProximitySensor.begin();
@@ -380,11 +380,11 @@ void Board::asserv()
   //##############    Angle    ##############
   if(erreurAngle >= 0.0)
       correctionAngle = ( kpAng * erreurAngle +
-             ( kdAng * (erreurAngle - lastErreurAngle) + iTermAng )) +
+             ( kdAng * (erreurAngle - lastErreurAngle))) +
              650.0 + compensationAng;
   else
       correctionAngle = ( kpAng * erreurAngle +
-              (kdAng * (erreurAngle - lastErreurAngle) + iTermAng )) -
+              (kdAng * (erreurAngle - lastErreurAngle))) -
               650.0 + compensationAng;
 
   //############## Compensation ##############
@@ -460,10 +460,6 @@ void Board::lectureCodeur()
   leftQeiAvg.add(_dLeft);
   rightQeiAvg.add(_dRight);
 
-  // Speeds in ticks/s
-  leftSpeed = (leftQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
-  rightSpeed = (rightQeiAvg.getAverage() * 1000.0f) / (kPidTimerPeriodMs);
-  linear_speed = ((leftSpeed + rightSpeed) / 2);
   smoothRotation = bound(( -(0.6/20.0) * fabs(lastErreurDistance) + 1.0), 0.05, 1.0);
 
   // Estimation deplacement
@@ -476,6 +472,11 @@ void Board::lectureCodeur()
   dD = (dr + dl) / 2;
   // calcul de la variation de l'angle alpha du robot
   dA = (dr - dl) / wheelSeparationMM;
+
+  // Speeds in m/s
+  leftSpeed = (dl  * 1/ kPidTimerPeriodMs ) / 1000;
+  rightSpeed = (dr * 1 /kPidTimerPeriodMs) / 1000;
+  linear_speed = ((leftSpeed + rightSpeed) / 2);
 
   drr+=dr;
   drg+=dl;
