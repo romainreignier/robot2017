@@ -474,9 +474,9 @@ void Board::lectureCodeur()
   dA = (dr - dl) / wheelSeparationMM;
 
   // Speeds in m/s
-  leftSpeed = (dl  * 1/ kPidTimerPeriodMs ) / 1000;
-  rightSpeed = (dr * 1 /kPidTimerPeriodMs) / 1000;
-  linear_speed = ((leftSpeed + rightSpeed) / 2);
+  leftSpeed     = dl / kPidTimerPeriodMs;
+  rightSpeed    = dr / kPidTimerPeriodMs;
+  linear_speed  = dD / kPidTimerPeriodMs;
 
   drr+=dr;
   drg+=dl;
