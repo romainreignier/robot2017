@@ -109,6 +109,7 @@ THD_FUNCTION(ThreadRosserial, arg)
   s_NodeHandle.advertise(msg_Encodeurs_pub);
   s_NodeHandle.advertise(msg_GlobalStatus_pub);
   s_NodeHandle.advertise(msg_Feedback_pub);
+  s_NodeHandle.advertise(msg_RealTimePosition_pub);
 
   while(true)
   {
