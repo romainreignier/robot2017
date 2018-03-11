@@ -165,7 +165,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(STREAMSINC) $(CHIBIOS)/os/various \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(MOTORINC) $(QEIINC) $(GPIOINC) $(ADCTIMERINC) $(PIDINC) \
-         $(ROSINC) $(RUNNINGAVERAGEINC) \
+         $(PCA9685INC) $(ROSINC) $(RUNNINGAVERAGEINC) \
          src
 
 #
