@@ -4,12 +4,6 @@
 [submodule "firmware/common/ChibiOS-Contrib"]
 	path = firmware/common/ChibiOS-Contrib
 	url = https://github.com/ChibiOS/ChibiOS-Contrib.git
-[submodule "ros_ws/src/flexbe_behavior_engine"]
-	path = ros_ws/src/flexbe_behavior_engine
-	url = https://github.com/team-vigir/flexbe_behavior_engine.git
-[submodule "ros_ws/src/generic_flexbe_states"]
-	path = ros_ws/src/generic_flexbe_states
-	url = https://github.com/FlexBE/generic_flexbe_states.git
 [submodule "ros_ws/src/rosserial"]
 	path = ros_ws/src/rosserial
 	url = https://github.com/1r0b1n0/rosserial.git
