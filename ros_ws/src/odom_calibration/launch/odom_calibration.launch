@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <param name="/use_sim_time" value="true"/>
+
+    <node name="rosbag" pkg="rosbag" type="play" args="-l -r 8 --clock $(arg bag_filename)" output="screen"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find odom_calibration)/config/config.rviz"/>
+</launch>
