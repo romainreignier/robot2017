@@ -21,10 +21,16 @@ void
 MoveSquare(){
     gBoard.SetInitPosition(0,0,90);
 
-    GoingToPoint(0,100);
-    GoingToPoint(-100,100);
-    GoingToPoint(-100,0);
-    GoingToPoint(0,0);
+//    GoingToPoint(0,100);
+//    GoingToPoint(-100,100);
+//    GoingToPoint(-100,0);
+//    GoingToPoint(0,0);
+
+    gBoard.SetInitPosition(135,117.5,90);
+    GoingToPoint(292,200);
+    GoingToPoint(354,275);
+    GoingToPoint(402,392);
+    GoingToPoint(410,467.5,90);
     //ComplexMove();
 }
 
