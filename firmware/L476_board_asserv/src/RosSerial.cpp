@@ -10,6 +10,7 @@
 #include <snd_msgs/GlobalStatus.h>
 #include <snd_msgs/Feedback.h>
 #include <geometry_msgs/Pose2D.h>
+#include <snd_msgs/Position2D.h>
 
 
 static ros::NodeHandle s_NodeHandle;
@@ -32,13 +33,13 @@ void CopyDataOnMessage_GlobalStatus(snd_msgs::GlobalStatus & pGlobalStatus){
     pGlobalStatus.header.stamp      = s_NodeHandle.now();
 
     pGlobalStatus.starter           = gBoard.starter.read();
+    pGlobalStatus.starting_side     = gBoard.startingSide.read();
 
     pGlobalStatus.position.x        = gBoard.G_X_mm;
     pGlobalStatus.position.y        = gBoard.G_Y_mm;
     pGlobalStatus.position.theta    = gBoard.G_Theta_rad;
 
     pGlobalStatus.speed             = gBoard.linear_speed;
-
 }
 
 
@@ -60,6 +61,13 @@ void CopyDataOnMessage_Feedback(snd_msgs::Feedback & pFeedback){
     pFeedback.smooth_rotation       = gBoard.smoothRotation;
 }
 
+void CopyDataOnMessage_RealTimePosition(snd_msgs::Position2D & pRealTimePosition){
+    pRealTimePosition.header.stamp      = s_NodeHandle.now();
+
+    pRealTimePosition.x             = gBoard.G_X_mm;
+    pRealTimePosition.y             = gBoard.G_Y_mm;
+    pRealTimePosition.theta         = gBoard.G_Theta_rad;
+}
 
 THD_WORKING_AREA(waThreadRosserial, 2048);
 THD_FUNCTION(ThreadRosserial, arg)
@@ -78,11 +86,13 @@ THD_FUNCTION(ThreadRosserial, arg)
   snd_msgs::Encoders        msg_Encodeurs;
   snd_msgs::GlobalStatus    msg_GlobalStatus;
   snd_msgs::Feedback        msg_Feedback;
+  snd_msgs::Position2D      msg_RealTimePosition;
 
   // Publishers
-  ros::Publisher msg_Encodeurs_pub      ("Encodeurs",       &msg_Encodeurs);
-  ros::Publisher msg_GlobalStatus_pub   ("GlobalStatus",    &msg_GlobalStatus);
-  ros::Publisher msg_Feedback_pub       ("Feedback",        &msg_Feedback);
+  ros::Publisher msg_Encodeurs_pub          ("encodeurs",           &msg_Encodeurs);
+  ros::Publisher msg_GlobalStatus_pub       ("global_status",       &msg_GlobalStatus);
+  ros::Publisher msg_Feedback_pub           ("feedback",            &msg_Feedback);
+  ros::Publisher msg_RealTimePosition_pub   ("realtime_position",   &msg_RealTimePosition);
 
   // Subscribers
   ros::Subscriber <geometry_msgs::Pose2D>
@@ -108,12 +118,14 @@ THD_FUNCTION(ThreadRosserial, arg)
     {
         /*** Copy Data ***/
          CopyDataOnMessage_Feedback(msg_Feedback);
+         CopyDataOnMessage_RealTimePosition(msg_RealTimePosition);
 
          /*** Publish ***/
          msg_Feedback_pub.publish(&msg_Feedback);
+         msg_RealTimePosition_pub.publish((&msg_RealTimePosition));
     }
 
-    if(_modulo % 50)// toutes les 500MS
+    if(_modulo % 2)// toutes les 500MS
     {
        /*** Copy Data ***/
         CopyDataOnMessage_Encodeurs(msg_Encodeurs);
