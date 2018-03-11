@@ -35,8 +35,8 @@ void CopyDataOnMessage_GlobalStatus(snd_msgs::GlobalStatus & pGlobalStatus){
     pGlobalStatus.starter           = gBoard.starter.read();
     pGlobalStatus.starting_side     = gBoard.startingSide.read();
 
-    pGlobalStatus.position.x        = gBoard.G_X_mm;
-    pGlobalStatus.position.y        = gBoard.G_Y_mm;
+    pGlobalStatus.position.x        = gBoard.G_X_mm /1000.0;
+    pGlobalStatus.position.y        = gBoard.G_Y_mm /1000.0;
     pGlobalStatus.position.theta    = gBoard.G_Theta_rad;
 
     pGlobalStatus.speed             = gBoard.linear_speed;
@@ -64,8 +64,8 @@ void CopyDataOnMessage_Feedback(snd_msgs::Feedback & pFeedback){
 void CopyDataOnMessage_RealTimePosition(snd_msgs::Position2D & pRealTimePosition){
     pRealTimePosition.header.stamp      = s_NodeHandle.now();
 
-    pRealTimePosition.x             = gBoard.G_X_mm;
-    pRealTimePosition.y             = gBoard.G_Y_mm;
+    pRealTimePosition.x             = gBoard.G_X_mm / 1000.0;
+    pRealTimePosition.y             = gBoard.G_Y_mm / 1000.0;
     pRealTimePosition.theta         = gBoard.G_Theta_rad;
 }
 
