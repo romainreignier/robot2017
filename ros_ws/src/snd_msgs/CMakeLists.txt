@@ -58,6 +58,7 @@ add_message_files(
   Motors.msg
   MotorControlMode.msg
   Pid.msg
+  Position2D.msg
   ProximitySensors.msg
   Status.msg
 )
