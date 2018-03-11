@@ -10,3 +10,9 @@
 [submodule "ros_ws/src/generic_flexbe_states"]
 	path = ros_ws/src/generic_flexbe_states
 	url = https://github.com/FlexBE/generic_flexbe_states.git
+[submodule "ros_ws/src/rosserial"]
+	path = ros_ws/src/rosserial
+	url = https://github.com/1r0b1n0/rosserial.git
+[submodule "ros_ws/src/rosserial_qt"]
+	path = ros_ws/src/rosserial_qt
+	url = https://github.com/1r0b1n0/rosserial_qt.git
