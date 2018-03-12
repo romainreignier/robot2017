@@ -98,7 +98,7 @@ struct Board
   systime_t timeStartOverCurrent;
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
-  static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
+  static constexpr systime_t kMaxTimeOverCurrent = TIME_MS2I(1000);
   // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
   static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
 

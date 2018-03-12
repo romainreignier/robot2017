@@ -179,7 +179,7 @@ void PCA9685::setPWM(uint8_t channel, uint16_t on, uint16_t off) {
   this->txbuff[2] = on >> 8;
   this->txbuff[3] = off & 0x00FF;
   this->txbuff[4] = off >> 8;
-  this->tmo = MS2ST(4);
+  this->tmo = TIME_MS2I(4);
 
   if (this->acquire) i2cAcquireBus(this->driver);
   this->status = i2cMasterTransmitTimeout(this->driver, this->i2caddres, this->txbuff, 5, this->rxbuff, 0, this->tmo);
@@ -210,7 +210,7 @@ void PCA9685::setPWM(uint8_t channel, const uint16_t *on, const uint16_t *off, u
         txbuff[i+1] = off[j+1];
         j++;
     }
-    this->tmo = MS2ST(4);
+    this->tmo = TIME_MS2I(4);
     this->pwm_channel = channel;
 
     uint8_t oldmode = this->readreg(PCA9685_MODE1); //Preserve old mode
@@ -278,7 +278,7 @@ uint32_t PCA9685::getPWM(uint8_t channel) {
 void PCA9685::writereg(uint8_t reg, uint8_t data) {
     this->txbuff[0] = reg;
     this->txbuff[1] = data;
-    this->tmo = MS2ST(4);
+    this->tmo = TIME_MS2I(4);
 
     if (this->acquire) i2cAcquireBus(this->driver);
     this->status = i2cMasterTransmitTimeout(this->driver, this->i2caddres, this->txbuff, 2, this->rxbuff, 0, this->tmo);
@@ -291,7 +291,7 @@ void PCA9685::writereg(uint8_t reg, uint8_t data) {
 uint8_t PCA9685::readreg(uint8_t reg) {
     if (reg < 70 || reg > 249)
     {
-        this->tmo = MS2ST(4);
+        this->tmo = TIME_MS2I(4);
         if (this->acquire) i2cAcquireBus(this->driver);
         this->status = i2cMasterTransmitTimeout(this->driver, this->i2caddres, &reg, 1, this->rxbuff, 1, this->tmo);
         if (this->acquire) i2cReleaseBus(this->driver);

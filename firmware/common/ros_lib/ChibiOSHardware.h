@@ -32,7 +32,7 @@ public:
     chnWrite(iostream, data, length);
   }
 
-  unsigned long time() { return ST2MS(chVTGetSystemTimeX()); }
+  unsigned long time() { return TIME_I2MS(chVTGetSystemTimeX()); }
 
 protected:
   BaseChannel* iostream;

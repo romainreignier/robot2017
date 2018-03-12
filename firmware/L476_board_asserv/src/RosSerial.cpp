@@ -113,7 +113,7 @@ THD_FUNCTION(ThreadRosserial, arg)
 
   while(true)
   {
-    time += MS2ST(kPublishPeriodMs);
+    time += TIME_MS2I(kPublishPeriodMs);
 
     if(_modulo % 2)// toutes les 20MS
     {
