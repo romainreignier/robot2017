@@ -70,7 +70,7 @@ void Adafruit_PWMServoDriver::setPWM(uint8_t num, uint16_t on, uint16_t off) {
   (uint8_t)(off>>8)
   };
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, _i2caddr, txBuf, 5, NULL, 0, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(_driver, _i2caddr, txBuf, 5, NULL, 0, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
 }
 
@@ -112,7 +112,7 @@ void Adafruit_PWMServoDriver::setPin(uint8_t num, uint16_t val, bool invert)
 uint8_t Adafruit_PWMServoDriver::read8(uint8_t addr) {
   uint8_t rxBuf[1];
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, _i2caddr, &addr, 1, rxBuf, 1, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(_driver, _i2caddr, &addr, 1, rxBuf, 1, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
   return rxBuf[0];
 }
@@ -122,6 +122,6 @@ void Adafruit_PWMServoDriver::write8(uint8_t addr, uint8_t d) {
   txBuf[0] = addr;
   txBuf[1] = d;
   i2cAcquireBus(_driver);
-  i2cMasterTransmitTimeout(_driver, _i2caddr, txBuf, 2, NULL, 0, OSAL_MS2ST(4));
+  i2cMasterTransmitTimeout(_driver, _i2caddr, txBuf, 2, NULL, 0, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
 }
