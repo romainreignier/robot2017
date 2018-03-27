@@ -105,7 +105,6 @@ void PolarControlROS::update(const ros::TimerEvent&)
     msg.left = std::get<PolarControl::LEFT>(cmd);
     msg.right = std::get<PolarControl::RIGHT>(cmd);
   }
-  msg.header.stamp = ros::Time::now();
   m_cmdPub.publish(msg);
 }
 

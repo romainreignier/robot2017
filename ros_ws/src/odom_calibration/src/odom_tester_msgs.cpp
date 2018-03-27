@@ -31,7 +31,7 @@ struct OdomResults
   std::string plotStr;
 };
 
-OdomResults computeOdom(rosbag::View& bagView, const OdomInputs& in, bool useFlo = false)
+OdomResults computeOdom(rosbag::View& bagView, const OdomInputs& in)
 {
   Odometry odom;
   OdomResults res;
@@ -54,7 +54,7 @@ OdomResults computeOdom(rosbag::View& bagView, const OdomInputs& in, bool useFlo
     {
       snd_msgs::EncodersConstPtr ticks = m.instantiate<snd_msgs::Encoders>();
       if(ticks == nullptr) continue;
-      const Pose pose = useFlo ? odom.computeOdomFlo(ticks->left, ticks->right) : odom.computeOdom(ticks->left, ticks->right);
+      const Pose pose = odom.computeOdom(ticks->left_pos, ticks->right_pos);
       const double time = m.getTime().toSec();
       res.x.emplace_back(time, pose.x);
       res.y.emplace_back(time, pose.y);
@@ -137,12 +137,6 @@ int main(int argc, char** argv)
   for(const auto& input : inputs)
   {
     results.emplace_back(input, computeOdom(view, input));
-  }
-
-  std::vector<std::pair<OdomInputs, OdomResults>> resultsFlo;
-  for(const auto& input : inputs)
-  {
-    resultsFlo.emplace_back(input, computeOdom(view, input, true));
   }
 
   bag.close();
