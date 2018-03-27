@@ -1,0 +1,28 @@
+map_type: costmap
+origin_z: 0.0
+z_resolution: 1
+z_voxels: 2
+
+publish_voxel_map: false
+transform_tolerance: 0.5
+meter_scoring: true
+
+footprint: [[-0.1, -0.16], [0.13, -0.16], [0.13, 0.13], [-0.1, 0.13], [-0.1, -0.16]]
+footprint_padding: 0.005
+
+plugins:
+  - {name: static_layer,    type: "costmap_2d::StaticLayer"}
+  - {name: obstacles_layer, type: "costmap_2d::ObstacleLayer"}
+  - {name: inflater_layer,  type: "costmap_2d::InflationLayer"}
+
+static_layer:
+  enabled: true
+
+obstacles_layer:
+  enabled: true
+  observation_sources: scan
+  scan: {data_type: LaserScan, topic: /scan, marking: true, clearing: true, obstacle_range: 3.0, raytrace_range: 4.0}
+
+inflater_layer:
+  enabled: true
+  inflation_radius: 0.16

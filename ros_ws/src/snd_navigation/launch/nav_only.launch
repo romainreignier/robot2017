@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- log levels and verbosity -->
+  <env name="ROSCONSOLE_FORMAT" value="[${time}] [${node}-${severity}] : ${message}"/>
+
+
+  <!-- Static tf for map if AMCL not used -->
+  <!--node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map odom 100"/-->
+
+  <node name="map_odom_tf_broadcaster" pkg="map_odom_tf_broadcaster" type="map_odom_tf_broadcaster_node" output="screen"/>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find snd_navigation)/params_nav/nav_config.yaml" command="load"/>
+  </node>
+</launch>

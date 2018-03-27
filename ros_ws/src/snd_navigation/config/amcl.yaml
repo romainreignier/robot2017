@@ -1,0 +1,55 @@
+base_frame_id: base_link
+beam_skip_distance: 2.0
+beam_skip_threshold: 1.0
+do_beamskip: false
+first_map_only: false
+global_frame_id: map
+gui_publish_rate: 5.0
+kld_err: 0.01
+kld_z: 0.99
+laser_lambda_short: 0.1
+laser_likelihood_max_dist: 0.3
+laser_max_beams: 100
+laser_max_range: 10.0
+laser_min_range: 0.05
+laser_model_type: likelihood_field
+laser_sigma_hit: 0.05
+laser_z_hit: 0.99
+laser_z_max: 0.05
+laser_z_rand: 0.01
+laser_z_short: 0.05
+max_particles: 5000
+min_particles: 500
+odom_alpha1: 2.0
+odom_alpha2: 0.2
+odom_alpha3: 0.1
+odom_alpha4: 0.2
+odom_alpha5: 0.2
+odom_frame_id: odom
+odom_model_type: diff
+recovery_alpha_fast: 0.1
+recovery_alpha_slow: 0.0
+resample_interval: 2
+restore_defaults: false
+save_pose_rate: 0.5
+state: true
+tf_broadcast: true
+transform_tolerance: 0.1
+type: ''
+update_min_a: 0.314
+update_min_d: 0.1
+use_map_topic: false
+# Important de les preciser sinon
+# les dernieres valeurs dans le
+# param server sont utilisees
+# car le noeud AMCL met a jour le
+# param server a chaque fois qu'il
+# recoit une coupe lidar
+initial_pose_x: 0.0
+initial_pose_y: 0.0
+initial_pose_a: 0.0
+initial_cov_xx: 0.25                # 0.5 * 0.5
+initial_cov_yy: 0.25                # 0.5 * 0.5
+# initial_cov_aa: 0.06853891945200942 # Pi/12 * Pi/12
+initial_cov_aa: 0.274155678         # Pi/6 * Pi/6
+

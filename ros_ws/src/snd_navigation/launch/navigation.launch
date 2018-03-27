@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- log levels and verbosity -->
+  <env name="ROSCONSOLE_FORMAT" value="[${time}] [${node}-${severity}] : ${message}"/>
+
+  <!--node name="map_server" pkg="map_server" type="map_server" args="$(find snd_navigation)/maps/eurobot_2017_5mm.yaml" output="screen"/-->
+  <!--node name="map_server" pkg="map_server" type="map_server" args="$(find snd_navigation)/maps/my_map.yaml" output="screen"/-->
+
+  <!-- Static tf for map if AMCL not used -->
+  <node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom 100"/>
+
+  <!--node pkg="amcl" type="amcl" name="amcl">
+
+  </node-->
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find snd_navigation)/params/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find snd_navigation)/params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+
+    <rosparam file="$(find snd_navigation)/params/global_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find snd_navigation)/params/local_costmap_params.yaml" command="load"/>
+
+    <rosparam file="$(find snd_navigation)/params/base_local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find snd_navigation)/params/global_planner_params.yaml" command="load"/>
+    <rosparam file="$(find snd_navigation)/params/move_base_params.yaml" command="load"/>
+  </node>
+</launch>

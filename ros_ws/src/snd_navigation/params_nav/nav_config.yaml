@@ -1,0 +1,163 @@
+# move_base
+shutdown_costmaps: false
+base_global_planner: "global_planner/GlobalPlanner"           # alternatives: navfn/NavfnROS, carrot_planner/CarrotPlanner
+base_local_planner: "base_local_planner/TrajectoryPlannerROS" # alternative "base_local_planner/TrajectoryPlannerROS" "teb_local_planner/TebLocalPlannerROS dwa_local_planner/DWAPlannerROS
+controller_frequency: 10.0
+controller_patience: 1.0
+planner_frequency: 1.0
+planner_patience: 1.0
+oscillation_timeout: 5.0
+oscillation_distance: 0.2
+conservative_reset_dist: 0.10
+
+# base_local_planner
+TrajectoryPlannerROS:
+  # Robot Configuration Parameters
+  #acc_lim_x: 1.0
+  #acc_lim_y: 0.0
+  #acc_lim_theta:  2.0
+
+  max_vel_x: 1.0
+  min_vel_x: 0.1
+
+  max_vel_theta: 2.0
+  min_vel_theta: -2.0
+  min_in_place_vel_theta: 1.0
+  min_in_rotational_vel: 1.0
+
+  trans_stopped_vel: 0.5
+  rot_stopped_vel: 0.5
+
+  holonomic_robot: false
+  global_frame_id: map
+  escape_vel: -0.2 # vitesse a laquelle le robot peut reculer quand il est coince. Positif si le robot ne peut physiquement pas reculer
+
+  # Goal Tolerance Parameters
+  yaw_goal_tolerance: 0.05
+  xy_goal_tolerance: 0.01
+  latch_xy_goal_tolerance: false
+
+  # Forward Simulation Parameters
+  sim_time: 0.8
+  sim_granularity: 0.01
+  angular_sim_granularity: 0.02
+  vx_samples: 18
+  vtheta_samples: 20
+  #controller_frequency: 5.0
+
+  # Trajectory scoring parameters
+  meter_scoring: true # Whether the gdist_scale and pdist_scale parameters should assume that goal_distance and path_distance are expressed in units of meters or cells. Cells are assumed by default (false).
+  occdist_scale:  0.01 # The weighting for how much the controller should attempt to avoid obstacles. default 0.01
+  pdist_scale: 0.6     # The weighting for how much the controller should stay close to the path it was given . default 0.6
+  gdist_scale: 0.8     # The weighting for how much the controller should attempt to reach its local goal, also controls speed  default 0.8
+
+  heading_lookahead: 1.0        # How far to look ahead in meters when scoring different in-place-rotation trajectories
+  heading_scoring: false        # Whether to score based on the robot's heading to the path or its distance from the path. default false
+  heading_scoring_timestep: 0.8 # How far to look ahead in time in seconds along the simulated trajectory when using heading scoring (double, default: 0.8)
+  dwa: true                     # Whether to use the Dynamic Window Approach (DWA)_ or whether to use Trajectory Rollout
+  simple_attractor: false
+  publish_cost_grid_pc: false
+
+  # Oscillation Prevention Parameters
+  oscillation_reset_dist: 0.05   # How far the robot must travel in meters before oscillation flags are reset (double, default: 0.05)
+  escape_reset_dist: 0.1
+  escape_reset_theta: 0.1
+
+# global_planner
+GlobalPlanner:                                  # Also see: http://wiki.ros.org/global_planner
+  old_navfn_behavior: false                     # Exactly mirror behavior of navfn, use defaults for other boolean parameters, default false
+  use_quadratic: true                           # Use the quadratic approximation of the potential. Otherwise, use a simpler calculation, default true
+  use_dijkstra: true                            # Use dijkstra's algorithm. Otherwise, A*, default true
+  use_grid_path: false                          # Create a path that follows the grid boundaries. Otherwise, use a gradient descent method, default false
+
+  allow_unknown: true                          # Allow planner to plan through unknown space, default true
+                                                # Needs to have track_unknown_space: true in the obstacle / voxel layer (in costmap_commons_param) to work
+  planner_window_x: 0.0                         # default 0.0
+  planner_window_y: 0.0                         # default 0.0
+  default_tolerance: 0.0                        # If goal in obstacle, plan to the closest point in radius default_tolerance, default 0.0
+
+  publish_scale: 100                            # Scale by which the published potential gets multiplied, default 100
+  planner_costmap_publish_frequency: 0.0        # default 0.0
+
+  lethal_cost: 253                              # default 253
+  neutral_cost: 50                              # default 50
+  cost_factor: 3.0                              # Factor to multiply each cost from costmap by, default 3.0
+  publish_potential: false                      # Publish Potential Costmap (this is not like the navfn pointcloud2 potential), default true
+
+
+local_costmap:
+    map_type: costmap
+    origin_z: 0.0
+
+    publish_voxel_map: false
+    transform_tolerance: 0.5
+    meter_scoring: true
+
+    footprint: [[-0.125, -0.075], [0.125, -0.075], [0.125, 0.075], [-0.125, 0.075], [-0.125, -0.075]]
+    footprint_padding: 0.005
+
+    plugins:
+    #- {name: static_layer,    type: "costmap_2d::StaticLayer"}
+    - {name: obstacles_layer, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflater_layer,  type: "costmap_2d::InflationLayer"}
+
+    #static_layer:
+    #enabled: true
+
+    obstacles_layer:
+        enabled: true
+        observation_sources: scan
+        scan: {data_type: LaserScan, topic: /scan, marking: true, clearing: true, obstacle_range: 3.0, raytrace_range: 4.0}
+
+    inflater_layer:
+        enabled: true
+        inflation_radius: 0.16
+
+    global_frame: odom
+    robot_base_frame: base_link
+    update_frequency: 1.0
+    publish_frequency: -1.0
+    static_map: false
+    rolling_window: true
+    width: 2.0
+    height: 2.0
+    resolution: 0.1
+
+global_costmap:
+    map_type: costmap
+    origin_z: 0.0
+
+    publish_voxel_map: false
+    transform_tolerance: 0.5
+    meter_scoring: true
+
+    footprint: [[-0.125, -0.075], [0.125, -0.075], [0.125, 0.075], [-0.125, 0.075], [-0.125, -0.075]]
+    footprint_padding: 0.005
+
+    plugins:
+    #- {name: static_layer,    type: "costmap_2d::StaticLayer"}
+    - {name: obstacles_layer, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflater_layer,  type: "costmap_2d::InflationLayer"}
+
+    #static_layer:
+        #enabled: true
+
+    obstacles_layer:
+        enabled: true
+        observation_sources: scan
+        scan: {data_type: LaserScan, topic: /scan, marking: true, clearing: true, obstacle_range: 3.0, raytrace_range: 4.0}
+
+    inflater_layer:
+        enabled: true
+        inflation_radius: 0.16
+
+    global_frame: map
+    robot_base_frame: base_link
+    update_frequency: 1.0
+    publish_frequency: -1.0
+    width: 3.0
+    height: 3.0
+    resolution: 0.1
+    static_map: false
+    rolling_window: true
+
