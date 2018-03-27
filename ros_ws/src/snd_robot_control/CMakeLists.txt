@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   snd_msgs
   std_msgs
   std_srvs
+  tf2
 )
 
 ## System dependencies are found with CMake's conventions
@@ -98,6 +99,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
 generate_dynamic_reconfigure_options(
   cfg/Pid.cfg
+  cfg/PolarControl.cfg
 )
 
 ###################################
@@ -136,6 +138,16 @@ target_link_libraries(PolarControl
   ${catkin_LIBRARIES}
 )
 
+add_library(AbsolutePolarControl
+  src/libPolarControl/Pose.cpp
+  src/libPolarControl/Component.cpp
+  src/libPolarControl/PolarControl.cpp
+)
+
+target_link_libraries(AbsolutePolarControl
+  ${catkin_LIBRARIES}
+)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -160,6 +172,18 @@ add_dependencies(polar_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 target_link_libraries(polar_control_node
   ${catkin_LIBRARIES}
   PolarControl
+)
+
+add_executable(polar_control_ros_node
+  src/PolarControlROS.cpp
+  src/polar_control_ros_node.cpp
+)
+
+add_dependencies(polar_control_ros_node ${PROJECT_NAME}_gencfg)
+
+target_link_libraries(polar_control_ros_node
+  ${catkin_LIBRARIES}
+  AbsolutePolarControl
 )
 
 add_executable(polar_control_tester
