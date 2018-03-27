@@ -16,14 +16,20 @@
 
 #include "MonsterShield.h"
 
-MonsterShield::MonsterShield(PWMDriver* _driver, uint8_t _channel,
-                             bool _isComplementaryChannel,
+MonsterShield::MonsterShield(PWMDriver* _driver, const uint32_t _timerFrequency,
+                             const uint32_t _timerPeriod,
+                             const uint8_t _channel,
+                             const bool _isComplementaryChannel,
                              stm32_gpio_t* _CWGpio, const uint32_t _CWPin,
                              stm32_gpio_t* _CCWGpio, const uint32_t _CCWPin,
                              stm32_gpio_t* _ENGpio, const uint32_t _ENPin)
-  : Motor{_driver, _channel, _isComplementaryChannel}, m_CWGpio{_CWGpio},
-    m_CWPin{_CWPin}, m_CCWGpio{_CCWGpio}, m_CCWPin{_CCWPin}, m_ENGpio{_ENGpio},
-    m_ENPin{_ENPin}
+  : Motor{_driver,
+          _timerFrequency,
+          _timerPeriod,
+          _channel,
+          _isComplementaryChannel},
+    m_CWGpio{_CWGpio}, m_CWPin{_CWPin}, m_CCWGpio{_CCWGpio}, m_CCWPin{_CCWPin},
+    m_ENGpio{_ENGpio}, m_ENPin{_ENPin}
 {
 }
 

@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16 --specs=nano.specs
 endif
 
 # C specific options here (added to USE_OPT).
@@ -15,7 +15,7 @@ endif
 
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -fno-rtti
+  USE_CPPOPT = -fno-rtti -fno-exceptions
 endif
 
 # Enable this if you want the linker to remove unused code and data
@@ -208,7 +208,7 @@ TOPT = -mthumb -DTHUMB
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -fdiagnostics-color=auto
 
 # Define C++ warning options here
-CPPWARN = -std=c++11 -Wall -Wextra -Wundef -fdiagnostics-color=auto
+CPPWARN = -std=c++14 -Wall -Wextra -Wundef -fdiagnostics-color=auto
 
 #
 # Compiler settings

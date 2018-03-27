@@ -1,13 +1,13 @@
 #pragma once
 
-class Motor;
 #include "Motor.h"
 
 class Motors
 {
 public:
   Motors(Motor& _leftMotor, Motor& _rightMotor);
-  void begin();
+  virtual ~Motors() =  default;
+  virtual void begin();
   void pwm(int16_t _leftPwm, int16_t _rightPwm);
   void pwmI(int16_t _leftPwm, int16_t _rightPwm);
   void stop();

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rosserial_chibios</name>
+  <version>0.0.1</version>
+  <description>The rosserial_chibios package</description>
+
+  <author email="rom.reignier@gmail.com">Romain Reignier</author>
+  <maintainer email="rom.reignier@gmail.com">Romain Reignier</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>rosserial_client</exec_depend>
+
+</package>

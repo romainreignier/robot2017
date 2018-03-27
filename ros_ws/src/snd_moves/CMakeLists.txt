@@ -173,6 +173,12 @@ add_dependencies(homologation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_
 target_link_libraries(homologation_node
   ${catkin_LIBRARIES}
 )
+
+add_executable(move_square src/move_square.cpp)
+target_link_libraries(move_square
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############

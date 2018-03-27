@@ -1,0 +1,10 @@
+flexbe_behavior_engine
+generic_flexbe_states
+robot_move
+robot_navigation
+rosserial
+rosserial_chibios
+snd_behaviors
+snd_gazebo
+snd_lcd
+snd_move_base

@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16 --specs=nano.specs
 endif
 
 # C specific options here (added to USE_OPT).
@@ -15,7 +15,7 @@ endif
 
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -fno-rtti
+  USE_CPPOPT = -fno-rtti -fno-exceptions
 endif
 
 # Enable this if you want the linker to remove unused code and data
@@ -104,8 +104,6 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
 include $(COMMON)/Motor/Motor.mk
 include $(COMMON)/Qei/Qei.mk
-include $(COMMON)/vl53l0x/vl53l0x.mk
-include $(COMMON)/pca9685/pca9685.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/AdcTimer/AdcTimer.mk
 include $(COMMON)/ros_lib/ros.mk
@@ -130,7 +128,7 @@ CSRC = $(STARTUPSRC) \
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
-         $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
+         $(MOTORSRC) $(QEISRC) $(GPIOSRC) \
          $(ADCTIMERSRC) $(PIDSRC) $(ROSSRC) \
          src/Board.cpp \
          src/main.cpp 
@@ -205,7 +203,7 @@ TOPT = -mthumb -DTHUMB
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -fdiagnostics-color=auto
 
 # Define C++ warning options here
-CPPWARN = -std=c++11 -Wall -Wextra -Wundef -fdiagnostics-color=auto
+CPPWARN = -std=c++14 -Wall -Wextra -Wundef -fdiagnostics-color=auto
 
 #
 # Compiler settings

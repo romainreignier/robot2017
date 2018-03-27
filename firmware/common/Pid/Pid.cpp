@@ -48,8 +48,6 @@ bool PID::Compute()
   float error = *mySetpoint - input;
   ITerm += (ki * error);
 
-  if(error == 0) ITerm = 0;
-
   if (ITerm > outMax) ITerm = outMax;
   else if (ITerm < outMin) ITerm = outMin;
   float dInput = (input - lastInput);
@@ -89,6 +87,7 @@ void PID::SetTunings(float Kp, float Ki, float Kd)
     ki = (0 - ki);
     kd = (0 - kd);
   }
+  ITerm = 0;
 }
 
 /* SetSampleTime(...) *********************************************************

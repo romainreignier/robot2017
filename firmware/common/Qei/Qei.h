@@ -17,6 +17,8 @@ public:
   void begin();
   void getValues(int32_t* _leftCnt, int32_t* rightCnt);
   void getValuesI(int32_t* _leftCnt, int32_t* rightCnt);
+  QEIDriver* getLeftDriver() const;
+  QEIDriver* getRightDriver() const;
 
 private:
   QEIDriver* m_leftDriver;
