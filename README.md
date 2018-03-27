@@ -1,13 +1,17 @@
 # robot2017
 
-Software for the robot 2017.
+Software for the robots 2018.
 
 - `firmware`: firmware of the NucleoL476 board, based on ChibiOS RTOS.
 - `ros_ws`: workspace ROS to be run on the embedded computer.
 
 ## System dependencies
 
-Ubuntu 16.04 with `ros-kinetic-dektop-full` is needed.
+For the development, Ubuntu 16.04 with `ros-kinetic-dektop-full` is needed.
+
+Plus:
+
+- `python-catkin-tools`
 
 ## Build
 
@@ -17,6 +21,8 @@ Make sure you initialize and update the submodules in order to build.
     $ cd robot2017
     $ git submodule init
     $ git submodule update
+    $ cd ros_ws
+    $ catkin build
 
 ## Firmware
 
@@ -39,9 +45,11 @@ Add user to `dialout` group (login or reboot needed)
     $ sudo adduser $USER dialout
 
 ### Rosserial
+
 To generate the rosserial headers:
 
     $ cd ros_ws
+    $ catkin build
     $ source devel/setup.bash
     $ cd ../firmware/common
     $ rm -r ros_lib
