@@ -63,6 +63,9 @@ struct Board
   template <typename T> T boundServo(T _in, T _min, T _max);
 
   // Components
+  // Timer @ 1 MHz, Period = 1 k -> PWM @ 1 kHz
+  static constexpr uint32_t kPwmTimerFrequency{1'000'000};
+  static constexpr uint16_t kPwmTimerPeriod{1000};
   MonsterShield leftMotor;
   MonsterShield rightMotor;
   Motors motors;

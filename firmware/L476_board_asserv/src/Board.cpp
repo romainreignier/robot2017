@@ -33,8 +33,8 @@ static const I2CConfig i2c2cfg = {
 
 Board::Board()
   : // Components
-    leftMotor{&PWMD3, 3, false, GPIOB, 4, GPIOB, 5, NULL, 0},
-    rightMotor{&PWMD3, 4, false, GPIOD, 2, GPIOC, 12, NULL, 0},
+    leftMotor{&PWMD3, kPwmTimerFrequency, kPwmTimerPeriod, 3, false, GPIOB, 4, GPIOB, 5, NULL, 0},
+    rightMotor{&PWMD3, kPwmTimerFrequency, kPwmTimerPeriod, 4, false, GPIOD, 2, GPIOC, 12, NULL, 0},
     motors(leftMotor, rightMotor), qei{&QEID1, true, &QEID2, false},
     starter{GPIOC, 13}, startingSide{GPIOC, 1}, selector{GPIOB, 12},
     eStop{GPIOC, 5, PAL_MODE_INPUT_PULLUP},
