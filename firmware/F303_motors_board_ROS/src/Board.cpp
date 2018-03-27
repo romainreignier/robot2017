@@ -28,10 +28,8 @@ static uint16_t g_leftTimerACount = 0;
 static int32_t g_leftMeasuredSpeedWithTimer = 0;
 static int32_t g_rightMeasuredSpeedWithTimer = 0;
 
-static void leftEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
+static void leftEncoderChAExtCb(void*)
 {
-  (void)_extp;
-  (void)_channel;
   const uint16_t secondRisingEdgeCount = (uint16_t)LEFT_ENCODER_COUNT_TIMER.tim->CNT;
   const int chBLevel = palReadPad(GPIOB, 5);
 
@@ -51,10 +49,8 @@ static void leftEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
   g_righTimerACount = secondRisingEdgeCount;
 }
 
-static void rightEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
+static void rightEncoderChAExtCb(void*)
 {
-  (void)_extp;
-  (void)_channel;
   const uint16_t secondRisingEdgeCount = (uint16_t)RIGHT_ENCODER_COUNT_TIMER.tim->CNT;
   const int chBLevel = palReadPad(GPIOA, 1);
 
@@ -75,44 +71,6 @@ static void rightEncoderChAExtCb(EXTDriver* _extp, expchannel_t _channel)
 }
 
 // Drivers configs
-static const EXTConfig extcfg = {
-  {{EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOA,
-    rightEncoderChAExtCb}, // 0
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   // {EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB,
-   // leftEncoderChAExtCb}, // 4
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL},
-   {EXT_CH_MODE_DISABLED, NULL}}};
-
 // ADC for motors current checking
 static const ADCConversionGroup adcConversionGroup = {
   TRUE,
@@ -258,7 +216,12 @@ void Board::begin()
   // gptStartContinuous(&LEFT_ENCODER_COUNT_TIMER, 0xffff);
   gptStart(&RIGHT_ENCODER_COUNT_TIMER, &encodersCountGptCfg);
   gptStartContinuous(&RIGHT_ENCODER_COUNT_TIMER, 0xffff);
-  extStart(&EXTD1, &extcfg);
+
+  // Enable callback on rising edge
+  palEnablePadEvent(GPIOA, 0, PAL_EVENT_MODE_RISING_EDGE);
+  palSetPadCallback(GPIOA, 0, rightEncoderChAExtCb, this);
+  palEnablePadEvent(GPIOA, 4, PAL_EVENT_MODE_RISING_EDGE);
+  palSetPadCallback(GPIOA, 4, leftEncoderChAExtCb, this);
 
   // Start each component
   qei.begin();

@@ -42,7 +42,7 @@ int main(void)
     waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO, ThreadBlinker, NULL);
 
   systime_t timeLastStatus = chVTGetSystemTimeX();
-  const systime_t statusPeriod = MS2ST(500);
+  const systime_t statusPeriod = TIME_MS2I(500);
 
   DEBUG("Supmeca Never Dies!!!!");
   while(true)

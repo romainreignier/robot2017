@@ -3,7 +3,7 @@
 ../common/ChibiOS/os/common/ports/ARMCMx/compilers/GCC
 ../common/ChibiOS/os/common/ports/ARMCMx
 ../common/ChibiOS/os/common/ext/CMSIS/include
-../common/ChibiOS/os/common/ext/CMSIS/ST/STM32F3xx
+../common/ChibiOS/os/common/ext/ST/STM32F3xx
 ../common/ChibiOS/os/common/startup/ARMCMx/devices/STM32F3xx
 ../common/ChibiOS/os/common/oslib/include
 ../common/ChibiOS/os/license
@@ -21,7 +21,7 @@
 ../common/ChibiOS/os/hal/ports/STM32/LLD/TIMv1
 ../common/ChibiOS/os/hal/ports/STM32/LLD/USARTv2
 ../common/ChibiOS/os/hal/ports/STM32/STM32F3xx
-../common/ChibiOS/os/hal/boards/ST_NUCLEO32_303K8
+../common/ChibiOS/os/hal/boards/ST_NUCLEO32_F303K8
 ../common/ChibiOS-Contrib/os/hal/include
 ../common/ChibiOS-Contrib/os/hal/ports/STM32/LLD/TIMv1
 ../common/ChibiOS/os/various

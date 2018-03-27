@@ -87,9 +87,11 @@ PROJECT = ch
 
 # Imported source files and paths
 COMMON = ../common
-PROTOMSGDIR = ../../msg
 CHIBIOS = $(COMMON)/ChibiOS
 CHIBIOS_CONTRIB = $(COMMON)/ChibiOS-Contrib
+
+# Licensing files.
+include $(CHIBIOS)/os/license/license.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
 # HAL-OSAL files (optional).
