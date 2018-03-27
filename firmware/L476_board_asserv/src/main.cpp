@@ -343,6 +343,7 @@ static void cmd_found_pwm(BaseSequentialStream* chp, int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
+    (void)chp;
     gBoard.FoundPWM();
 }
 

@@ -50,7 +50,7 @@ Board::Board()
     smoothRotation(1.0),
     linear_speed(0.0),
     G_X_mm(0.0),G_Y_mm(0.0),G_Theta_rad(0.0),
-    tickg(0),tickr(0)
+    tickr(0),tickg(0)
 {
 }
 
@@ -366,26 +366,26 @@ void Board::asserv()
 
   //############## Gestion PID ##############
   //##############   Distance  ##############
-  if(erreurDistance >= 0.0)
+  if(erreurDistance >= 0.0f)
       correctionDistance = (kpDist * erreurDistance +
             ( kdDist * (erreurDistance
             - lastErreurDistance)) )
-            + 700.0 + compensationDist;
+            + 700.0f + compensationDist;
   else
       correctionDistance = ( kpDist * erreurDistance +
              ( kdDist * (erreurDistance - lastErreurDistance ))) -
-             700.0 + compensationDist;
+             700.0f + compensationDist;
 
   //############## Gestion PID ##############
   //##############    Angle    ##############
-  if(erreurAngle >= 0.0)
+  if(erreurAngle >= 0.0f)
       correctionAngle = ( kpAng * erreurAngle +
              ( kdAng * (erreurAngle - lastErreurAngle))) +
-             650.0 + compensationAng;
+             650.0f + compensationAng;
   else
       correctionAngle = ( kpAng * erreurAngle +
               (kdAng * (erreurAngle - lastErreurAngle))) -
-              650.0 + compensationAng;
+              650.0f + compensationAng;
 
   //############## Compensation ##############
   //##############   Distance  ##############

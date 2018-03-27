@@ -56,7 +56,7 @@ ComplexMove(){
 //    listCoord.push_back(Coord(402,392,UNDEFINED_THETA));
 //    listCoord.push_back(Coord(410,467.5,90));
     gBoard.finish=false;
-    for(int8_t i=0 ; i < listCoord.size() ; ++i)
+    for(uint8_t i=0 ; i < listCoord.size() ; ++i)
     {
         directionTheta = atan2(listCoord[i].Y - gBoard.G_Y_mm,listCoord[i].X - gBoard.G_X_mm);
         distance = hypot((listCoord[i].X - gBoard.G_X_mm),(listCoord[i].Y - gBoard.G_Y_mm));
