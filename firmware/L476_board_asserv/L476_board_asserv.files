@@ -1,11 +1,16 @@
 src/Board.cpp
 src/Board.h
+src/RosSerial.cpp
+src/RosSerial.h
+src/trajecto.cpp
+src/trajecto.h
 src/main.cpp
 chconf.h
 halconf.h
 halconf_community.h
 mcuconf.h
 mcuconf_community.h
+Makefile
 ../common/Motor/Motors.h
 ../common/Motor/Motors.cpp
 ../common/Motor/Motor.h
@@ -35,3 +40,5 @@ mcuconf_community.h
 ../common/pca9685/PCA9685.cpp
 ../common/tcs34725_adafruit/Adafruit_TCS34725.h
 ../common/tcs34725_adafruit/Adafruit_TCS34725.cpp
+../common/RunningAverage/RunningAverage.h
+../common/RunningAverage/RunningAverage.mk

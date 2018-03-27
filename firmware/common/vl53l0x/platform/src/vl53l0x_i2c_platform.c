@@ -16,7 +16,7 @@
 
 static const I2CDriver* i2cDriver;
 static i2cflags_t errors = 0;
-static const systime_t timeout = OSAL_MS2ST(400);
+static const systime_t timeout = OSAL_MS2I(400);
 
 int VL53L0X_i2c_init(const I2CDriver* driver, const I2CConfig* config)
 {

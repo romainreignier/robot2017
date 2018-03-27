@@ -6,7 +6,6 @@
  */
 
 #include "Motor.h"
-#include "Board.h"
 
 Motor::Motor(PWMDriver* _driver, const uint32_t _timerFrequency,
              const uint32_t _timerPeriod, const uint8_t _channel,

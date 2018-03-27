@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O2 -lm -ggdb -fomit-frame-pointer -falign-functions=16
 endif
 
 # C specific options here (added to USE_OPT).
@@ -108,6 +108,7 @@ include $(COMMON)/Qei/Qei.mk
 include $(COMMON)/pca9685/pca9685.mk
 include $(COMMON)/Gpio/Gpio.mk
 include $(COMMON)/ros_lib/ros.mk
+include $(COMMON)/RunningAverage/RunningAverage.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32L476xG.ld
@@ -130,7 +131,7 @@ CSRC = $(STARTUPSRC) \
 CPPSRC = $(CHIBIOS)/os/various/cpp_wrappers/syscalls_cpp.cpp \
          $(MOTORSRC) $(QEISRC) $(PCA9685SRC) $(GPIOSRC) \
          $(ROSSRC) \
-         src/Board.cpp src/main.cpp
+         src/Board.cpp src/RosSerial.cpp src/trajecto.cpp src/main.cpp
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
@@ -163,7 +164,7 @@ INCDIR = $(CHIBIOS)/os/license \
          $(CHIBIOS)/os/various/cpp_wrappers \
          $(SHELLINC) \
          $(MOTORINC) $(QEIINC) $(GPIOINC) \
-         $(PCA9685INC) $(ROSINC) \
+         $(PCA9685INC) $(ROSINC) $(RUNNINGAVERAGEINC) \
          src
 
 #
@@ -238,8 +239,16 @@ ULIBS =
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 
-.PHONY: flash
+
+
+.PHONY: flash rasp copyonrasp openocdorasp
 flash: build/$(PROJECT).elf
 	openocd -f board/st_nucleo_l476rg.cfg -c "program build/$(PROJECT).elf verify reset exit"
 
+copyonrasp:
+	scp build/ch.elf snd@snd:DirectDeploie
+openocdonrasp:
+	ssh snd@snd 'openocd -f board/st_nucleo_l476rg.cfg -c "program DirectDeploie/ch.elf verify reset exit"'
+
+rasp: build/$(PROJECT).elf copyonrasp openocdonrasp
 # vim: ts=2 sw=2 et

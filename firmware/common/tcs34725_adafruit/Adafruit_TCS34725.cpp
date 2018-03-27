@@ -46,7 +46,7 @@ void Adafruit_TCS34725::write8(uint8_t reg, uint32_t value)
   txBuf[1] = value & 0xFF;
   i2cAcquireBus(_driver);
   i2cMasterTransmitTimeout(
-    _driver, TCS34725_ADDRESS, txBuf, 2, NULL, 0, OSAL_MS2ST(4));
+    _driver, TCS34725_ADDRESS, txBuf, 2, NULL, 0, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
 }
 
@@ -62,7 +62,7 @@ uint8_t Adafruit_TCS34725::read8(uint8_t reg)
   txBuf[0] = TCS34725_COMMAND_BIT | reg;
   i2cAcquireBus(_driver);
   i2cMasterTransmitTimeout(
-    _driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 1, OSAL_MS2ST(4));
+    _driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 1, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
   return rxBuf[0];
 }
@@ -79,7 +79,7 @@ uint16_t Adafruit_TCS34725::read16(uint8_t reg)
   txBuf[0] = TCS34725_COMMAND_BIT | reg;
   i2cAcquireBus(_driver);
   i2cMasterTransmitTimeout(
-    _driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 2, OSAL_MS2ST(4));
+    _driver, TCS34725_ADDRESS, txBuf, 1, rxBuf, 2, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
   return (uint16_t)(((uint16_t)(rxBuf[1]) << 8) + rxBuf[0]);
 }
@@ -220,7 +220,7 @@ void Adafruit_TCS34725::getRawData(uint16_t* r, uint16_t* g, uint16_t* b,
 void Adafruit_TCS34725::waitIntegrationTime(void)
 {
   const systime_t now = osalOsGetSystemTimeX();
-  const systime_t it = MS2ST(getIntegrationTimeMs());
+  const systime_t it = OSAL_MS2I(getIntegrationTimeMs());
   if((now - _timeLastRead) < it)
   {
     /* Set a delay for the integration time */
@@ -317,7 +317,7 @@ void Adafruit_TCS34725::clearInterrupt(void)
   txBuf[0] = 0x66;
   i2cAcquireBus(_driver);
   i2cMasterTransmitTimeout(
-    _driver, TCS34725_ADDRESS, txBuf, 1, NULL, 0, OSAL_MS2ST(4));
+    _driver, TCS34725_ADDRESS, txBuf, 1, NULL, 0, OSAL_MS2I(4));
   i2cReleaseBus(_driver);
 }
 

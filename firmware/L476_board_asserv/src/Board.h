@@ -10,6 +10,10 @@
 #include "Output.h"
 #include "PCA9685.hpp"
 #include "Qei.h"
+#include "RunningAverage.h"
+
+#define DTOR 0.0174532925199433
+#define RTOD 57.29577951308230
 
 #define SERIAL_DRIVER SD2
 #define DEBUG_DRIVER SD2
@@ -37,6 +41,7 @@ struct Board
   void startPIDTimer();
   void stopPIDTimer();
   void PIDTimerCb();
+  void move(float pDistance, float pTheta);
   void moveLinear(float _distance);
   void moveAngular(float _angle);
   void moveLinearEchelon(float _distance);
@@ -45,6 +50,13 @@ struct Board
   void asserv();
   void printErrors();
   int16_t boundPwm(int16_t _pwm);
+  void lectureCodeur();
+  float normalize_angle(float angle);
+  float normalize_angle_positive(float angle);
+  void needMotorGraph();
+  void SetInitPosition(const float & pX, const float & pY, const float & pTheta);
+  void DisplayInfo();
+  void FoundPWM();
 
   // helpers
   template <typename T> T bound(T _in, T _min, T _max);
@@ -56,7 +68,7 @@ struct Board
   Motors motors;
   Qei qei;
   Input starter;
-  Input colorSwitch;
+  Input startingSide;
   Input selector;
   Input eStop;
   Input frontProximitySensor;
@@ -77,10 +89,9 @@ struct Board
   static constexpr uint16_t kServoMax = 700;
   Output tcsLed;
 
-  uint16_t pidTimerPeriodMs = 20;
+  static constexpr uint32_t kPidTimerPeriodMs = 10;
+  static constexpr uint32_t kQeiTimerFrequency = 500000;
 
-  volatile int32_t lastLeftTicks;
-  volatile int32_t lastRightTicks;
   float cibleDistance;
   float cibleAngle;
   int16_t maxPwm;
@@ -92,12 +103,16 @@ struct Board
   volatile float erreurAngle;
   volatile float lastErreurDistance;
   volatile float lastErreurAngle;
+  volatile int16_t cptRestOnPosition;
+  volatile int16_t cptRestOnAngle;
+  volatile int16_t compensationDist;
+  volatile int16_t compensationAng;
   float kpDist;
   float kpAng;
-  float kdDist;
-  float kdAng;
   float kiDist;
   float kiAng;
+  float kdDist;
+  float kdAng;
   volatile float iTermDist;
   volatile float iTermAng;
   float iMinDist;
@@ -109,19 +124,39 @@ struct Board
   bool mustComputeTraj;
   volatile int16_t leftPwm;
   volatile int16_t rightPwm;
+  float leftSpeed;
+  float rightSpeed;
+  RunningAverage<int32_t, 2> leftQeiAvg;
+  RunningAverage<int32_t, 2> rightQeiAvg;
+  int32_t leftQeiCnt = 0;
+  int32_t rightQeiCnt = 0;
 
   float vLinMax;
   float vAngMax;
 
-  static constexpr float kPi = 3.14159265358979323846;
-  static constexpr float wheelSeparationMM = 102.1;
+  float smoothRotation;
+  float linear_speed;
+
+  static constexpr float kPi = 3.14159265358979323846f;
+  float wheelSeparationMM = 111.725f;
   static constexpr int32_t encoderResolution = 2400;
-  static constexpr float leftWheelRadius = 26.125;
-  static constexpr float rightWheelRadius = 26.075;
+  static constexpr float leftWheelRadius = 26.195f;
+  static constexpr float rightWheelRadius = 26.164f;//26.075 // 26.0359
   static constexpr float LEFT_TICKS_TO_MM =
     (2 * kPi * leftWheelRadius) / encoderResolution;
   static constexpr float RIGHT_TICKS_TO_MM =
     (2 * kPi * rightWheelRadius) / encoderResolution;
+
+  float G_X_mm;
+  float G_Y_mm;
+  float G_Theta_rad;
+  float dD;
+  float dA;
+  float drr;
+  float drg;
+  float lprecedent;
+  float tickr;
+  float tickg;
 };
 
 template <typename T> T Board::bound(T _in, T _min, T _max)

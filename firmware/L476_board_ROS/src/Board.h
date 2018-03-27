@@ -129,12 +129,12 @@ struct Board
   systime_t timeLastSensors;
   uint8_t globalStatus;
   static constexpr uint16_t kCurrentThreshold = 6000;
-  static constexpr systime_t kMaxTimeOverCurrent = MS2ST(1000);
+  static constexpr systime_t kMaxTimeOverCurrent = TIME_MS2I(1000);
   // (Vmax (mV) * ratio Iout/Isense) / (maxAdc * RSense)
   static constexpr float kAdcToMilliAmps = (3300 * 11370) / (4095 * 1500);
-  static constexpr systime_t kStatusPeriod = MS2ST(500);
-  static constexpr systime_t kSensorsPeriod = MS2ST(50);
-  static constexpr systime_t kFeedbackPeriod = MS2ST(25);
+  static constexpr systime_t kStatusPeriod = TIME_MS2I(500);
+  static constexpr systime_t kSensorsPeriod = TIME_MS2I(50);
+  static constexpr systime_t kFeedbackPeriod = TIME_MS2I(25);
 
   uint16_t pidTimerPeriodMs = 10;
   PID leftMotorPid;

@@ -6,7 +6,6 @@
  */
 
 #include "ArdumotoShield.h"
-#include "Board.h"
 
 ArdumotoShield::ArdumotoShield(PWMDriver* _driver,
                                const uint32_t _timerFrequency,
