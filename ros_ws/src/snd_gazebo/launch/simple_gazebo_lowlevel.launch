@@ -32,7 +32,7 @@
     <node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map odom 100"/>
 
     <node name="polar_control" pkg="snd_robot_control" type="polar_control_node" output="screen">
-        <param name="output_pwm" value="true"/>
+        <param name="output_pwm" value="false"/>
         <param name="use_acceleration" value="false"/>
     </node>
 

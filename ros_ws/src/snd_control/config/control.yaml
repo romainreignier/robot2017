@@ -38,10 +38,7 @@ snd_joint_publisher:
 snd_hardware:
     left_wheel_joint_name: "left_wheel_joint"
     right_wheel_joint_name: "right_wheel_joint"
-    encoder_resolution: 2400
-    serial_port: "/dev/ttyACM0"
-    serial_baudrate: 115200
-    serial_timeout: 200 # ms
+    encoder_resolution: 1920
 
 snd_velocity_controller:
     type: "diff_drive_encoders_controller/DiffDriveEncodersController"
@@ -56,17 +53,17 @@ snd_velocity_controller:
     wheel_radius_multiplier    : 1.0 # default: 1.0
 
     # Encoder wheels separation and radius [m]
-    encoder_wheel_separation: 0.1035
-    left_encoder_wheel_radius: 0.0261
-    right_encoder_wheel_radius: 0.0261
+    encoder_wheel_separation: 0.230
+    left_encoder_wheel_radius: 0.03
+    right_encoder_wheel_radius: 0.03
 
     # Motor wheels separation and radius [m]
-    motor_wheel_separation: 0.187
-    left_motor_wheel_radius: 0.0355
-    right_motor_wheel_radius: 0.0355
+    motor_wheel_separation: 0.230
+    left_motor_wheel_radius: 0.03
+    right_motor_wheel_radius: 0.03
 
     # Velocity commands timeout [s], default 0.5
-    cmd_vel_timeout: 0.5
+    cmd_vel_timeout: 2.0
 
     enable_odom_tf: true
 
@@ -78,18 +75,18 @@ snd_velocity_controller:
 
     # Velocity and acceleration limits
     # Whenever a min_* is unspecified, default to -max_*
-    linear:
-        x:
-            has_velocity_limits    : true
-            max_velocity           : 1.0   # m/s
-            has_acceleration_limits: true
-            max_acceleration       : 0.5   # m/s²
-    angular:
-        z:
-            has_velocity_limits    : true
-            max_velocity           : !degrees 180.0 # degrees/s
-            has_acceleration_limits: true
-            max_acceleration       : !degrees 360.0 # degrees/s²
+    # linear:
+    #     x:
+    #         has_velocity_limits    : true
+    #         max_velocity           : 1.0   # m/s
+    #         has_acceleration_limits: true
+    #         max_acceleration       : 0.5   # m/s²
+    # angular:
+    #     z:
+    #         has_velocity_limits    : true
+    #         max_velocity           : !degrees 180.0 # degrees/s
+    #         has_acceleration_limits: true
+    #         max_acceleration       : !degrees 360.0 # degrees/s²
 
 snd_robot:
     joint_state_publisher:

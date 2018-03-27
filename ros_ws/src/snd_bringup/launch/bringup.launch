@@ -34,14 +34,14 @@
     <node pkg="topic_tools" type="relay" name="odom_relay"
         args="snd_velocity_controller/odom /odom"/>
 
-    <node pkg="snd_moves" type="test_joy_node" name="test_joy" output="screen"/>
+    <!--node pkg="snd_moves" type="test_joy_node" name="test_joy" output="screen"/-->
 
     <!-- RPlidar -->
-	<node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+	<!--node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
 		<param name="serial_port"         type="string" value="/dev/ttyUSB0"/>  
 		<param name="serial_baudrate"     type="int"    value="115200"/>
 		<param name="frame_id"            type="string" value="rplidar_link"/>
 		<param name="inverted"            type="bool"   value="false"/>
 		<param name="angle_compensate"    type="bool"   value="true"/>
-	</node>
+	</node-->
 </launch>
