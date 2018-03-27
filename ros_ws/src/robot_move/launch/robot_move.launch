@@ -1,0 +1,99 @@
+<?xml version="1"?>
+<launch>
+    <env name="ROSCONSOLE_FORMAT" value="[${time}] [${node}-${logger}-${severity}] : ${message}"/>
+
+    <node name="static_tf0" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /map /odom 100"/>
+
+    <node name="robot_move" pkg="robot_move" type="robot_move" output="screen">
+        <!--rosparam ns="costmap">
+            publish_frequency: 10.0
+            footprint: [[-0.25, -0.31], [-0.25, 0.31], [0.25, 0.31], [0.25, -0.31]]
+            footprint_padding: 0.0
+            rolling_window: true
+            width: 6.0
+            height: 6.0
+            resolution: 0.05
+            observation_sources: laser
+            inflation_radius: .45
+            laser:
+                topic: "/d_lms/scan_raw"
+                data_type: "LaserScan"
+                clearing: true
+                obstacle_range: 8.0
+                max_raytrace_range: 8.0
+                min_raytrace_range: 0.
+                fov_deg: 270
+
+        </rosparam-->
+        <rosparam ns="costmap">
+            wait_for_transform: false
+            pose_update_frequency: 10.0
+            update_frequency: 5.0
+            publish_frequency: 1.0
+            footprint: [[-0.1, -0.1], [-0.1, 0.1], [0.1, 0.1], [0.1, -0.1]]
+            rolling_window: true
+            global_frame: /odom
+            width: 3.0
+            height: 3.0
+            resolution: 0.005
+            observation_sources: "laser"
+            inflation_radius: 0.1
+            laser:
+                topic: "/scan"
+                data_type: "LaserScan"
+                clearing: true
+                obstacle_range: 4.0
+                max_raytrace_range: 4.0
+                min_raytrace_range: 0.
+                fov_deg: 360
+        </rosparam>
+        <rosparam ns="dwb_local_planner">
+            use_dwa: false
+            min_vel_y: 0
+            max_vel_y: 0
+            acc_lim_y: 0
+            decel_lim_y: 0
+            PathDist:
+                scale: 64
+        </rosparam>
+    </node>
+
+    <!--node pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find bring_up)/rviz/config.rviz"/-->
+</launch>
+
+<!-- critics: ["PathDist", "GoalDist"]
+
+
+wait_for_transform: false
+            pose_update_frequency: -1.0
+            update_frequency: -1.0
+            origin_x: -5.0
+            origin_y: -5.0
+            global_frame: /odom
+            observation_sources: "laser"
+            inflation_radius: .45
+            laser:
+                topic: "/d_lms/scan_raw"
+                data_type: "LaserScan"
+                clearing: true
+                obstacle_range: 8.0
+                max_raytrace_range: 8.0
+                min_raytrace_range: 0.
+                fov_deg: 270
+
+ wait_for_transform: false
+            pose_update_frequency: 10.0
+            update_frequency: 10.0
+            publish_frequency: 10.0
+            width: 3.0
+            height: 3.0
+            resolution: 0.01
+            origin_x: 0.0
+            origin_y: 0.0
+            rolling_window: true
+            global_frame: /odom
+            #robot_base_frame: base_link
+            observation_sources: "laser"
+            inflation_radius: .45
+                -->
