@@ -185,8 +185,8 @@ void Homologation::run()
     const float wheelRadius = 0.026;
     const int desiredTicks = static_cast<int>(
       m_desiredDistance / (2 * M_PI * wheelRadius) * encoderResolution);
-    if((m_encodersMsg->left_pos - m_startPos->left_pos) < desiredTicks &&
-       (m_encodersMsg->right_pos - m_startPos->right_pos) < desiredTicks)
+    if((m_encodersMsg->left - m_startPos->left) < desiredTicks &&
+       (m_encodersMsg->right - m_startPos->right) < desiredTicks)
     {
       if(isObstacleDetected(m_obstacleThreshold))
       {
