@@ -12,7 +12,7 @@ struct Coord{
     float_t Theta;
     Coord(float_t pX,float_t pY,float_t pTheta = UNDEFINED_THETA){
         X=pX;
-        Y=pX;
+        Y=pY;
         Theta=pTheta;
     }
 };
@@ -69,7 +69,7 @@ ComplexMove(){
             chprintf(dbg, "distance: %f\r\n", distance);
         }
 
-        if(listCoord[i].Theta =! UNDEFINED_THETA){
+        if(listCoord[i].Theta != UNDEFINED_THETA){
             gBoard.moveAngular(
                         gBoard.normalize_angle(listCoord[i].Theta * DTOR - gBoard.G_Theta_rad));
         }
