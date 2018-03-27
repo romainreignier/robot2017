@@ -3,7 +3,7 @@
 ../common/ChibiOS/os/common/ports/ARMCMx/compilers/GCC
 ../common/ChibiOS/os/common/ports/ARMCMx
 ../common/ChibiOS/os/common/ext/CMSIS/include
-../common/ChibiOS/os/common/ext/CMSIS/ST/STM32L4xx
+../common/ChibiOS/os/common/ext/ST/STM32L4xx
 ../common/ChibiOS/os/common/startup/ARMCMx/devices/STM32L4xx
 ../common/ChibiOS/os/common/oslib/include
 ../common/ChibiOS/os/license
