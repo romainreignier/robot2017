@@ -54,7 +54,7 @@ OdomResults computeOdom(rosbag::View& bagView, const OdomInputs& in)
     {
       snd_msgs::EncodersConstPtr ticks = m.instantiate<snd_msgs::Encoders>();
       if(ticks == nullptr) continue;
-      const Pose pose = odom.computeOdom(ticks->left_pos, ticks->right_pos);
+      const Pose pose = odom.computeOdom(ticks->left, ticks->right);
       const double time = m.getTime().toSec();
       res.x.emplace_back(time, pose.x);
       res.y.emplace_back(time, pose.y);

@@ -12,7 +12,6 @@ void encodersCb(const snd_msgs::EncodersConstPtr& _msg)
   {
     const ros::Duration dt = _msg->header.stamp - lastMsg->header.stamp;
     snd_msgs::Motors speed;
-    speed.header = _msg->header;
     speed.left = (_msg->left - lastMsg->left) / dt.toSec();
     speed.right = (_msg->right - lastMsg->right) / dt.toSec();
     speedPub.publish(speed);

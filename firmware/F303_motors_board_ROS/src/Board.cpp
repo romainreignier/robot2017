@@ -257,10 +257,10 @@ void Board::publishFeedback()
   {
     rightMeasuredSpeedWithTimer = g_rightMeasuredSpeedWithTimer;
     gBoard.mustPublishFeedback = false;
-    encodersMsg.left_pos = leftQeiCnt;
-    encodersMsg.right_pos = rightQeiCnt;
-    encodersMsg.left_speed = leftMotorSpeed;
-    encodersMsg.right_speed = rightMotorSpeed;
+    encodersMsg.left = leftQeiCnt;
+    encodersMsg.right = rightQeiCnt;
+    // encodersMsg.left_speed = leftMotorSpeed;
+    // encodersMsg.right_speed = rightMotorSpeed;
   }
   chSysUnlock();
 

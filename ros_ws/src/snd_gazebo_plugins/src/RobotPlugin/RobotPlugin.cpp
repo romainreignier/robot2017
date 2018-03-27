@@ -187,8 +187,8 @@ void GazeboRosDiffDriveLowLevel::publishFakeEncoders()
       static_cast<int64_t>((wheel_absolute_angle_[i] * encoder_resolution_) / (2 * M_PI));
   }
   snd_msgs::Encoders msg;
-  msg.left_pos = static_cast<int32_t>(encoder_counter_[LEFT]);
-  msg.right_pos = static_cast<int32_t>(encoder_counter_[RIGHT]);
+  msg.left = static_cast<int32_t>(encoder_counter_[LEFT]);
+  msg.right = static_cast<int32_t>(encoder_counter_[RIGHT]);
   encoders_publisher_.publish(msg);
 }
 

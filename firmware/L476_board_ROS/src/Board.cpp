@@ -249,12 +249,12 @@ void Board::main()
 void Board::publishFeedback()
 {
   encodersMsg.header.stamp = nh.now();
-  gBoard.qei.getValues(&encodersMsg.left_pos, &encodersMsg.right_pos);
+  gBoard.qei.getValues(&encodersMsg.left, &encodersMsg.right);
   encodersPub.publish(&encodersMsg);
 
   commandsMsg.header.stamp = nh.now();
-  commandsMsg.left_pos = static_cast<int16_t>(leftMotorPwm);
-  commandsMsg.right_pos = static_cast<int16_t>(rightMotorPwm);
+  commandsMsg.left = static_cast<int16_t>(leftMotorPwm);
+  commandsMsg.right = static_cast<int16_t>(rightMotorPwm);
   commandsPub.publish(&commandsMsg);
 }
 

@@ -416,8 +416,8 @@ void PolarControl::lectureCodeur(int32_t& _dLeft, int32_t& _dRight)
   if(m_lastEncoders)
   {
     // Retrieve the values from a locked system
-    _dLeft = m_lastEncoders->left_pos - m_previousEncoders->left_pos;
-    _dRight = m_lastEncoders->right_pos - m_previousEncoders->right_pos;
+    _dLeft = m_lastEncoders->left - m_previousEncoders->left;
+    _dRight = m_lastEncoders->right - m_previousEncoders->right;
     m_previousEncoders = m_lastEncoders;
   }
   else
