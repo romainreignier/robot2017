@@ -73,7 +73,7 @@ void PolarControlROS::moveActionCb()
     m_moveAs.setPreempted(snd_msgs::MoveToResult{}, "Action already preempted");
   }
 
-  m_control.setTargetPose({goal->x, goal->y, goal->theta});
+  m_control.setTargetPose({goal->x, goal->y, goal->theta}, getCurrentPose());
 }
 
 void PolarControlROS::movePreemptCb()
@@ -81,11 +81,11 @@ void PolarControlROS::movePreemptCb()
   ROS_WARN("Action preempted");
   // Set current position as target
   // TODO see if it is a good idea
-  m_control.setTargetPose(getCurrentPose());
+  m_control.setTargetPose(getCurrentPose(), getCurrentPose());
   m_moveAs.setPreempted(snd_msgs::MoveToResult{}, "Action preempted");
 }
 
-void PolarControlROS::update(const ros::TimerEvent&)
+void PolarControlROS::update(const ros::TimerEvent& _event)
 {
   snd_msgs::Motors msg;
   if(!m_lastOdom)
@@ -94,8 +94,9 @@ void PolarControlROS::update(const ros::TimerEvent&)
   }
   else
   {
-
-    const auto& cmd = m_control.computeMotorsCommands(getCurrentPose());
+    const float dt =
+      static_cast<float>((_event.current_real - _event.last_real).toSec());
+    const auto& cmd = m_control.computeMotorsCommands(getCurrentPose(), dt);
 
     if(m_control.isGoalReached())
     {
@@ -113,9 +114,10 @@ Pose PolarControlROS::getCurrentPose() const
   Pose p;
   if(m_lastOdom)
   {
-    p.x = m_lastOdom->pose.pose.position.x;
-    p.y = m_lastOdom->pose.pose.position.y;
-    p.theta = tf2::getYaw(m_lastOdom->pose.pose.orientation);
+    p.x = static_cast<float>(m_lastOdom->pose.pose.position.x);
+    p.y = static_cast<float>(m_lastOdom->pose.pose.position.y);
+    p.theta =
+      static_cast<float>(tf2::getYaw(m_lastOdom->pose.pose.orientation));
   }
   return p;
 }

@@ -28,7 +28,7 @@ protected:
   void movePreemptCb();
 
   // Timer Callback
-  void update(const ros::TimerEvent&);
+  void update(const ros::TimerEvent&_event);
 
   // Helpers
   Pose getCurrentPose() const;

@@ -1,6 +1,5 @@
 #include "PolarControl.h"
 
-#include "angles.h"
 
 PolarControl::PolarControl()
 {
@@ -11,21 +10,33 @@ void PolarControl::setMaxOutput(float _max)
   m_maxOutput = _max;
 }
 
-void PolarControl::setTargetPose(const Pose& _target)
+void PolarControl::setTargetPose(const Pose& _target, const Pose& _current)
 {
   m_targetPose = _target;
   m_state = State::ROTATION_ALONG_PATH;
+  m_isGoalReached = false;
+  m_currentDesiredPose = _current;
+  m_currentActualPose = _current;
   m_linear.reset();
   m_angular.reset();
+  m_angular.setActualCommand(_current.theta);
+  m_angular.setDesiredCommand(_current.theta);
 }
 
 std::pair<float, float>
-PolarControl::computeMotorsCommands(const Pose& _currentPose)
+PolarControl::computeMotorsCommands(const Pose& _current, float _dt)
 {
   float linearError = 0;
   float angularError = 0;
 
+  // If angular error < threshold, compute linear component also
+  if(std::abs(m_targetPose.theta - m_angular.getDesiredCommand()) < m_endAngularMovementThreshold)
+  {
+      m_linear.computeDesiredCommand();
+  }
+
   // Compute the errors
+  /*
   switch(m_state)
   {
   case State::ROTATION_ALONG_PATH:
@@ -51,6 +62,8 @@ PolarControl::computeMotorsCommands(const Pose& _currentPose)
     break;
   }
   }
+  */
+
 
   // Check the errors
   if(std::abs(linearError) < m_linear.getTolerance() &&
@@ -69,22 +82,20 @@ PolarControl::computeMotorsCommands(const Pose& _currentPose)
         break;
       case State::ROTATION_ALONG_TARGET:
         m_isGoalReached = true;
-        m_state = State::ROTATION_ALONG_PATH;
+        // Reset everything for the next step
+        m_linear.reset();
+        m_angular.reset();
+        linearError = 0;
+        angularError = 0;
+        m_endControlIterations = 0;
         break;
       }
-
-      // Reset everything for the next step
-      m_linear.reset();
-      m_angular.reset();
-      linearError = 0;
-      angularError = 0;
-      m_endControlIterations = 0;
     }
   }
 
   // Compute the commands
-  const float linearCommand = m_linear.computeCommand(linearError);
-  const float angularCommand = m_angular.computeCommand(angularError);
+  const float linearCommand = m_linear.computeCommand(linearError, _dt);
+  const float angularCommand = m_angular.computeCommand(angularError, _dt);
 
   // Compute the commands per motors
   float leftCommand = linearCommand - angularCommand;
