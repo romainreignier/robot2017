@@ -11,7 +11,7 @@
     <!-- Rplidar -->
     <xacro:include filename="$(find snd_description)/urdf/sensors/rplidara2.urdf.xacro"/>
     <xacro:sensor_rplidara2 parent="base_link">
-        <origin xyz="0.0 0.0 0.05" rpy="0 0 1.570796327"/>
+        <origin xyz="0.0 0.0 ${body_height + 0.05}" rpy="0 0 1.570796327"/>
     </xacro:sensor_rplidara2>
 
 </robot>
