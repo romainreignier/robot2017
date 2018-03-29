@@ -44,6 +44,14 @@
         <param name="scale_angular" value="1.0"/>
     </node>
 
-    <node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map odom 100"/>
+    <node name="map_tf_broadcaster" pkg="tf" type="static_transform_publisher" args="1.505 1.005 0 0 0 0 map odom 100"/>
+
+    <node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server">
+        <remap from="twist_marker_server/cmd_vel" to="/cmd_vel" />
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find snd_navigation)/config/config.rviz"/>
+
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find snd_navigation)/maps/map_2018.yaml" output="screen"/>
 
 </launch>
